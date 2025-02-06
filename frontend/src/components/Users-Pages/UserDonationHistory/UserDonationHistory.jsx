@@ -1,196 +1,8 @@
-// import React, { useState, useEffect } from "react";
-// import Sidebar from "../UserSidebar/UserSidebar";
-// import { useLocation } from "react-router-dom";
-// import {
-//   Calendar,
-//   Utensils,
-//   MapPin,
-//   Package,
-//   Tag,
-//   Menu,
-// } from "lucide-react";
-
-// const UserDonationHistory = () => {
-//   const { state } = useLocation();
-//   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-//   useEffect(() => {
-//     const handleResize = () => {
-//       if (window.innerWidth < 1024) {
-//         setIsSidebarOpen(false);
-//       } else {
-//         setIsSidebarOpen(true);
-//       }
-//     };
-//     handleResize();
-
-//     window.addEventListener("resize", handleResize);
-
-//     return () => window.removeEventListener("resize", handleResize);
-//   }, []);
-
-//   const mockDonations = [
-//     {
-//       id: 1,
-//       foodType: "Homemade Meals",
-//       pickupLocation: "123 Main Street, City Center",
-//       preparationDate: "2025-01-01",
-//       expiryDate: "2025-01-02",
-//       numberOfDishes: 30,
-//       category: "Cooked Food",
-//       status: "Completed",
-//     },
-//     {
-//       id: 2,
-//       foodType: "Packaged Snacks",
-//       pickupLocation: "456 Park Avenue, Downtown",
-//       preparationDate: "2025-01-03",
-//       expiryDate: "2025-01-10",
-//       numberOfDishes: 50,
-//       category: "Dry Food",
-//       status: "In Progress",
-//     },
-//   ];
-
-//   const StatusBadge = ({ status }) => {
-//     const colors = {
-//       Completed: "bg-green-100 text-green-800",
-//       "In Progress": "bg-yellow-100 text-yellow-800",
-//     };
-//     return (
-//       <span
-//         className={`px-3 py-1 rounded-full text-sm font-medium ${colors[status]}`}
-//       >
-//         {status}
-//       </span>
-//     );
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-white-300 flex">
-//       <Sidebar
-//         isSidebarOpen={isSidebarOpen}
-//         setIsSidebarOpen={setIsSidebarOpen}
-//       />
-
-//       <div className="flex-1">
-//         <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 lg:px-8">
-//           <button
-//             onClick={() => setIsSidebarOpen((prev) => !prev)}
-//             className="lg:hidden text-gray-500 hover:text-gray-700"
-//             aria-label="Toggle sidebar"
-//           >
-//             <Menu className="h-6 w-6" />
-//           </button>
-//           <h1 className="text-xl font-bold text-gray-900">Donation History</h1>
-//         </header>
-
-//         <main className="p-4 lg:p-8">
-//           <div className="max-w-5xl mx-auto">
-//             <div className="flex items-center justify-between mb-6">
-//               <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                
-//               </h1>
-//               <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium">
-//                 Total Donations: {mockDonations.length}
-//               </div>
-//             </div>
-
-//             <div className="grid gap-6">
-//               {mockDonations.map((donation) => (
-//                 <div
-//                   key={donation.id}
-//                   className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200 overflow-hidden"
-//                 >
-//                   <div className="border-b border-gray-100 bg-gray-50 p-4 md:p-6">
-//                     <div className="flex flex-wrap items-center justify-between gap-4">
-//                       <div className="flex items-center space-x-3">
-//                         <div className="p-2 bg-green-100 rounded-lg">
-//                           <Utensils className="w-5 h-5 text-green-600" />
-//                         </div>
-//                         <div>
-//                           <h3 className="text-lg font-semibold text-gray-900">
-//                             {donation.foodType}
-//                           </h3>
-//                           <p className="text-sm text-gray-500">
-//                             {donation.category}
-//                           </p>
-//                         </div>
-//                       </div>
-//                       <StatusBadge status={donation.status} />
-//                     </div>
-//                   </div>
-
-//                   <div className="p-4 md:p-6">
-//                     <div className="grid md:grid-cols-2 gap-6">
-//                       <div className="space-y-4">
-//                         <div className="flex items-center space-x-3">
-//                           <MapPin className="w-5 h-5 text-gray-400" />
-//                           <div>
-//                             <p className="text-sm text-gray-500">
-//                               Pickup Location
-//                             </p>
-//                             <p className="text-gray-700">
-//                               {donation.pickupLocation}
-//                             </p>
-//                           </div>
-//                         </div>
-
-//                         <div className="flex items-center space-x-3">
-//                           <Calendar className="w-5 h-5 text-gray-400" />
-//                           <div>
-//                             <p className="text-sm text-gray-500">Dates</p>
-//                             <p className="text-gray-700">
-//                               {donation.preparationDate} - {donation.expiryDate}
-//                             </p>
-//                           </div>
-//                         </div>
-//                       </div>
-
-//                       <div className="space-y-4">
-//                         <div className="flex items-center space-x-3">
-//                           <Package className="w-5 h-5 text-gray-400" />
-//                           <div>
-//                             <p className="text-sm text-gray-500">Quantity</p>
-//                             <p className="text-gray-700">
-//                               {donation.numberOfDishes} dishes
-//                             </p>
-//                           </div>
-//                         </div>
-
-//                         <div className="flex items-center space-x-3">
-//                           <Tag className="w-5 h-5 text-gray-400" />
-//                           <div>
-//                             <p className="text-sm text-gray-500">Category</p>
-//                             <p className="text-gray-700">{donation.category}</p>
-//                           </div>
-//                         </div>
-//                       </div>
-//                     </div>
-//                   </div>
-//                 </div>
-//               ))}
-//             </div>
-//           </div>
-//         </main>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default UserDonationHistory;
 import React, { useState, useEffect } from "react";
 import Sidebar from "../UserSidebar/UserSidebar";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import {
-  Calendar,
-  Utensils,
-  MapPin,
-  Package,
-  Tag,
-  Menu,
-} from "lucide-react";
+import { Calendar, Utensils, MapPin, Package, Tag, Menu } from "lucide-react";
 
 const UserDonationHistory = () => {
   const { state } = useLocation();
@@ -211,15 +23,16 @@ const UserDonationHistory = () => {
   useEffect(() => {
     const fetchDonations = async () => {
       try {
-        // Assuming you store the token
-        const response = await axios.get("http://localhost:3000/api/donors/getDonorFood", {
-          headers: {
-            "Content-Type": "application/json",
-            
-          },
-          withCredentials:true
-        });
-       console.log(response.data);
+        const response = await axios.get(
+          "http://localhost:3000/api/donors/getDonorFood",
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        console.log(response.data);
         if (response.data.success) {
           setDonations(response.data.foodList);
         } else {
@@ -243,41 +56,58 @@ const UserDonationHistory = () => {
     };
 
     return (
-      <span className={`px-3 py-1 rounded-full text-sm font-medium ${colors[status] || "bg-gray-100 text-gray-800"}`}>
+      <span
+        className={`px-3 py-1 rounded-full text-sm font-medium ${
+          colors[status] || "bg-gray-100 text-gray-800"
+        }`}
+      >
         {status}
       </span>
     );
   };
 
   return (
-    <div className="min-h-screen bg-white-300 flex">
-      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-
-      <div className="flex-1">
-        <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 lg:px-8">
-          <button
-            onClick={() => setIsSidebarOpen((prev) => !prev)}
-            className="lg:hidden text-gray-500 hover:text-gray-700"
-            aria-label="Toggle sidebar"
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-          <h1 className="text-xl font-bold text-gray-900">Donation History</h1>
-        </header>
+    <div className="min-h-screen bg-gray-30 flex">
+      <div className="fixed inset-y-0 left-0 z-50">
+        <Sidebar
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+      </div>
+      <div className={`flex-1 ${isSidebarOpen ? "lg:ml-64" : ""}`}>
+        <button
+          onClick={() => setIsSidebarOpen((prev) => !prev)}
+          className="lg:hidden text-gray-500 hover:text-gray-700 m-4"
+          aria-label="Toggle sidebar"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
 
         <main className="p-4 lg:p-8">
           <div className="max-w-5xl mx-auto">
             {loading ? (
-              <p className="text-center text-gray-600">Loading...</p>
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-[#61cf73]"></div>
+              </div>
             ) : error ? (
-              <p className="text-center text-red-600">{error}</p>
+              <div className="text-center bg-red-100 text-red-600 p-4 rounded-lg">
+                {error}
+              </div>
             ) : donations.length === 0 ? (
-              <p className="text-center text-gray-600">No donation history found.</p>
+              <div className="text-center bg-blue-50 text-blue-600 p-8 rounded-lg">
+                <Utensils className="mx-auto h-12 w-12 mb-4 text-blue-500" />
+                <p className="text-lg">No donation history found.</p>
+                <p className="text-sm text-blue-400">
+                  Start your first donation today!
+                </p>
+              </div>
             ) : (
               <>
-                <div className="flex items-center justify-between mb-6">
-                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900"></h1>
-                  <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium">
+                <div className="flex flex-col md:flex-row items-center justify-between mb-6">
+                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-0">
+                    Donation History
+                  </h1>
+                  <div className="bg-[#61cf73]/10 text-[#61cf73] px-4 py-2 rounded-full text-sm font-medium">
                     Total Donations: {donations.length}
                   </div>
                 </div>
@@ -291,8 +121,8 @@ const UserDonationHistory = () => {
                       <div className="border-b border-gray-100 bg-gray-50 p-4 md:p-6">
                         <div className="flex flex-wrap items-center justify-between gap-4">
                           <div className="flex items-center space-x-3">
-                            <div className="p-2 bg-green-100 rounded-lg">
-                              <Utensils className="w-5 h-5 text-green-600" />
+                            <div className="p-2 bg-[#61cf73]/10 rounded-lg">
+                              <Utensils className="w-5 h-5 text-[#61cf73]" />
                             </div>
                             <div>
                               <h3 className="text-lg font-semibold text-gray-900">
@@ -313,8 +143,12 @@ const UserDonationHistory = () => {
                             <div className="flex items-center space-x-3">
                               <MapPin className="w-5 h-5 text-gray-400" />
                               <div>
-                                <p className="text-sm text-gray-500">Pickup Location</p>
-                                <p className="text-gray-700">{donation.address}</p>
+                                <p className="text-sm text-gray-500">
+                                  Pickup Location
+                                </p>
+                                <p className="text-gray-700">
+                                  {donation.address}
+                                </p>
                               </div>
                             </div>
 
@@ -323,7 +157,8 @@ const UserDonationHistory = () => {
                               <div>
                                 <p className="text-sm text-gray-500">Dates</p>
                                 <p className="text-gray-700">
-                                  {donation.preparationDate} - {donation.expiryDate}
+                                  {donation.preparationDate} -{" "}
+                                  {donation.expiryDate}
                                 </p>
                               </div>
                             </div>
@@ -333,16 +168,24 @@ const UserDonationHistory = () => {
                             <div className="flex items-center space-x-3">
                               <Package className="w-5 h-5 text-gray-400" />
                               <div>
-                                <p className="text-sm text-gray-500">Quantity</p>
-                                <p className="text-gray-700">{donation.noOfDishes} dishes</p>
+                                <p className="text-sm text-gray-500">
+                                  Quantity
+                                </p>
+                                <p className="text-gray-700">
+                                  {donation.noOfDishes} dishes
+                                </p>
                               </div>
                             </div>
 
                             <div className="flex items-center space-x-3">
                               <Tag className="w-5 h-5 text-gray-400" />
                               <div>
-                                <p className="text-sm text-gray-500">Category</p>
-                                <p className="text-gray-700">{donation.foodCategory}</p>
+                                <p className="text-sm text-gray-500">
+                                  Category
+                                </p>
+                                <p className="text-gray-700">
+                                  {donation.foodCategory}
+                                </p>
                               </div>
                             </div>
 
@@ -350,8 +193,12 @@ const UserDonationHistory = () => {
                               <div className="flex items-center space-x-3">
                                 <Utensils className="w-5 h-5 text-gray-400" />
                                 <div>
-                                  <p className="text-sm text-gray-500">Accepted by NGO</p>
-                                  <p className="text-gray-700">{donation.ngo.name} ({donation.ngo.email})</p>
+                                  <p className="text-sm text-gray-500">
+                                    Accepted by NGO
+                                  </p>
+                                  <p className="text-gray-700">
+                                    {donation.ngo.name} ({donation.ngo.email})
+                                  </p>
                                 </div>
                               </div>
                             )}

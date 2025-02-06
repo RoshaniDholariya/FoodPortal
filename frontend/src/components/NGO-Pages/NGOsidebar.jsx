@@ -23,7 +23,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
     {
       title: "Doner Details",
       icon: ReceiptText,
-      path: "/NGO-Donar-detailspage",
+      path: "/NGO-Doner-detailspage",
     },
     // { title: "Nearest Donar", icon: Locate, path: "/NGO-nearest-donar" },
     { title: "Profile", icon: User, path: "/NGO-Profilepage" },

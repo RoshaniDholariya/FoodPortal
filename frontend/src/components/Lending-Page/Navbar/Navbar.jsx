@@ -22,14 +22,23 @@ const Navbar = () => {
             <NavLink to="/contactus">Contact Us</NavLink>
             <NavLink to="/ourmotive">Our Motive</NavLink>
           </div>
+          <div className="flex items-center space-x-6">
+            <Link
+              to="/NGO-register"
+              className="hidden md:flex items-center px-6 py-3 rounded-lg bg-gradient-to-r from-[#6de882] to-[#61cf73] hover:shadow-lg"
+            >
+              <span className="text-white font-medium">NGO-register</span>
+              <ArrowRight className="w-4 h-4 text-white" />
+            </Link>
 
-          <Link
-            to="/login"
-            className="hidden md:flex items-center space-x-2 px-6 py-3 rounded-lg bg-gradient-to-r from-[#6de882] to-[#61cf73] hover:shadow-lg"
-          >
-            <span className="text-white font-medium">Login</span>
-            <ArrowRight className="w-4 h-4 text-white" />
-          </Link>
+            <Link
+              to="/login"
+              className="hidden md:flex items-center space-x-2 px-6 py-3 rounded-lg bg-gradient-to-r from-[#6de882] to-[#61cf73] hover:shadow-lg"
+            >
+              <span className="text-white font-medium">Login</span>
+              <ArrowRight className="w-4 h-4 text-white" />
+            </Link>
+          </div>
 
           <button
             className="md:hidden text-white hover:text-teal-500 transition-colors"
@@ -58,6 +67,8 @@ const Navbar = () => {
             <NavLink to="/how-it-works">How It Works</NavLink>
             <NavLink to="/contactus">Contact Us</NavLink>
             <NavLink to="/ourmotive">Our Motive</NavLink>
+            <NavLink to="/NGO-register">NGO-register</NavLink>
+            <NavLink to="/login">Login</NavLink>
           </div>
         )}
       </div>

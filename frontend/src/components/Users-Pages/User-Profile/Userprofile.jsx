@@ -1,205 +1,189 @@
 import React, { useState, useEffect } from "react";
 import {
+  User,
   MapPin,
   Phone,
-  Mail,
-  Award,
-  Calendar,
-  Package,
-  Menu,
+  Building2,
+  Building,
   Edit,
-  Bell,
-  ChevronRight,
-  Heart,
+  Save,
+  Upload,
+  Menu,
 } from "lucide-react";
 import Sidebar from "../UserSidebar/UserSidebar";
 
-const DonorProfile = () => {
+const DonorProfileEdit = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState("overview");
-
-  const donorData = {
-    name: "Sarah Johnson",
-    organization: "Fresh Foods Market",
-    email: "sarah@freshfoods.com",
-    phone: "+1 (555) 123-4567",
-    address: "123 Main Street, New York, NY 10001",
-    totalDonations: 2500,
-    joinedDate: "January 2024",
-    activeListings: 3,
-    impactedLives: 1250,
-    rating: 4.9,
-  };
+  const [isEditing, setIsEditing] = useState(false);
+  const [profile, setProfile] = useState({
+    name: "",
+    address: "",
+    city: "",
+    state: "",
+    pincode: "",
+    phone: "",
+    donorType: "",
+    restaurantName: "",
+    photo: null,
+  });
 
   useEffect(() => {
     setIsSidebarOpen(window.innerWidth >= 1024);
-    window.addEventListener("resize", () =>
-      setIsSidebarOpen(window.innerWidth >= 1024)
-    );
-    return () =>
-      window.removeEventListener("resize", () =>
-        setIsSidebarOpen(window.innerWidth >= 1024)
-      );
+    const handleResize = () => setIsSidebarOpen(window.innerWidth >= 1024);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setProfile((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    setProfile((prev) => ({
+      ...prev,
+      photo: file ? URL.createObjectURL(file) : null,
+    }));
+  };
+
+  const toggleEditMode = () => {
+    setIsEditing(!isEditing);
+  };
+
   return (
-    <div className="min-h-screen flex  bg-white-300">
-      <Sidebar
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
-      <div className="flex-1">
-        <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-10">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setIsSidebarOpen((prev) => !prev)}
-              className="lg:hidden text-gray-500 hover:text-gray-700"
-            >
-              <Menu className="h-6 w-6" />
-            </button>
-            <h1 className="text-black text-xl font-semibold bg-gradient-to-r from-[#61cf73] to-emerald-400 bg-clip-text text-transparent">
-              Donor Profile
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-gray-100 rounded-full">
-              <Edit className="h-5 w-5 text-gray-600" />
-            </button>
-          </div>
-        </header>
+    <div className="min-h-screen flex bg-gray-50">
+      <div className="fixed inset-y-0 left-0 z-50">
+        <Sidebar
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+      </div>
+      <div className={`flex-1 ${isSidebarOpen ? "lg:ml-64" : ""}`}>
+        <div className="flex items-center gap-4 p-4">
+          <button
+            onClick={() => setIsSidebarOpen((prev) => !prev)}
+            className="lg:hidden text-gray-500 hover:text-gray-700"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+        </div>
 
         <div className="p-6 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="h-40 bg-gradient-to-r from-[#61cf73] to-emerald-400"></div>
-                <div className="px-6 pb-6 -mt-16">
-                  <div className="flex justify-center">
-                    <img
-                      src="/api/placeholder/120/120"
-                      alt="Profile"
-                      className="rounded-full border-4 border-white shadow-md w-32 h-32"
-                    />
-                  </div>
-                  <div className="text-center mt-4">
-                    <h2 className="text-2xl font-bold text-gray-800">
-                      {donorData.name}
-                    </h2>
-                    <p className="text-[#61cf73] font-medium">
-                      {donorData.organization}
-                    </p>
-                  </div>
-                  <br />
-                  <div className="mt-6 space-y-3">
-                    <div className="flex items-center gap-3 text-gray-600">
-                      <Mail className="w-5 h-5 text-[#61cf73]" />
-                      <span>{donorData.email}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-gray-600">
-                      <Phone className="w-5 h-5 text-[#61cf73]" />
-                      <span>{donorData.phone}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-gray-600">
-                      <MapPin className="w-5 h-5 text-[#61cf73]" />
-                      <span>{donorData.address}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="relative bg-gradient-to-r from-green-500 to-emerald-600 h-40">
+              <button
+                onClick={toggleEditMode}
+                className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 p-2 rounded-full transition-colors"
+              >
+                {isEditing ? (
+                  <Save className="w-5 h-5 text-white" />
+                ) : (
+                  <Edit className="w-5 h-5 text-white" />
+                )}
+              </button>
             </div>
-            <div className="lg:col-span-2 space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Package className="w-5 h-5 text-[#61cf73]" />
-                    <span className="text-sm text-gray-500">
-                      Total Donations
-                    </span>
-                  </div>
-                  <p className="text-2xl font-bold text-gray-800">
-                    {donorData.totalDonations} kg
-                  </p>
-                </div>
-                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Award className="w-5 h-5 text-[#61cf73]" />
-                    <span className="text-sm text-gray-500">
-                      Active Listings
-                    </span>
-                  </div>
-                  <p className="text-2xl font-bold text-gray-800">
-                    {donorData.activeListings}
-                  </p>
-                </div>
-                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Heart className="w-5 h-5 text-[#61cf73]" />
-                    <span className="text-sm text-gray-500">
-                      Lives Impacted
-                    </span>
-                  </div>
-                  <p className="text-2xl font-bold text-gray-800">
-                    {donorData.impactedLives}
-                  </p>
-                </div>
-                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="w-5 h-5 text-[#61cf73]" />
-                    <span className="text-sm text-gray-500">Member Since</span>
-                  </div>
-                  <p className="text-lg font-bold text-gray-800">
-                    {donorData.joinedDate}
-                  </p>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-800">
-                        Create New Listing
-                      </h3>
-                      <p className="text-gray-500 mt-1">
-                        Share your excess food
-                      </p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-[#61cf73] group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </button>
-                <button className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-800">
-                        View Donation History
-                      </h3>
-                      <p className="text-gray-500 mt-1">Track your impact</p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-[#61cf73] group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </button>
-              </div>
+            <div className="p-6 -mt-16">
+              <div className="flex flex-col items-center">
+                <div className="relative">
+                  <img
+                    src={profile.photo || "/api/placeholder/120/120"}
+                    alt="Profile"
+                    className="w-32 h-32 rounded-full border-4 border-white object-cover"
+                  />
+                  {isEditing && (
+                    <label className="absolute bottom-0 right-0 bg-green-500 p-2 rounded-full cursor-pointer">
+                      <Upload className="w-4 h-4 text-white" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handlePhotoUpload}
+                      />
+                    </label>
+                  )}
+                </div>
 
-              <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Recent Activity
-                </h3>
-                <div className="space-y-4">
-                  {[1, 2, 3].map((_, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors"
-                    >
-                      <div className="h-10 w-10 rounded-full bg-[#61cf73]/10 flex items-center justify-center">
-                        <Package className="h-5 w-5 text-[#61cf73]" />
+                <div className="mt-6 w-full grid md:grid-cols-2 gap-4">
+                  {[
+                    {
+                      icon: User,
+                      name: "name",
+                      label: "Full Name",
+                      type: "text",
+                    },
+                    {
+                      icon: Building2,
+                      name: "restaurantName",
+                      label: "Restaurant Name",
+                      type: "text",
+                    },
+                    {
+                      icon: MapPin,
+                      name: "address",
+                      label: "Address",
+                      type: "text",
+                    },
+                    { icon: Building, name: "city", label: "City", type: "text" },
+                    { icon: Building, name: "state", label: "State", type: "text" },
+                    {
+                      icon: MapPin,
+                      name: "pincode",
+                      label: "Pincode",
+                      type: "text",
+                    },
+                    {
+                      icon: Phone,
+                      name: "phone",
+                      label: "Phone Number",
+                      type: "tel",
+                    },
+                    {
+                      icon: Building2,
+                      name: "donorType",
+                      label: "Donor Type",
+                      type: "select",
+                    },
+                  ].map(({ icon: Icon, name, label, type }) => (
+                    <div key={name} className="flex flex-col">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <Icon className="w-5 h-5 text-green-500" />
+                        <label className="text-sm font-medium text-gray-600">
+                          {label}
+                        </label>
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-800">
-                          Donated 25kg of fresh produce
-                        </h4>
-                        <p className="text-sm text-gray-500">2 hours ago</p>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-gray-400" />
+                      {isEditing ? (
+                        type === "select" ? (
+                          <select
+                            name={name}
+                            value={profile[name]}
+                            onChange={handleInputChange}
+                            className="w-full p-2 border rounded"
+                          >
+                            <option value="">Select Donor Type</option>
+                            <option value="restaurant">Restaurant</option>
+                            <option value="individual">Individual</option>
+                            <option value="corporate">Corporate</option>
+                          </select>
+                        ) : (
+                          <input
+                            type={type}
+                            name={name}
+                            value={profile[name]}
+                            onChange={handleInputChange}
+                            placeholder={`Enter ${label}`}
+                            className="w-full p-2 border rounded"
+                          />
+                        )
+                      ) : (
+                        <p className="text-gray-700">
+                          {profile[name] || `Enter ${label}`}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -212,4 +196,4 @@ const DonorProfile = () => {
   );
 };
 
-export default DonorProfile;
+export default DonorProfileEdit;

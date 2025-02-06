@@ -18,10 +18,10 @@ const FoodDonationForm = () => {
   const [formData, setFormData] = useState({
     foodType: "",
     foodCategory: "",
-    noOfDishes: "",  // Changed from numberOfDishes
+    noOfDishes: "", // Changed from numberOfDishes
     preparationDate: "",
     expiryDate: "",
-    address: "",  // Changed from pickupLocation
+    address: "", // Changed from pickupLocation
   });
 
   useEffect(() => {
@@ -182,13 +182,10 @@ const FoodDonationForm = () => {
     }
   };
 
-  
-
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
-  
+
     try {
-     
       const response = await axios.post(
         "http://localhost:3000/api/donors/addFood",
         {
@@ -207,10 +204,12 @@ const FoodDonationForm = () => {
           withCredentials: true, // Ensures cookies are sent
         }
       );
-  
+
       if (response.data.success) {
         alert("Food details added successfully!");
-        navigate("/user-donation-history", { state: { donationData: formData } });
+        navigate("/user-donation-history", {
+          state: { donationData: formData },
+        });
       } else {
         alert(response.data.message);
       }
@@ -220,25 +219,24 @@ const FoodDonationForm = () => {
       alert("Failed to add food. Please try again.");
     }
   };
-  
+
   return (
-    <div className="min-h-screen flex bg-white-300">
-      <Sidebar
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
-      <div className="flex-1">
-        <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 lg:px-8">
-          <button
-            onClick={() => setIsSidebarOpen((prev) => !prev)}
-            className="lg:hidden text-gray-500 hover:text-gray-700"
-            aria-label="Toggle sidebar"
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-          <h1 className="text-lg font-medium">Food Donation Form</h1>
-        </header>
-        <div className="p-6">
+    <div className="min-h-screen bg-white-300">
+      <div className="fixed inset-y-0 left-0 z-50">
+        <Sidebar
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+      </div>
+      <div className={`${isSidebarOpen ? "lg:ml-64" : ""}`}>
+        <button
+          onClick={() => setIsSidebarOpen((prev) => !prev)}
+          className="lg:hidden text-gray-500 hover:text-gray-700"
+          aria-label="Toggle sidebar"
+        >
+          <Menu className="h-6 w-6 m-5" />
+        </button>
+        <div className="p-7 mt-3">
           <div className="mb-6 flex items-center justify-between">
             {steps.map((stepObj) => (
               <div

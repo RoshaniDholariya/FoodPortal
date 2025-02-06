@@ -55,23 +55,21 @@ const NGODetails = () => {
 
   return (
     <div className="flex min-h-screen bg-white-300">
-      <Sidebar
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
-
-      <div className="flex-1">
-        <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 lg:px-8">
-          <div className="flex items-center justify-between px-4 lg:px-8 h-16">
-            <button
-              onClick={() => setIsSidebarOpen((prev) => !prev)}
-              className="lg:hidden text-gray-500 hover:text-gray-700"
-            >
-              <Menu className="h-6 w-6" />
-            </button>
-            <h1 className="text-xl font-bold text-gray-900">NGO Partners</h1>
-          </div>
-        </header>
+      <div className="fixed inset-y-0 left-0 z-50">
+        <Sidebar
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+      </div>
+      <div className={`${isSidebarOpen ? "lg:ml-64" : ""}`}>
+        <div className="flex items-center justify-between px-4 lg:px-8 h-16">
+          <button
+            onClick={() => setIsSidebarOpen((prev) => !prev)}
+            className="lg:hidden text-gray-500 hover:text-gray-700"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+        </div>
 
         <main className="p-6">
           <div className="max-w-7xl mx-auto">
