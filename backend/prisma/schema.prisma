@@ -63,6 +63,8 @@ model FoodDetails {
   foodType       String
   foodCategory   String
   address        String
+  latitude       Float?
+  longitude      Float?
   noOfDishes     Int
   preparationDate DateTime
   expiryDate     DateTime

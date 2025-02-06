@@ -26,7 +26,7 @@ import NGOAuthentication from "./components/Lending-Page/Authentication/NGO-Auth
 import NGOLogin from "./components/Lending-Page/Authentication/NGO-Login";
 import OTPVerify from "./components/Lending-Page/Authentication/OTP-Verify";
 import RegistrationSuccess from "./components/Lending-Page/Authentication/Register_success";
-
+import LocationPicker from "./components/Users-Pages/Donation-form/LocationPicker";
 const App = () => {
   return (
     <>
@@ -44,6 +44,7 @@ const App = () => {
         <Route path="/donor-registration" element={<DonorRegistrationForm />} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
         <Route path="/user-donation-form" element={<FoodDonationForm />} />
+        <Route path="/mapbox" element={<LocationPicker/>}/>
         <Route
           path="/user-donation-history"
           element={<UserDonationHistory />}

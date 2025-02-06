@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Sidebar from "../UserSidebar/UserSidebar";
 import axios from "axios";
+import LocationPicker from "./LocationPicker";
 const FoodDonationForm = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -21,9 +22,18 @@ const FoodDonationForm = () => {
     noOfDishes: "", // Changed from numberOfDishes
     preparationDate: "",
     expiryDate: "",
-    address: "", // Changed from pickupLocation
+    address: "",
+    latitude: "",
+    longitude: "",
   });
-
+  const handleLocationSelect = (location) => {
+    setFormData(prev => ({
+      ...prev,
+      address: location.address,
+      latitude: location.lat,
+      longitude: location.lng
+    }));
+  };
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
@@ -155,25 +165,13 @@ const FoodDonationForm = () => {
             </div>
 
             {formData.deliveryMethod === "pickup" && (
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Pickup Location
-                </h3>
-                <div className="w-full">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Address
-                  </label>
-                  <input
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#61cf73] focus:border-transparent"
-                    placeholder="Your address for pickup"
-                  />
-                </div>
-              </div>
-            )}
+  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+    <h3 className="text-lg font-medium text-gray-900 mb-4">
+      Pickup Location
+    </h3>
+    <LocationPicker onLocationSelect={handleLocationSelect} />
+  </div>
+)}
           </div>
         );
 
