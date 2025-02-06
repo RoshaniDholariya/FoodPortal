@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const donorRoutes = require('./routes/donor.route.js');
 const ngoRoutes = require("./routes/ngo.route.js");
 const adminRoutes = require("./routes/admin.route.js");
+const contactusRoutes = require("./routes/contactus.route.js");
 const cors = require("cors");
 const cookieParser = require('cookie-parser');
 // const cookieParser = require(cookieParser)
@@ -24,6 +25,7 @@ app.use('/api/donors', donorRoutes);
 app.use("/uploads", express.static("uploads")); // Serve uploaded files
 app.use("/api/ngo", ngoRoutes);
 app.use("/admin", adminRoutes);
+app.use("/api/ct", contactusRoutes);
 // Server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

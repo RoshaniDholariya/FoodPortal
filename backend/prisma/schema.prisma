@@ -74,3 +74,10 @@ model FoodDetails {
   donor          Donor?     @relation(fields: [donorId], references: [id])
   ngo            NGO?    @relation(fields: [ngoId], references: [id])
 }
+
+model contactus {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String   @unique
+  message     String
+}
