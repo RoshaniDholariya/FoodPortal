@@ -100,16 +100,6 @@ graph TD
 ## ⚡ Quick Start
 
 ### 🔧 Prerequisites
-
-```bash
-# Check Node.js version
-node --version  # Must be ≥ 18.x
-
-# Check npm version
-npm --version   # Must be ≥ 9.x
-
-# Check PostgreSQL version
-psql --version  # Must be ≥ 14.x
 ```
 
 ### 🚀 Installation Steps
@@ -214,28 +204,6 @@ graph LR
     C --> D[Push]
     D --> E[Pull Request]
 ```
-
-## 📜 License
-
-```
-MIT License
-
-Copyright (c) 2024 FoodShare Connect
-
-Permission is hereby granted, free of charge...
-```
-
-## 🌟 Show Your Support
-
-```bash
-# Star this repository
-$ git stargazer add
-
-# Follow for updates
-$ git follow --watch
-```
-
----
 
 <p align="center">
   <b>Made with ❤️ by Team FoodShare Connect</b><br>
