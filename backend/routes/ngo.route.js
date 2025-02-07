@@ -29,6 +29,7 @@ router.post("/login", ngoController.Login);
 router.get("/getAvailableFood",ngoController.authenticate,ngoController.getAvailableFood);
 router.post("/acceptFood",ngoController.authenticate,ngoController.acceptFood);
 router.get("/getacceptedFood",ngoController.authenticate,ngoController.getAcceptedFood);
+router.get("/getDonorsForNGO",ngoController.authenticate,ngoController.getDonorsForNGO);
 //router.post("/approve/:ngoId", ngoController.approveNgo);
 
 module.exports = router;

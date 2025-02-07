@@ -40,14 +40,14 @@ const DonationModal = ({ donation, onClose, onAccept }) => {
                 <User className="w-5 h-5 text-emerald-600" />
                 <div>
                   <p className="text-sm text-gray-500">Donor Name</p>
-                  <p className="text-gray-700">{donation.donorName}</p>
+                  <p className="text-gray-700">{donation.donor.name}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
                 <Phone className="w-5 h-5 text-emerald-600" />
                 <div>
                   <p className="text-sm text-gray-500">Contact Number</p>
-                  <p className="text-gray-700">{donation.contactNumber}</p>
+                  <p className="text-gray-700">{donation.donor.phone}</p>
                 </div>
               </div>
             </div>
@@ -71,7 +71,7 @@ const DonationModal = ({ donation, onClose, onAccept }) => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Number of Dishes</p>
-                <p className="text-gray-700">{donation.numDishes} servings</p>
+                <p className="text-gray-700">{donation.noOfDishes} servings</p>
               </div>
             </div>
           </div>
@@ -85,7 +85,7 @@ const DonationModal = ({ donation, onClose, onAccept }) => {
                 <Clock className="w-5 h-5 text-emerald-600" />
                 <div>
                   <p className="text-sm text-gray-500">Preparation Date</p>
-                  <p className="text-gray-700">{donation.prepDate}</p>
+                  <p className="text-gray-700">{donation.preparationDate}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-2">

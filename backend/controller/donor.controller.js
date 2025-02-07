@@ -185,7 +185,7 @@ exports.authenticate = (req, res, next) => {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
 
-  console.log("Received Token:", token); // Debugging line
+  // console.log("Received Token:", token); // Debugging line
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_secret_key");
@@ -234,21 +234,6 @@ exports.addFood = async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 };
-// exports.getDonorFood = async (req, res) => {
-//   try {
-//     const donorId = req.user.id;
-
-//     const foodList = await prisma.foodDetails.findMany({
-//       where: { donorId },
-//       include: { ngo: { select: { name, email } } }, // Show which NGO accepted it
-//     });
-
-//     res.status(200).json({ success: true, foodList });
-//   } catch (error) {
-//     console.error('Error fetching donor food:', error.message);
-//     res.status(500).json({ success: false, message: 'Internal server error.' });
-//   }
-// };
 exports.getDonorFood = async (req, res) => {
   try {
     const donorId = req.user.userId;
@@ -261,6 +246,27 @@ exports.getDonorFood = async (req, res) => {
     res.status(200).json({ success: true, foodList });
   } catch (error) {
     console.error('Error fetching donor food:', error.message);
+    res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+};
+exports.getApprovedNGOs = async (req, res) => {
+  try {
+    const ngos = await prisma.nGO.findMany({
+      where: { isApproved: true }, // Fetch only approved NGOs
+      select: {
+        id: true,
+        name: true,
+        address: true,
+        email: true,
+        phoneNumber: true,
+        city: true,
+        pincode: true,
+      },
+    });
+
+    res.status(200).json({ success: true, ngos });
+  } catch (error) {
+    console.error('Error fetching NGOs:', error.message);
     res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 };

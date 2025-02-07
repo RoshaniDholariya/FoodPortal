@@ -25,13 +25,11 @@ exports.approveNgo = async (req, res) => {
     }
 
     // Generate username and password
-    const username = ngo.email.split("@")[0];
-    const password = Math.random().toString(36).slice(-8); // Generate a random password
+    const username = ngo.email;
+    const password = Math.random().toString(36).slice(-8); 
 
-    // Hash password before storing
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Update NGO as approved with login credentials
     const updatedNgo = await prisma.nGO.update({
       where: { id: parseInt(ngoId) },
       data: {

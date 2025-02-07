@@ -3,8 +3,7 @@ const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
-// Submit NGO form
-// Submit NGO form
+
 exports.submitNgoForm = async (req, res) => {
   try {
     const { name, address, email, phoneNumber, city, pincode } = req.body;
@@ -23,7 +22,7 @@ exports.submitNgoForm = async (req, res) => {
         certificate, // Store the Cloudinary URL
       },
     });
-console.log(newNgo.data);
+// console.log(newNgo.data);
     res.status(200).json({ success: true, message: "Form submitted successfully. Awaiting admin approval." });
   } catch (error) {
     console.error("Error submitting NGO form:", error); // Log the full error
@@ -91,7 +90,7 @@ exports.authenticate = (req, res, next) => {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
 
-  console.log("Received Token:", token); // Debugging line
+  // console.log("Received Token:", token); // Debugging line
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_secret_key");
@@ -108,7 +107,7 @@ exports.getAvailableFood = async (req, res) => {
       where: { status: "available" },
       include: { donor: { select: { name:true, email:true } } },
     });
-        console.log(availableFood);
+        // console.log(availableFood);
     res.status(200).json({ success: true, availableFood });
   } catch (error) {
     console.error('Error fetching available food:', error.message);
@@ -147,62 +146,45 @@ exports.getAcceptedFood = async (req, res) => {
       where: { status: "completed" },
       include: { donor: true },
     });
-    console.log(acceptedFood);
+    // console.log(acceptedFood);
     res.status(200).json({ success: true, acceptedFood });
   } catch (error) {
     console.error("Error fetching accepted food:", error.message);
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
-// Approve NGO
-// exports.approveNgo = async (req, res) => {
-//   try {
-//     const { ngoId } = req.params;
+exports.getDonorsForNGO = async (req, res) => {
+  try {
+    const ngoId = req.user.id; // Get the authenticated NGO's ID
 
-//     const ngo = await prisma.NGO.findUnique({
-//       where: { id: parseInt(ngoId) },
-//     });
-
-//     if (!ngo) {
-//       return res.status(404).json({ success: false, message: "NGO not found" });
-//     }
-
-//     // Generate username and password
-//     const username = ngo.email.split("@")[0];
-//     const password = Math.random().toString(36).slice(-8);
-
-//     // Hash password
-//     const hashedPassword = await bcrypt.hash(password, 10);
-
-//     const updatedNgo = await prisma.nGO.update({
-//       where: { id: parseInt(ngoId) },
-//       data: {
-//         isApproved: true,
-//         username,
-//         password: hashedPassword,
-//       },
-//     });
-
-//     // Send email
-//     const transporter = nodemailer.createTransport({
-//       service: "gmail",
-//       auth: {
-//         user: process.env.EMAIL,
-//         pass: process.env.PASSWORD,
-//       },
-//     });
-
-//     const mailOptions = {
-//       from: process.env.EMAIL,
-//       to: ngo.email,
-//       subject: "NGO Approval Notification",
-//       text: `Congratulations! Your NGO has been approved.\n\nUsername: ${username}\nPassword: ${password}`,
-//     };
-
-//     await transporter.sendMail(mailOptions);
-
-//     res.status(200).json({ success: true, message: "NGO approved and email sent." });
-//   } catch (error) {
-//     res.status(500).json({ success: false, message: "Error approving NGO", error });
-//   }
-// };
+    // Fetch distinct donors who have donated food accepted by this NGO
+    const donors = await prisma.donor.findMany({
+      where: {
+        FoodDetails: {
+          some: {
+            ngoId: ngoId, // Filter foods accepted by this NGO
+            status: "completed", // Only completed (accepted) donations
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        address: true,
+        city: true,
+        state: true,
+        pincode: true,
+        donorType: true,
+        restaurantName: true, // Only for restaurant-type donors
+        photo: true, // Profile photo if available
+      },
+    });
+// console.log(donors)
+    res.status(200).json({ success: true, donors });
+  } catch (error) {
+    console.error("Error fetching donors for NGO:", error.message);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};

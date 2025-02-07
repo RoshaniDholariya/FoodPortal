@@ -114,7 +114,7 @@ const DonorRegistrationForm = () => {
 
       if (response.data.success) {
         alert("Registration successful! Redirecting to dashboard.");
-        navigate("/user-dashboard");
+        navigate("/login");
       } else {
         alert(response.data.message || "Registration failed.");
       }

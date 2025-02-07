@@ -27,11 +27,11 @@ const FoodDonationForm = () => {
     longitude: "",
   });
   const handleLocationSelect = (location) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       address: location.address,
       latitude: location.lat,
-      longitude: location.lng
+      longitude: location.lng,
     }));
   };
   useEffect(() => {
@@ -165,13 +165,13 @@ const FoodDonationForm = () => {
             </div>
 
             {formData.deliveryMethod === "pickup" && (
-  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-    <h3 className="text-lg font-medium text-gray-900 mb-4">
-      Pickup Location
-    </h3>
-    <LocationPicker onLocationSelect={handleLocationSelect} />
-  </div>
-)}
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Pickup Location
+                </h3>
+                <LocationPicker onLocationSelect={handleLocationSelect} />
+              </div>
+            )}
           </div>
         );
 
