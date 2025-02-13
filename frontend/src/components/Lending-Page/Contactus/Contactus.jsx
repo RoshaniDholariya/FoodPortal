@@ -1,6 +1,50 @@
 import React from "react";
+import axios from "axios";
+import { useState } from "react";
+
 
 const ContactUs = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+
+    const handleChange = (e) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+    
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      try {
+        const response = await axios.post("http://localhost:3000/api/ct/ContactUs", formData);
+  
+        if (response.data.success) {
+          alert("Your response has been sent successfully!");
+          setFormData({
+            name: "",
+            email: "",
+            message: "",
+          })
+        } else {
+          alert(response.data.message);
+          setFormData({
+            name: "",
+            email: "",
+            message: "",
+          })
+        }
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        alert("Failed to send message. Please try again.");
+        setFormData({
+          name: "",
+          email: "",
+          message: "",
+        })
+      }
+    };
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-green-50 to-green-100 flex flex-col items-center py-10 px-6 md:px-16 lg:px-32">
       <div className="w-full max-w-7xl bg-white shadow-xl rounded-lg flex flex-col md:flex-row overflow-hidden">
@@ -29,7 +73,7 @@ const ContactUs = () => {
           <h1 className="text-3xl md:text-4xl font-extrabold text-center text-green-700 mb-6">
             Contact Us
           </h1>
-          <form className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
                 className="block text-sm font-semibold text-gray-700 mb-2"
@@ -42,6 +86,8 @@ const ContactUs = () => {
                 id="name"
                 name="name"
                 required
+                value={formData.name}
+                onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
                 placeholder="John Doe"
               />
@@ -59,6 +105,8 @@ const ContactUs = () => {
                 id="email"
                 name="email"
                 required
+                value={formData.email}
+                onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
                 placeholder="example@domain.com"
               />
@@ -76,6 +124,8 @@ const ContactUs = () => {
                 name="message"
                 rows="5"
                 required
+                value={formData.message}
+                onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
                 placeholder="Write your message here..."
               ></textarea>
@@ -83,6 +133,7 @@ const ContactUs = () => {
 
             <button
               type="submit"
+              onClick={handleSubmit}
               className="w-full bg-gradient-to-r from-green-500 to-green-700 text-white font-bold py-4 rounded-lg hover:from-green-600 hover:to-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 transition"
             >
               Send Message

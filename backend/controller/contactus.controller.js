@@ -30,4 +30,4 @@ const ContactUs= async (req, res) => {
     }
   }
   
-  module.exports =ContactUs;
+  module.exports = ContactUs;

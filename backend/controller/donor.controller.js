@@ -144,6 +144,46 @@ exports.addDonorDetails = async (req, res) => {
   }
 };
 
+// Middleware for authentication
+exports.authenticate = (req, res, next) => {
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ message: "Unauthorized: No token provided" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_secret_key");
+    req.user = { userId: decoded.userId };
+    next();
+  } catch (error) {
+    return res.status(403).json({ message: "Invalid or expired token" });
+  }
+};
+
+// Get Donor Details
+exports.getDonorDetails = async (req, res) => {
+  try {
+    const donor = await prisma.donor.findUnique({ where: { id: req.user.userId } });
+    if (!donor) return res.status(404).json({ success: false, message: "Donor not found" });
+
+    res.status(200).json({ success: true, donor });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error retrieving donor details" });
+  }
+};
+
+// Update Donor Details
+exports.updateDonorDetails = async (req, res) => {
+  try {
+    const updatedDonor = await prisma.donor.update({
+      where: { id: req.user.userId },
+      data: req.body,
+    });
+    res.status(200).json({ success: true, donor: updatedDonor });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error updating donor details" });
+  }
+};
+
+
 exports.Login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -189,6 +229,7 @@ exports.authenticate = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_secret_key");
+    console.log(decoded);
     req.user = { userId: decoded.userId };
     next();
   } catch (error) {
@@ -196,6 +237,7 @@ exports.authenticate = (req, res, next) => {
     return res.status(403).json({ message: "Invalid or expired token" });
   }
 };
+
 exports.addFood = async (req, res) => {
   try {
     const { foodType, foodCategory, noOfDishes, preparationDate, expiryDate,address, latitude,
