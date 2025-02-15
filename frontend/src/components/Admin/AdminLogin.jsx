@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Eye, EyeOff, Shield, Lock, Mail, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/Authcontext";
 
 const SuperAdminSignIn = () => {
   const { loginAdmin } = useAuth();
@@ -23,7 +23,7 @@ const SuperAdminSignIn = () => {
       adminCredentials.username === "admin@gmail.com" &&
       adminCredentials.password === "admin123"
     ) {
-      loginAdmin();
+      loginAdmin(adminCredentials.username, adminCredentials.password);
       navigate("/Admin-dashboard");
     } else {
       alert("Invalid Admin Credentials");

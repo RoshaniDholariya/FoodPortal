@@ -30,7 +30,7 @@ import LocationPicker from "./components/Users-Pages/Donation-form/LocationPicke
 import AdminNGODetails from "./components/Admin/NGO/NGODetails";
 import AdminDonorDetails from "./components/Admin/Donor/AdminDonor";
 import AdminDonorTable from "./components/Admin/Donor/AdminDonorTable";
-import { AuthProvider } from "./components/context/AuthContext";
+import { AuthProvider } from "./components/context/Authcontext";
 import ProtectedAdminRoute from "./components/Admin/ProtectedAuth";
 
 const App = () => {

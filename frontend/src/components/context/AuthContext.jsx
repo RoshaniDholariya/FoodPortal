@@ -1,30 +1,30 @@
-// src/context/AuthContext.js
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(
-    localStorage.getItem("isAdminAuthenticated") === "true"
-  );
+  const [admin, setAdmin] = useState(null);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    localStorage.setItem("isAdminAuthenticated", isAdminAuthenticated);
-  }, [isAdminAuthenticated]);
-
-  const loginAdmin = () => {
-    setIsAdminAuthenticated(true);
+  const loginAdmin = (email, password) => {
+    if (email === "admin@gmail.com" && password === "admin123") {
+      setAdmin({ email });
+      localStorage.setItem("admin", JSON.stringify({ email }));
+      navigate("/Admin-dashboard");
+    } else {
+      alert("Invalid Admin Credentials");
+    }
   };
 
   const logoutAdmin = () => {
-    setIsAdminAuthenticated(false);
-    localStorage.removeItem("isAdminAuthenticated");
+    setAdmin(null);
+    localStorage.removeItem("admin");
+    navigate("/Admin-Login");
   };
 
   return (
-    <AuthContext.Provider
-      value={{ isAdminAuthenticated, loginAdmin, logoutAdmin }}
-    >
+    <AuthContext.Provider value={{ admin, loginAdmin, logoutAdmin }}>
       {children}
     </AuthContext.Provider>
   );
