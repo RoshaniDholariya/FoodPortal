@@ -6,8 +6,6 @@ import { useAuth } from "../context/AuthContext";
 const SuperAdminSignIn = () => {
   const { loginAdmin } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();

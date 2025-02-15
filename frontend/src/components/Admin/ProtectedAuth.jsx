@@ -1,11 +1,15 @@
-// src/components/Admin/ProtectedAdminRoute.js
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const ProtectedAdminRoute = ({ children }) => {
-  const { isAdminAuthenticated } = useAuth();
+  const { user } = useAuth();
 
-  return isAdminAuthenticated ? children : <Navigate to="/Admin-Login" />;
+  // Ensure only authenticated admins can access the route
+  if (!user || user.role !== "admin") {
+    return <Navigate to="/Admin-Login" replace />;
+  }
+
+  return children;
 };
 
 export default ProtectedAdminRoute;
