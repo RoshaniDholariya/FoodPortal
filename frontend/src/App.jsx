@@ -13,7 +13,7 @@ import FoodDonationForm from "./components/Users-Pages/Donation-form/Donationfor
 import UserDonationHistory from "./components/Users-Pages/UserDonationHistory/UserDonationHistory";
 import UserNGODetails from "./components/Users-Pages/UserNGODetails/UserNGODetails";
 import Userprofile from "./components/Users-Pages/User-Profile/Userprofile";
-import NGODashboard from "./components/NGO-Pages/Ngodash";
+import NGODashboard from "./components/NGO-Pages/NGOdash";
 import NGODonationpage from "./components/NGO-Pages/DonationPage/NGO-Donationpage";
 import NGOProfile from "./components/NGO-Pages/NGO-Profile/NGO-Profile";
 import NGOAccepteddonation from "./components/NGO-Pages/NGO-Accepteddonation/NGO-Accepteddonation";
@@ -27,9 +27,15 @@ import NGOLogin from "./components/Lending-Page/Authentication/NGO-Login";
 import OTPVerify from "./components/Lending-Page/Authentication/OTP-Verify";
 import RegistrationSuccess from "./components/Lending-Page/Authentication/Register_success";
 import LocationPicker from "./components/Users-Pages/Donation-form/LocationPicker";
+import AdminNGODetails from "./components/Admin/NGO/NGODetails";
+import AdminDonorDetails from "./components/Admin/Donor/AdminDonor";
+import AdminDonorTable from "./components/Admin/Donor/AdminDonorTable";
+import { AuthProvider } from "./components/context/AuthContext";
+import ProtectedAdminRoute from "./components/Admin/ProtectedAuth";
+
 const App = () => {
   return (
-    <>
+    <AuthProvider>
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/aboutus" element={<NavbarAboutus />} />
@@ -44,7 +50,7 @@ const App = () => {
         <Route path="/donor-registration" element={<DonorRegistrationForm />} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
         <Route path="/user-donation-form" element={<FoodDonationForm />} />
-        <Route path="/mapbox" element={<LocationPicker/>}/>
+        <Route path="/mapbox" element={<LocationPicker />} />
         <Route
           path="/user-donation-history"
           element={<UserDonationHistory />}
@@ -61,18 +67,42 @@ const App = () => {
           element={<NGOAccepteddonation />}
         />
         <Route path="/NGO-Doner-detailspage" element={<NGODonorDetails />} />
+        <Route path="/Admin-Login" element={<AdminLogin />} />
 
         <Route
           path="/Admin-dashboard"
           element={
-            // <AdminRoute>
-            <AdminDashboard />
-            // </AdminRoute>
+            <ProtectedAdminRoute>
+              <AdminDashboard />
+            </ProtectedAdminRoute>
           }
         />
-        <Route path="/Admin-Login" element={<AdminLogin />} />
+        <Route
+          path="/Admin-NGO"
+          element={
+            <ProtectedAdminRoute>
+              <AdminNGODetails />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/Admin-Donor"
+          element={
+            <ProtectedAdminRoute>
+              <AdminDonorDetails />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/Admin-donor-detail"
+          element={
+            <ProtectedAdminRoute>
+              <AdminDonorTable />
+            </ProtectedAdminRoute>
+          }
+        />
       </Routes>
-    </>
+    </AuthProvider>
   );
 };
 

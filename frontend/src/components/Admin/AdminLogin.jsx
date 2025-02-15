@@ -1,24 +1,34 @@
 import React, { useState } from "react";
 import { Eye, EyeOff, Shield, Lock, Mail, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const SuperAdminSignIn = () => {
+  const { loginAdmin } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [adminCredentials, setAdminCredentials] = useState({
+    username: "",
+    password: "",
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    if (email === "admin@gmail.com" && password === "admin123") {
+    if (
+      adminCredentials.username === "admin@gmail.com" &&
+      adminCredentials.password === "admin123"
+    ) {
+      loginAdmin();
       navigate("/Admin-dashboard");
     } else {
-      setError("Invalid credentials. Please try again.");
+      alert("Invalid Admin Credentials");
     }
     setIsLoading(false);
   };
@@ -67,8 +77,13 @@ const SuperAdminSignIn = () => {
                     name="email"
                     type="email"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={adminCredentials.username}
+                    onChange={(e) =>
+                      setAdminCredentials({
+                        ...adminCredentials,
+                        username: e.target.value,
+                      })
+                    }
                     className="block w-full rounded-lg border border-emerald-200 px-4 py-3 pl-11 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 transition-colors duration-200"
                     placeholder="admin@example.com"
                   />
@@ -89,8 +104,13 @@ const SuperAdminSignIn = () => {
                     name="password"
                     type={showPassword ? "text" : "password"}
                     required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={adminCredentials.password}
+                    onChange={(e) =>
+                      setAdminCredentials({
+                        ...adminCredentials,
+                        password: e.target.value,
+                      })
+                    }
                     className="block w-full rounded-lg border border-emerald-200 px-4 py-3 pl-11 pr-11 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 transition-colors duration-200"
                     placeholder="••••••••••••"
                   />
