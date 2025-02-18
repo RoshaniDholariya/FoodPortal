@@ -3,12 +3,17 @@ import { ArrowLeft, Eye, FileText, Check, X, Menu } from "lucide-react";
 import Sidebar from "../AdminSidebar";
 
 const NGODetailsPage = () => {
+  const [ngos, setNgos] = useState([]);
   const [selectedNGO, setSelectedNGO] = useState(null);
-  const [actionTaken, setActionTaken] = useState({});
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    fetchNGOs();
+
     const handleResize = () => {
       setIsMobile(window.innerWidth < 1024);
       if (window.innerWidth >= 1024) {
@@ -21,37 +26,106 @@ const NGODetailsPage = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const ngos = [
-    {
-      id: 1,
-      name: "Care Foundation",
-      email: "care@example.com",
-      phoneNumber: "+91 9876543210",
-      city: "Mumbai",
-      pincode: "400001",
-      address: "123 Main Street, Mumbai",
-      certificate: "care-foundation.pdf",
-      status: "pending",
-    },
-    {
-      id: 2,
-      name: "Hope Trust",
-      email: "hope@example.com",
-      phoneNumber: "+91 9876543211",
-      city: "Delhi",
-      pincode: "110001",
-      address: "456 Park Road, Delhi",
-      certificate: "hope-trust.pdf",
-      status: "pending",
-    },
-  ];
+  const fetchNGOs = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/admin/allngo", {
+        withCredential: true,
+      });
+      const data = await response.json();
 
-  const handleAction = (ngoId, action) => {
-    setActionTaken((prev) => ({
-      ...prev,
-      [ngoId]: action,
-    }));
+      if (data.success) {
+        setNgos(data.data);
+      } else {
+        setError(data.message);
+      }
+    } catch (err) {
+      setError("Failed to fetch NGOs");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleApproveNGO = async (ngoId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/admin/approve-ngo/${ngoId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setNgos(
+          ngos.map((ngo) =>
+            ngo.id === ngoId
+              ? { ...ngo, isRejected: false, isApproved: true }
+              : ngo
+          )
+        );
+
+        if (selectedNGO && selectedNGO.id === ngoId) {
+          setSelectedNGO({
+            ...selectedNGO,
+            isRejected: false,
+            isApproved: true,
+          });
+        }
+      } else {
+        setError(data.message);
+      }
+    } catch (err) {
+      setError("Failed to approve NGO");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // const handleRejectNGO = async (ngoId) => {
+  //   try {
+  //     setIsSubmitting(true);
+  //     const response = await fetch(
+  //       `http://localhost:3000/admin/reject-ngo/${ngoId}`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({}),
+  //       }
+  //     );
+
+  //     const data = await response.json();
+
+  //     if (data.success) {
+  //       setNgos(
+  //         ngos.map((ngo) =>
+  //           ngo.id === ngoId
+  //             ? { ...ngo, isRejected: true, isApproved: false }
+  //             : ngo
+  //         )
+  //       );
+
+  //       if (selectedNGO && selectedNGO.id === ngoId) {
+  //         setSelectedNGO({
+  //           ...selectedNGO,
+  //           isRejected: true,
+  //           isApproved: false,
+  //         });
+  //       }
+  //     } else {
+  //       setError(data.message);
+  //     }
+  //   } catch (err) {
+  //     setError("Failed to reject NGO");
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
 
   const NGOTable = () => (
     <div className="flex h-screen">
@@ -63,20 +137,13 @@ const NGODetailsPage = () => {
 
       <main className="flex-1 lg:pl-60 bg-gradient-to-b from-emerald-50 to-teal-50">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="flex items-center justify-between mb-6">
-            {isMobile && (
-              <button
-                onClick={() => setShowMobileSidebar(true)}
-                className="p-2 rounded-lg hover:bg-gray-100"
-              >
-                <Menu className="h-6 w-6" />
-              </button>
-            )}
-          </div>
-
-          <div className="rounded-xl shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <div className="inline-block min-w-full align-middle">
+          {loading ? (
+            <div className="text-center">Loading...</div>
+          ) : error ? (
+            <div className="text-red-600 text-center">{error}</div>
+          ) : (
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-100">
                   <thead>
                     <tr className="bg-gray-50">
@@ -94,7 +161,7 @@ const NGODetailsPage = () => {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100 bg-white">
+                  <tbody className="divide-y divide-gray-100">
                     {ngos.map((ngo) => (
                       <tr key={ngo.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
@@ -115,22 +182,21 @@ const NGODetailsPage = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex justify-center">
-                            {actionTaken[ngo.id] ? (
-                              <span
-                                className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                  actionTaken[ngo.id] === "accepted"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
-                                }`}
-                              >
-                                {actionTaken[ngo.id].charAt(0).toUpperCase() +
-                                  actionTaken[ngo.id].slice(1)}
-                              </span>
-                            ) : (
-                              <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700">
-                                Pending
-                              </span>
-                            )}
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                ngo.isApproved
+                                  ? "bg-green-100 text-green-700"
+                                  : ngo.isRejected
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-yellow-100 text-yellow-700"
+                              }`}
+                            >
+                              {ngo.isApproved
+                                ? "Approved"
+                                : ngo.isRejected
+                                ? "Rejected"
+                                : "Pending"}
+                            </span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -149,7 +215,7 @@ const NGODetailsPage = () => {
                 </table>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </main>
     </div>
@@ -165,16 +231,6 @@ const NGODetailsPage = () => {
 
       <main className="flex-1 lg:pl-60">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="flex items-center space-x-4">
-            {isMobile && (
-              <button
-                onClick={() => setShowMobileSidebar(true)}
-                className="p-2 rounded-lg hover:bg-gray-100"
-              >
-                <Menu className="h-6 w-6" />
-              </button>
-            )}
-          </div>
           <div className="bg-white rounded-xl shadow-sm">
             <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
               <button
@@ -184,27 +240,28 @@ const NGODetailsPage = () => {
                 <ArrowLeft className="h-5 w-5 text-gray-600" />
               </button>
 
-              {!actionTaken[ngo.id] && (
+              {!ngo.isApproved && !ngo.isRejected && (
                 <div className="flex space-x-3 w-full sm:w-auto">
                   <button
-                    onClick={() => handleAction(ngo.id, "accepted")}
-                    className="flex-1 sm:flex-none px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 flex items-center justify-center space-x-2"
-                    disabled={actionTaken[ngo.id]}
+                    onClick={() => handleApproveNGO(ngo.id)}
+                    className="flex-1 sm:flex-none px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 flex items-center justify-center space-x-2"
+                    disabled={isSubmitting}
                   >
                     <Check className="h-4 w-4" />
-                    <span>Accept</span>
+                    <span>{isSubmitting ? "Processing..." : "Accept"}</span>
                   </button>
                   <button
-                    onClick={() => handleAction(ngo.id, "rejected")}
-                    className="flex-1 sm:flex-none px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center space-x-2"
-                    disabled={actionTaken[ngo.id]}
+                    onClick={() => handleRejectNGO(ngo.id)}
+                    className="flex-1 sm:flex-none px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center space-x-2"
+                    disabled={isSubmitting}
                   >
                     <X className="h-4 w-4" />
-                    <span>Reject</span>
+                    <span>{isSubmitting ? "Processing..." : "Reject"}</span>
                   </button>
                 </div>
               )}
             </div>
+
             <div className="p-4 sm:p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -261,27 +318,29 @@ const NGODetailsPage = () => {
                 </div>
               </div>
 
-              <div className="mt-6 sm:mt-8">
-                <h3 className="text-sm font-medium text-gray-500 mb-4">
-                  Documents
-                </h3>
-                <div className="border border-gray-200 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 rounded-lg">
-                      <FileText className="h-5 w-5 text-gray-600" />
+              {ngo.certificate && (
+                <div className="mt-6 sm:mt-8">
+                  <h3 className="text-sm font-medium text-gray-500 mb-4">
+                    Documents
+                  </h3>
+                  <div className="border border-gray-200 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-gray-100 rounded-lg">
+                        <FileText className="h-5 w-5 text-gray-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">
+                          {ngo.certificate}
+                        </p>
+                        <p className="text-xs text-gray-500">NGO Certificate</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {ngo.certificate}
-                      </p>
-                      <p className="text-xs text-gray-500">NGO Certificate</p>
-                    </div>
+                    <button className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-teal-600 hover:text-teal-700 text-center">
+                      View PDF
+                    </button>
                   </div>
-                  <button className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-teal-600 hover:text-teal-700 text-center">
-                    View PDF
-                  </button>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
