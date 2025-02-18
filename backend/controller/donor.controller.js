@@ -3,10 +3,18 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const { PrismaClient } = require("@prisma/client");
 require("dotenv").config();
+const cloudinary = require("cloudinary").v2;
+
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const prisma = new PrismaClient();
 
-// Email configuration
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -15,11 +23,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Helper function to generate OTP
 const generateOTP = () =>
   Math.floor(100000 + Math.random() * 900000).toString();
 
-// Register user with email and password
 exports.registerDonor = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -37,7 +43,6 @@ exports.registerDonor = async (req, res) => {
       },
     });
 
-    // Generate and store OTP
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
     await prisma.donor.update({
@@ -60,7 +65,6 @@ exports.registerDonor = async (req, res) => {
   }
 };
 
-// Verify OTP
 exports.verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
 
@@ -76,18 +80,73 @@ exports.verifyOTP = async (req, res) => {
       data: { isVerified: true, otp: null, otpExpiry: null },
     });
 
-    //const token = jwt.sign({ id: donor.id, email: donor.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    
 
     res.status(200).json({ success: true, message: "OTP verified", donor });
   } catch (error) {
-    console.error("Error verifying OTP:", error); // Log the full error
+    console.error("Error verifying OTP:", error); 
     res
       .status(500)
       .json({ message: "Error verifying OTP", error: error.message });
   }
 };
 
-// Add donor details
+// exports.addDonorDetails = async (req, res) => {
+  
+//   const {
+//     donorId,
+//     name,
+//     address,
+//     city,
+//     state,
+//     pincode,
+//     phone,
+//     donorType,
+//     photo,
+//     restaurantName,
+//   } = req.body;
+
+//   if (!donorId) {
+//     return res.status(400).json({
+//       success: false,
+//       message: "Donor ID is required",
+//     });
+//   }
+
+//   try {
+//     const donor = await prisma.donor.update({
+//       where: {
+//         id: parseInt(donorId), 
+//       },
+//       data: {
+//         name,
+//         address,
+//         city,
+//         state,
+//         pincode,
+//         phone,
+//         photo: photo || null,
+//         donorType,
+//         restaurantName: donorType === "RESTAURANT" ? restaurantName : null,
+//       },
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Donor details added successfully",
+//       donor,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Error adding donor details",
+//       error: error.message,
+//     });
+//   }
+// };
+
+
 exports.addDonorDetails = async (req, res) => {
   const {
     donorId,
@@ -102,7 +161,6 @@ exports.addDonorDetails = async (req, res) => {
     restaurantName,
   } = req.body;
 
-  // Validate donorId
   if (!donorId) {
     return res.status(400).json({
       success: false,
@@ -111,9 +169,29 @@ exports.addDonorDetails = async (req, res) => {
   }
 
   try {
+    let uploadedPhoto = null;
+
+    // Check if photo exists and upload to Cloudinary
+    if (photo) {
+      if (!photo.startsWith("data:image")) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid image format. Must be a Base64 string.",
+        });
+      }
+
+      const uploadResponse = await cloudinary.uploader.upload(photo, {
+        folder: "donor_photos",
+        resource_type: "image",
+      });
+
+      uploadedPhoto = uploadResponse.secure_url; // Get the URL
+    }
+
+    // Store donor details in DB
     const donor = await prisma.donor.update({
       where: {
-        id: parseInt(donorId), // Ensure donorId is an integer
+        id: parseInt(donorId),
       },
       data: {
         name,
@@ -122,9 +200,8 @@ exports.addDonorDetails = async (req, res) => {
         state,
         pincode,
         phone,
-        // Store the photo as a string or null
-        photo: photo || null,
         donorType,
+        photo: uploadedPhoto || null, // Store Cloudinary image URL
         restaurantName: donorType === "RESTAURANT" ? restaurantName : null,
       },
     });
@@ -135,7 +212,7 @@ exports.addDonorDetails = async (req, res) => {
       donor,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Backend Error:", error);
     res.status(500).json({
       success: false,
       message: "Error adding donor details",
@@ -144,7 +221,6 @@ exports.addDonorDetails = async (req, res) => {
   }
 };
 
-// Middleware for authentication
 exports.authenticate = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) return res.status(401).json({ message: "Unauthorized: No token provided" });
@@ -158,7 +234,6 @@ exports.authenticate = (req, res, next) => {
   }
 };
 
-// Get Donor Details
 exports.getDonorDetails = async (req, res) => {
   try {
     const donor = await prisma.donor.findUnique({ where: { id: req.user.userId } });
@@ -170,7 +245,6 @@ exports.getDonorDetails = async (req, res) => {
   }
 };
 
-// Update Donor Details
 exports.updateDonorDetails = async (req, res) => {
   try {
     const updatedDonor = await prisma.donor.update({
@@ -217,7 +291,6 @@ exports.Login = async (req, res) => {
 };
 
 
-// Middleware for authentication
 exports.authenticate = (req, res, next) => {
   const token = req.cookies.token;
 
@@ -225,7 +298,6 @@ exports.authenticate = (req, res, next) => {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
 
-  // console.log("Received Token:", token); // Debugging line
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_secret_key");
@@ -242,7 +314,7 @@ exports.addFood = async (req, res) => {
   try {
     const { foodType, foodCategory, noOfDishes, preparationDate, expiryDate,address, latitude,
       City,longitude, } = req.body;
-    const donorId = req.user.userId; // Get donor ID from the authenticated user
+    const donorId = req.user.userId; 
 
     if (!foodType || !foodCategory || !noOfDishes || !preparationDate || !expiryDate || !address) {
       return res.status(400).json({
@@ -295,7 +367,7 @@ exports.getDonorFood = async (req, res) => {
 exports.getApprovedNGOs = async (req, res) => {
   try {
     const ngos = await prisma.nGO.findMany({
-      where: { isApproved: true }, // Fetch only approved NGOs
+      where: { isApproved: true },
       select: {
         id: true,
         name: true,

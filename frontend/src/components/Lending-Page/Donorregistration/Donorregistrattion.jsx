@@ -131,23 +131,21 @@ const DonorRegistrationForm = () => {
   const convertToBase64 = (file) => {
     return new Promise((resolve, reject) => {
       if (file.size > 5 * 1024 * 1024) {
-        reject(
-          new Error("File size too large. Please choose an image under 5MB")
-        );
+        reject(new Error("File size too large. Please choose an image under 5MB"));
         return;
       }
-
+  
       const fileReader = new FileReader();
       fileReader.readAsDataURL(file);
       fileReader.onload = () => {
-        const base64String = fileReader.result.split(",")[1];
-        resolve(base64String);
+        resolve(fileReader.result); 
       };
       fileReader.onerror = (error) => {
         reject(error);
       };
     });
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-white">

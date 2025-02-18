@@ -29,7 +29,7 @@ model Donor {
   phone        String?
   photo        String?
   donorType    DonorType?
-  restaurantName String? // Optional if donorType is restaurant
+  restaurantName String? 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

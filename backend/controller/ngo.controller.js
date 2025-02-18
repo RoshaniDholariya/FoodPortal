@@ -8,7 +8,6 @@ exports.submitNgoForm = async (req, res) => {
   try {
     const { name, address, email, phoneNumber, city, pincode } = req.body;
   
-    // Cloudinary file URL from multer
     const certificate = req.file.path; 
 
     const newNgo = await prisma.nGO.create({
@@ -19,13 +18,12 @@ exports.submitNgoForm = async (req, res) => {
         phoneNumber,
         city,
         pincode,
-        certificate, // Store the Cloudinary URL
+        certificate, 
       },
     });
-// console.log(newNgo.data);
     res.status(200).json({ success: true, message: "Form submitted successfully. Awaiting admin approval." });
   } catch (error) {
-    console.error("Error submitting NGO form:", error); // Log the full error
+    console.error("Error submitting NGO form:", error); 
     res.status(500).json({ 
       success: false, 
       message: "Error submitting form", 
@@ -35,16 +33,16 @@ exports.submitNgoForm = async (req, res) => {
 };
 exports.Login = async (req, res) => {
   try {
-    console.log("Request Body:", req.body); // Debugging
+    console.log("Request Body:", req.body); 
 
-    const { email, password } = req.body; // Use 'email' instead of 'username'
+    const { email, password } = req.body; 
 
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
     const user = await prisma.nGO.findUnique({
-      where: { email }, // Find user by email
+      where: { email }, 
     });
 
     if (!user) {
@@ -82,7 +80,6 @@ exports.Login = async (req, res) => {
   }
 };
 
-// Middleware for authentication
 exports.authenticate = (req, res, next) => {
   const token = req.cookies.token;
 
@@ -90,7 +87,6 @@ exports.authenticate = (req, res, next) => {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
 
-  // console.log("Received Token:", token); // Debugging line
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_secret_key");
@@ -101,25 +97,10 @@ exports.authenticate = (req, res, next) => {
     return res.status(403).json({ message: "Invalid or expired token" });
   }
 };
-// exports.getAvailableFood = async (req, res) => {
-//   try {
-//     const City=req.body;
-//     const availableFood = await prisma.foodDetails.findMany({
-//       where: { City, status: "available" },
-//       include: { donor: { select: { name:true, email:true } } },
-//     });
-//         // console.log(availableFood);
-//     res.status(200).json({ success: true, availableFood });
-//   } catch (error) {
-//     console.error('Error fetching available food:', error.message);
-//     res.status(500).json({ success: false, message: 'Internal server error.' });
-//   }
-// };
 
 exports.getAvailableFood = async (req, res) => {
   try {
     const ngoId = req.user.userId; 
-    // Fetch NGO's city
     const ngo = await prisma.nGO.findUnique({
       where: { id: ngoId },
       select: { city: true }
@@ -128,12 +109,11 @@ exports.getAvailableFood = async (req, res) => {
       return res.status(404).json({ success: false, message: "NGO not found" });
     }
 
-    // Fetch food details that match NGO's city
     const availableFood = await prisma.foodDetails.findMany({
       where: {
         City: {
           equals: ngo.city,
-          mode: 'insensitive' // Ensures case-insensitive comparison
+          mode: 'insensitive' 
         },
         status: "available",
       },
@@ -153,7 +133,7 @@ exports.getAvailableFood = async (req, res) => {
 exports.acceptFood = async (req, res) => {
   try {
     const { foodId } = req.body;
-    const ngoId = req.user.id; // NGO ID from authenticated user
+    const ngoId = req.user.id; 
 
     const food = await prisma.foodDetails.findUnique({ where: { id: foodId } });
 
@@ -182,7 +162,6 @@ exports.getAcceptedFood = async (req, res) => {
       where: { status: "completed" },
       include: { donor: true },
     });
-    // console.log(acceptedFood);
     res.status(200).json({ success: true, acceptedFood });
   } catch (error) {
     console.error("Error fetching accepted food:", error.message);
@@ -191,15 +170,14 @@ exports.getAcceptedFood = async (req, res) => {
 };
 exports.getDonorsForNGO = async (req, res) => {
   try {
-    const ngoId = req.user.id; // Get the authenticated NGO's ID
+    const ngoId = req.user.id; 
 
-    // Fetch distinct donors who have donated food accepted by this NGO
     const donors = await prisma.donor.findMany({
       where: {
         FoodDetails: {
           some: {
-            ngoId: ngoId, // Filter foods accepted by this NGO
-            status: "completed", // Only completed (accepted) donations
+            ngoId: ngoId,
+            status: "completed", 
           },
         },
       },
@@ -213,8 +191,8 @@ exports.getDonorsForNGO = async (req, res) => {
         state: true,
         pincode: true,
         donorType: true,
-        restaurantName: true, // Only for restaurant-type donors
-        photo: true, // Profile photo if available
+        restaurantName: true, 
+        photo: true, 
       },
     });
 // console.log(donors)
