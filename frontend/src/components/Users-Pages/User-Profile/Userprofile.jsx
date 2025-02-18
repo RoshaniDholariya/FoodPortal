@@ -335,7 +335,7 @@ const DonorProfileEdit = () => {
                     className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-xl transition-colors duration-200"
                   >
                     {isEditing ? (
-                      <Save className="w-5 h-5" />
+                      <Save className="w-5 h-5" onClick={handleSave} />
                     ) : (
                       <Edit className="w-5 h-5" />
                     )}

@@ -8,7 +8,8 @@ const {
   addFood,
   getDonorFood,
   getApprovedNGOs,
-  getDonorDetails
+  getDonorDetails,
+  updateDonorDetails
 } = require("../controller/donor.controller.js");
 
 const router = express.Router();
@@ -22,5 +23,6 @@ router.post("/addFood",authenticate, addFood);
 router.get("/getDonorFood",authenticate,getDonorFood);
 router.get('/approved-ngos',authenticate,getApprovedNGOs);
 router.get("/getDonorDetails",authenticate,getDonorDetails);
+router.put("/updateDonorDetails",authenticate,updateDonorDetails);
 
 module.exports = router;
