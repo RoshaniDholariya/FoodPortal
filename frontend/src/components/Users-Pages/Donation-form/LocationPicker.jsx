@@ -230,26 +230,55 @@ const LocationPicker = ({ onLocationSelect }) => {
   const updateLocation = async (lng, lat) => {
     marker.current.setLngLat([lng, lat]).addTo(map.current);
     map.current.flyTo({ center: [lng, lat], zoom: 14 });
-
+  
     try {
       const response = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxgl.accessToken}`
       );
       const data = await response.json();
-
+  
+      console.log("Reverse Geocoding API Response:", data); // Debugging
+  
       if (data.features && data.features.length > 0) {
+        const place = data.features[0]; // Get the first result
+        let city = null;
+        let state = null;
+        let country = null;
+  
+        // Ensure context exists before processing
+        if (place.context) {
+          place.context.forEach((item) => {
+            if (item.id.startsWith("place.")) {
+              city = item.text; // City name
+            } else if (item.id.startsWith("region.")) {
+              state = item.text; // State name
+            } else if (item.id.startsWith("country.")) {
+              country = item.text; // Country name
+            }
+          });
+        }
+  
         const locationData = {
-          address: data.features[0].place_name,
-          lng: lng,
-          lat: lat
+          address: place.place_name || "Unknown Address",
+          city: city || "Unknown City",
+          state: state || "Unknown State",
+          country: country || "Unknown Country",
+          lng,
+          lat,
         };
+  
+        console.log("Extracted Location Data:", locationData); // Debugging
         setSelectedLocation(locationData);
         onLocationSelect(locationData);
+      } else {
+        console.error("No location data found for coordinates.");
       }
     } catch (error) {
-      console.error('Error reverse geocoding:', error);
+      console.error("Error reverse geocoding:", error);
     }
   };
+  
+  
   const handleGetCurrentLocation = () => {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser.");

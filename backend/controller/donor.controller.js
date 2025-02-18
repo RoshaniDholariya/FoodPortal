@@ -241,7 +241,7 @@ exports.authenticate = (req, res, next) => {
 exports.addFood = async (req, res) => {
   try {
     const { foodType, foodCategory, noOfDishes, preparationDate, expiryDate,address, latitude,
-      longitude, } = req.body;
+      City,longitude, } = req.body;
     const donorId = req.user.userId; // Get donor ID from the authenticated user
 
     if (!foodType || !foodCategory || !noOfDishes || !preparationDate || !expiryDate || !address) {
@@ -259,6 +259,7 @@ exports.addFood = async (req, res) => {
         address,
         latitude,
         longitude,
+        City,
         noOfDishes: parseInt(noOfDishes),
         preparationDate: new Date(preparationDate),
         expiryDate: new Date(expiryDate),

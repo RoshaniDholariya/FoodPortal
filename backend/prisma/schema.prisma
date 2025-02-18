@@ -19,8 +19,8 @@ model Donor {
   email        String   @unique
   password     String
   isVerified   Boolean  @default(false)
-  otp          String?  // Temporary OTP storage
-  otpExpiry    DateTime? // OTP expiry time
+  otp          String?  
+  otpExpiry    DateTime? 
   name         String?
   address      String?
   city         String?
@@ -65,11 +65,12 @@ model FoodDetails {
   address        String
   latitude       Float?
   longitude      Float?
+  City           String?
   noOfDishes     Int
   preparationDate DateTime
   expiryDate     DateTime
-  status         String   @default("available") // "available", "completed"
-  ngoId          Int?     // Nullable, assigned when an NGO takes it
+  status         String   @default("available")
+  ngoId          Int?    
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

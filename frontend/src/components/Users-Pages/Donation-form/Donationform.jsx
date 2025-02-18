@@ -23,15 +23,20 @@ const FoodDonationForm = () => {
     preparationDate: "",
     expiryDate: "",
     address: "",
+    City:"",
     latitude: "",
     longitude: "",
   });
   const handleLocationSelect = (location) => {
+
+    console.log("Location selected:", location);
     setFormData((prev) => ({
       ...prev,
       address: location.address,
+      City: location.city,
       latitude: location.lat,
       longitude: location.lng,
+
     }));
   };
   useEffect(() => {
@@ -193,6 +198,7 @@ const FoodDonationForm = () => {
           preparationDate: formData.preparationDate,
           expiryDate: formData.expiryDate,
           address: formData.address, // Fixed property name
+          City:formData.City,
         },
         {
           headers: {

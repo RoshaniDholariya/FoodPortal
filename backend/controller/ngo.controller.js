@@ -101,19 +101,55 @@ exports.authenticate = (req, res, next) => {
     return res.status(403).json({ message: "Invalid or expired token" });
   }
 };
+// exports.getAvailableFood = async (req, res) => {
+//   try {
+//     const City=req.body;
+//     const availableFood = await prisma.foodDetails.findMany({
+//       where: { City, status: "available" },
+//       include: { donor: { select: { name:true, email:true } } },
+//     });
+//         // console.log(availableFood);
+//     res.status(200).json({ success: true, availableFood });
+//   } catch (error) {
+//     console.error('Error fetching available food:', error.message);
+//     res.status(500).json({ success: false, message: 'Internal server error.' });
+//   }
+// };
+
 exports.getAvailableFood = async (req, res) => {
   try {
-    const availableFood = await prisma.foodDetails.findMany({
-      where: { status: "available" },
-      include: { donor: { select: { name:true, email:true } } },
+    const ngoId = req.user.userId; 
+    // Fetch NGO's city
+    const ngo = await prisma.nGO.findUnique({
+      where: { id: ngoId },
+      select: { city: true }
     });
-        // console.log(availableFood);
+    if (!ngo) {
+      return res.status(404).json({ success: false, message: "NGO not found" });
+    }
+
+    // Fetch food details that match NGO's city
+    const availableFood = await prisma.foodDetails.findMany({
+      where: {
+        City: {
+          equals: ngo.city,
+          mode: 'insensitive' // Ensures case-insensitive comparison
+        },
+        status: "available",
+      },
+      include: {
+        donor: { select: { name: true, email: true } }
+      }
+    });
+
     res.status(200).json({ success: true, availableFood });
+
   } catch (error) {
-    console.error('Error fetching available food:', error.message);
-    res.status(500).json({ success: false, message: 'Internal server error.' });
+    console.error("Error fetching available food:", error.message);
+    res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
+
 exports.acceptFood = async (req, res) => {
   try {
     const { foodId } = req.body;
