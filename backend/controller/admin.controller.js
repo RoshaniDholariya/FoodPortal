@@ -357,7 +357,7 @@ exports.approveNgo = async (req, res) => {
 
 exports.getallDonor = async (req, res) => {
   try {
-    const donors = await prisma.donor.findMany(); // Fetch all donors
+    const donors = await prisma.donor.findMany();
     res.status(200).json({
       success: true,
       data: donors

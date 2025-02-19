@@ -8,33 +8,9 @@ const AdminDonor = () => {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
-  const [donors, setDonors] = useState([
-    {
-      id: 1,
-      name: "John's Restaurant",
-      type: "Restaurant",
-      donations: 15,
-      contact: "+1 234-567-8900",
-      email: "john@restaurant.com",
-    },
-    {
-      id: 2,
-      name: "City Bakery",
-      type: "Bakery",
-      donations: 8,
-      contact: "+1 234-567-8901",
-      email: "city@bakery.com",
-    },
-    {
-      id: 3,
-      name: "Fresh Foods Market",
-      type: "Supermarket",
-      donations: 25,
-      contact: "+1 234-567-8902",
-      email: "fresh@foods.com",
-    },
-  ]);
-
+  const [donors, setDonors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
   useEffect(() => {
@@ -48,6 +24,31 @@ const AdminDonor = () => {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const fetchDonors = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/admin/alldonor", {
+          withCredential: true,
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch donors");
+        }
+        const data = await response.json();
+        if (data.success) {
+          setDonors(data.data);
+        } else {
+          throw new Error(data.message);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDonors();
   }, []);
 
   const handleSort = (key) => {
@@ -66,7 +67,7 @@ const AdminDonor = () => {
   };
 
   const handleRowClick = (donorId) => {
-    navigate(`/Admin-donor-detail`);
+    navigate(`/admin-donor-detail`);
   };
 
   const SortButton = ({ column }) => (
@@ -81,7 +82,6 @@ const AdminDonor = () => {
     </button>
   );
 
-  // Responsive card view for mobile
   const DonorCard = ({ donor }) => (
     <div
       className="bg-white p-4 rounded-lg shadow mb-4 cursor-pointer hover:bg-gray-50"
@@ -90,7 +90,7 @@ const AdminDonor = () => {
       <div className="flex justify-between items-start mb-2">
         <h3 className="text-lg font-medium text-gray-900">{donor.name}</h3>
         <span className="px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800">
-          {donor.type}
+          {donor.donorType}
         </span>
       </div>
       <div className="space-y-2 text-sm text-gray-500">
@@ -98,7 +98,7 @@ const AdminDonor = () => {
           <span className="font-medium">Donations:</span> {donor.donations}
         </p>
         <p className="flex justify-between">
-          <span className="font-medium">Contact:</span> {donor.contact}
+          <span className="font-medium">Contact:</span> {donor.phone}
         </p>
         <p className="flex justify-between">
           <span className="font-medium">Email:</span> {donor.email}
@@ -106,6 +106,27 @@ const AdminDonor = () => {
       </div>
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4">
+        <div
+          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
+          <span className="block sm:inline">{error}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen">
@@ -143,13 +164,13 @@ const AdminDonor = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Donor Name
+                      Donor Name <SortButton column="name" />
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Type
+                      Type <SortButton column="type" />
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Donations
+                      Donations <SortButton column="donations" />
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Contact
@@ -176,14 +197,14 @@ const AdminDonor = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">
-                          {donor.type}
+                          {donor.donorType}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {donor.donations}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {donor.contact}
+                        {donor.phone}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {donor.email}
