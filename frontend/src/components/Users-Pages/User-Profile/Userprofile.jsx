@@ -239,7 +239,6 @@ const DonorProfileEdit = () => {
         const fetchDonorData = async () => {
           try {
             const response = await axios.get("http://localhost:3000/api/donors/getDonorDetails");
-            // console.log("response .data :",response.data);
             
             if (response.data.success) {
               setProfile(response.data.donor);

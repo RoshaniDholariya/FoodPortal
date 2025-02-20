@@ -80,7 +80,7 @@ const EditableNGOProfile = () => {
 
   const handleSave = async () => {
     try {
-      console.log("Edited Profile:", editedProfile);
+      // console.log("Edited Profile:", editedProfile);
       // console.log("Profile:", profile);
       
       const response = await axios.put("http://localhost:3000/api/ngo/updatengoDetails",editedProfile,
