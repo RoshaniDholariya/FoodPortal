@@ -1,8 +1,9 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { Menu, Eye, ArrowUpDown } from "lucide-react";
+import { Menu, Eye, ArrowUpDown, X } from "lucide-react";
 import Sidebar from "../AdminSidebar";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const AdminDonor = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const AdminDonor = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [selectedDonor, setSelectedDonor] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -29,17 +31,14 @@ const AdminDonor = () => {
   useEffect(() => {
     const fetchDonors = async () => {
       try {
-        const response = await fetch("http://localhost:3000/admin/alldonor", {
-          withCredential: true,
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch donors");
-        }
-        const data = await response.json();
-        if (data.success) {
-          setDonors(data.data);
-        } else {
-          throw new Error(data.message);
+        const response = await axios.get(
+          "http://localhost:3000/admin/alldonor",
+          {
+            withCredential: true,
+          }
+        );
+        if (response.data) {
+          setDonors(response.data.data);
         }
       } catch (err) {
         setError(err.message);
@@ -66,10 +65,6 @@ const AdminDonor = () => {
     setDonors(sortedDonors);
   };
 
-  const handleRowClick = (donorId) => {
-    navigate(`/admin-donor-detail`);
-  };
-
   const SortButton = ({ column }) => (
     <button
       onClick={(e) => {
@@ -82,11 +77,46 @@ const AdminDonor = () => {
     </button>
   );
 
+  const DonorDetailsCard = ({ donor, onClose }) => (
+    <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <div className="flex justify-between items-start mb-4">
+        <h2 className="text-xl font-bold text-gray-900">Donor Details</h2>
+        <button
+          onClick={onClose}
+          className="p-1 hover:bg-gray-100 rounded-full"
+        >
+          <X className="h-5 w-5 text-gray-500" />
+        </button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div>
+          <h3 className="text-sm font-medium text-gray-500">Personal Information</h3>
+          <div className="mt-2 space-y-2">
+            <p className="text-sm text-gray-900"><span className="font-medium">Name:</span> {donor.name}</p>
+            <p className="text-sm text-gray-900"><span className="font-medium">Type:</span> {donor.donorType}</p>
+            <p className="text-sm text-gray-900"><span className="font-medium">Email:</span> {donor.email}</p>
+            <p className="text-sm text-gray-900"><span className="font-medium">Phone:</span> {donor.phone}</p>
+          </div>
+        </div>
+        <div>
+          <h3 className="text-sm font-medium text-gray-500">Donation History</h3>
+          <div className="mt-2">
+            <p className="text-sm text-gray-900"><span className="font-medium">Total Donations:</span> {donor.donations}</p>
+          </div>
+        </div>
+        <div>
+          <h3 className="text-sm font-medium text-gray-500">Additional Information</h3>
+          <div className="mt-2">
+            <p className="text-sm text-gray-900"><span className="font-medium">Status:</span> Active</p>
+            <p className="text-sm text-gray-900"><span className="font-medium">Member Since:</span> {donor.createdAt ? new Date(donor.createdAt).toLocaleDateString() : 'N/A'}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const DonorCard = ({ donor }) => (
-    <div
-      className="bg-white p-4 rounded-lg shadow mb-4 cursor-pointer hover:bg-gray-50"
-      onClick={() => handleRowClick(donor.id)}
-    >
+    <div className="bg-white p-4 rounded-lg shadow mb-4 cursor-pointer hover:bg-gray-50">
       <div className="flex justify-between items-start mb-2">
         <h3 className="text-lg font-medium text-gray-900">{donor.name}</h3>
         <span className="px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800">
@@ -118,10 +148,7 @@ const AdminDonor = () => {
   if (error) {
     return (
       <div className="p-4">
-        <div
-          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative"
-          role="alert"
-        >
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
           <span className="block sm:inline">{error}</span>
         </div>
       </div>
@@ -149,6 +176,13 @@ const AdminDonor = () => {
             )}
             <h1 className="text-2xl font-bold text-gray-800">Donors List</h1>
           </div>
+
+          {selectedDonor && (
+            <DonorDetailsCard
+              donor={selectedDonor}
+              onClose={() => setSelectedDonor(null)}
+            />
+          )}
 
           {/* Mobile View */}
           <div className="block md:hidden">
@@ -187,8 +221,7 @@ const AdminDonor = () => {
                   {donors.map((donor) => (
                     <tr
                       key={donor.id}
-                      className="hover:bg-gray-50 cursor-pointer transition-colors duration-200"
-                      onClick={() => handleRowClick(donor.id)}
+                      className="hover:bg-gray-50 transition-colors duration-200"
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
@@ -210,7 +243,10 @@ const AdminDonor = () => {
                         {donor.email}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <Eye className="h-5 w-5 text-emerald-600 hover:text-emerald-700" />
+                        <Eye
+                          className="h-5 w-5 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                          onClick={() => setSelectedDonor(donor)}
+                        />
                       </td>
                     </tr>
                   ))}
