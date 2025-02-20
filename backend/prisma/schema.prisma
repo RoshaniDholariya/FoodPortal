@@ -54,6 +54,8 @@ model NGO {
   password    String?  // Encrypted, generated after approval
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  description String?
+  contactTime String?
 
   FoodDetails FoodDetails[]
 }

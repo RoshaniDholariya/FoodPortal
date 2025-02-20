@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Edit2,
   Save,
@@ -18,15 +19,14 @@ const EditableNGOProfile = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    name: "Green Earth Foundation",
-    address: "123 Nature Street",
-    description:
-      "We are dedicated to making our planet a better place through sustainable practices and community engagement.",
-    email: "contact@greenearth.org",
-    phone: "+1 (555) 123-4567",
-    city: "Green City",
-    pincode: "12345",
-    contactTime: "9:00 AM - 5:00 PM (Mon-Fri)",
+    name: "",
+    address: "",
+    description:"",
+    email: "",
+    phoneNumber: "",
+    city: "",
+    pincode: "",
+    contactTime:"",
   });
 
   const [editedProfile, setEditedProfile] = useState(profile);
@@ -39,15 +39,36 @@ const EditableNGOProfile = () => {
     setEditedProfile(profile);
   };
 
-  const handleSave = () => {
-    setProfile(editedProfile);
-    setIsEditing(false);
-  };
+  // const handleSave = () => {
+  //   setProfile(editedProfile);
+  //   setIsEditing(false);
+  // };
 
   const handleCancel = () => {
     setIsEditing(false);
     setEditedProfile(profile);
   };
+
+  useEffect(() => {
+    axios.defaults.withCredentials = true;
+    const fetchNGOData = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/api/ngo/getngoDetails",{
+          withCredentials:true,}
+        );
+        if (response.data.success) {
+          setProfile(response.data.ngo);
+        } else {
+          console.error("Failed to fetch Donor Data:", response.data.message);
+        }
+      } catch (err) {
+        console.error("Error fetching Donor Data:", err);
+      }
+    };
+
+    fetchNGOData();
+  }, []);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,6 +76,30 @@ const EditableNGOProfile = () => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleSave = async () => {
+    try {
+      console.log("Edited Profile:", editedProfile);
+      // console.log("Profile:", profile);
+      
+      const response = await axios.put("http://localhost:3000/api/ngo/updatengoDetails",editedProfile,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Ensures cookies are sent  
+        }
+      );
+      if (response.data.success) {
+        setIsEditing(false);
+        console.log("Profile updated successfully!");
+      } else {
+        console.error("Failed to update profile:", response.data.message);
+      }
+    } catch (err) {
+      console.error("Error updating profile:", err);
+    }
   };
 
   return (
@@ -226,7 +271,7 @@ const EditableNGOProfile = () => {
             <div className="space-y-8">
               <div
                 className="group bg-white/70 backdrop-blur-sm rounded-2xl border border-emerald-100 overflow-hidden hover:shadow-xl hover:shadow-emerald-600/10 transition-all duration-300"
-                onMouseEnter={() => setActiveSection("phone")}
+                onMouseEnter={() => setActiveSection("phoneNumber")}
                 onMouseLeave={() => setActiveSection(null)}
               >
                 <div className="p-6">
@@ -241,8 +286,8 @@ const EditableNGOProfile = () => {
                       <>
                         <input
                           type="text"
-                          name="phone"
-                          value={editedProfile.phone}
+                          name="phoneNumber"
+                          value={editedProfile.phoneNumber}
                           onChange={handleChange}
                           className="w-full px-4 py-3 rounded-lg border border-emerald-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white/50 transition-all duration-200"
                         />
@@ -258,7 +303,7 @@ const EditableNGOProfile = () => {
                       <div className="space-y-3">
                         <div className="flex items-center gap-2 px-4 py-3 bg-emerald-50/50 rounded-lg border border-emerald-100 text-emerald-900">
                           <Phone className="w-4 h-4 text-emerald-600" />
-                          {profile.phone}
+                          {profile.phoneNumber}
                         </div>
                         <div className="flex items-center gap-2 px-4 py-3 bg-emerald-50/50 rounded-lg border border-emerald-100 text-emerald-900">
                           <Clock className="w-4 h-4 text-emerald-600" />

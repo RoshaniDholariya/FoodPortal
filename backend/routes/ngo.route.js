@@ -30,6 +30,7 @@ router.get("/getAvailableFood",ngoController.authenticate,ngoController.getAvail
 router.post("/acceptFood",ngoController.authenticate,ngoController.acceptFood);
 router.get("/getacceptedFood",ngoController.authenticate,ngoController.getAcceptedFood);
 router.get("/getDonorsForNGO",ngoController.authenticate,ngoController.getDonorsForNGO);
-
+router.get("/getngoDetails",ngoController.authenticate,ngoController.getngoDetails);
+router.put("/updatengoDetails",ngoController.authenticate,ngoController.updatengoDetails);
 
 module.exports = router;

@@ -202,3 +202,31 @@ exports.getDonorsForNGO = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
+
+
+exports.getngoDetails = async (req, res) => {
+  try {
+    const ngo = await prisma.nGO.findUnique({ where: { id: req.user.userId } });
+    if (!ngo) return res.status(404).json({ success: false, message: "NGO not found" });
+
+    res.status(200).json({ success: true, ngo });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error retrieving NGO details" });
+  }
+};
+
+
+exports.updatengoDetails = async (req, res) => {
+      try{
+        console.log("Edited Profile:", req.body);
+        const updatedNgo = await prisma.nGO.update({
+          where: { id: req.user.userId },
+          data: req.body,
+        });
+        res.status(200).json({ success: true, ngo: updatedNgo });
+
+      } catch(error){
+        console.log("Error updating NGO details:", error); 
+        res.status(500).json({ success: false, message: "Error updating NGO details" });
+      }
+};
