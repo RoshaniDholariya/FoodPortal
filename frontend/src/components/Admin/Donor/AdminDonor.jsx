@@ -90,25 +90,49 @@ const AdminDonor = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div>
-          <h3 className="text-sm font-medium text-gray-500">Personal Information</h3>
+          <h3 className="text-sm font-medium text-gray-500">
+            Personal Information
+          </h3>
           <div className="mt-2 space-y-2">
-            <p className="text-sm text-gray-900"><span className="font-medium">Name:</span> {donor.name}</p>
-            <p className="text-sm text-gray-900"><span className="font-medium">Type:</span> {donor.donorType}</p>
-            <p className="text-sm text-gray-900"><span className="font-medium">Email:</span> {donor.email}</p>
-            <p className="text-sm text-gray-900"><span className="font-medium">Phone:</span> {donor.phone}</p>
+            <p className="text-sm text-gray-900">
+              <span className="font-medium">Name:</span> {donor.name}
+            </p>
+            <p className="text-sm text-gray-900">
+              <span className="font-medium">Type:</span> {donor.donorType}
+            </p>
+            <p className="text-sm text-gray-900">
+              <span className="font-medium">Email:</span> {donor.email}
+            </p>
+            <p className="text-sm text-gray-900">
+              <span className="font-medium">Phone:</span> {donor.phone}
+            </p>
           </div>
         </div>
         <div>
-          <h3 className="text-sm font-medium text-gray-500">Donation History</h3>
+          <h3 className="text-sm font-medium text-gray-500">
+            Donation History
+          </h3>
           <div className="mt-2">
-            <p className="text-sm text-gray-900"><span className="font-medium">Total Donations:</span> {donor.donations}</p>
+            <p className="text-sm text-gray-900">
+              <span className="font-medium">Total Donations:</span>{" "}
+              {donor.donations}
+            </p>
           </div>
         </div>
         <div>
-          <h3 className="text-sm font-medium text-gray-500">Additional Information</h3>
+          <h3 className="text-sm font-medium text-gray-500">
+            Additional Information
+          </h3>
           <div className="mt-2">
-            <p className="text-sm text-gray-900"><span className="font-medium">Status:</span> Active</p>
-            <p className="text-sm text-gray-900"><span className="font-medium">Member Since:</span> {donor.createdAt ? new Date(donor.createdAt).toLocaleDateString() : 'N/A'}</p>
+            <p className="text-sm text-gray-900">
+              <span className="font-medium">Status:</span> Active
+            </p>
+            <p className="text-sm text-gray-900">
+              <span className="font-medium">Member Since:</span>{" "}
+              {donor.createdAt
+                ? new Date(donor.createdAt).toLocaleDateString()
+                : "N/A"}
+            </p>
           </div>
         </div>
       </div>
@@ -148,7 +172,10 @@ const AdminDonor = () => {
   if (error) {
     return (
       <div className="p-4">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <div
+          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
           <span className="block sm:inline">{error}</span>
         </div>
       </div>
