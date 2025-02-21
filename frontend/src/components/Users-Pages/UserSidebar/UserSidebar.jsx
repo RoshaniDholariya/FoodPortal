@@ -54,14 +54,14 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       } fixed lg:relative lg:translate-x-0 z-30 transition-transform duration-300 ease-in-out`}
     >
-      <div className="flex flex-col h-screen w-64 bg-white border-r border-gray-200 shadow-lg">
+      <div className="flex flex-col h-screen w-64 bg-white/80 backdrop-blur-md border-r border-gray-200 shadow-lg">
         <div className="flex items-center justify-between h-16 px-6 bg-gradient-to-r from-emerald-800 to-green-500">
           <span className="text-xl font-bold text-white tracking-wide">
             FoodShare
           </span>
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="lg:hidden text-white hover:text-gray-200 transition-colors"
+            className="lg:hidden text-emerald-600 hover:text-emerald-900"
           >
             {isSidebarOpen ? (
               <X className="h-6 w-6" />
@@ -72,7 +72,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         </div>
 
         <nav className="flex-1 overflow-y-auto py-6">
-          <ul className="space-y-1.5 px-3">
+          <ul className="space-y-2 px-3">
             {menuItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
@@ -82,24 +82,24 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                       className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 
                         ${
                           isActive
-                            ? "bg-[#61cf73]/10 text-[#61cf73] shadow-sm"
-                            : "text-gray-600 hover:bg-gray-50 hover:text-[#61cf73]"
+                            ? "bg-emerald-100 text-emerald-900"
+                            : "text-emerald-600 hover:text-emerald-900 hover:bg-emerald-50"
                         }`}
                     >
                       <item.icon
                         className={`h-5 w-5 ${
-                          isActive ? "text-[#61cf73]" : ""
+                          isActive ? "text-emerald-900" : ""
                         }`}
                       />
                       <span
                         className={`font-medium ${
-                          isActive ? "font-semibold" : ""
+                          isActive ? "text-emerald-900" : ""
                         }`}
                       >
                         {item.label}
                       </span>
                       {isActive && (
-                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#61cf73]" />
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald" />
                       )}
                     </button>
                   </Link>

@@ -48,8 +48,8 @@ const DonationCard = ({ donation, onClick }) => (
 );
 
 const EmptyState = () => (
-  <div className="flex flex-col items-center justify-center h-96 bg-white rounded-lg shadow-sm">
-    <PackageX className="w-16 h-16 text-emerald-200 mb-4" />
+  <div className="flex flex-col items-center justify-center h-96 rounded-lg shadow-sm">
+    <PackageX className="w-16 h-16 text-emerald-600 mb-4" />
     <h3 className="text-xl font-semibold text-gray-900 mb-2">
       No Donations Available
     </h3>
