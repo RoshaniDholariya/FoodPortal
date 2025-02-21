@@ -29,7 +29,6 @@ import RegistrationSuccess from "./components/Lending-Page/Authentication/Regist
 import LocationPicker from "./components/Users-Pages/Donation-form/LocationPicker";
 import AdminNGODetails from "./components/Admin/NGO/NGODetails";
 import AdminDonorDetails from "./components/Admin/Donor/AdminDonor";
-import AdminDonorTable from "./components/Admin/Donor/AdminDonorTable";
 import { AuthProvider } from "./components/context/Authcontext";
 import ProtectedAdminRoute from "./components/Admin/ProtectedAuth";
 
@@ -90,14 +89,6 @@ const App = () => {
           element={
             <ProtectedAdminRoute>
               <AdminDonorDetails />
-            </ProtectedAdminRoute>
-          }
-        />
-        <Route
-          path="/Admin-donor-detail"
-          element={
-            <ProtectedAdminRoute>
-              <AdminDonorTable />
             </ProtectedAdminRoute>
           }
         />

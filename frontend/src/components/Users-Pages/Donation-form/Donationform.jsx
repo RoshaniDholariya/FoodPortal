@@ -19,16 +19,15 @@ const FoodDonationForm = () => {
   const [formData, setFormData] = useState({
     foodType: "",
     foodCategory: "",
-    noOfDishes: "", // Changed from numberOfDishes
+    noOfDishes: "",
     preparationDate: "",
     expiryDate: "",
     address: "",
-    City:"",
+    City: "",
     latitude: "",
     longitude: "",
   });
   const handleLocationSelect = (location) => {
-
     console.log("Location selected:", location);
     setFormData((prev) => ({
       ...prev,
@@ -36,7 +35,6 @@ const FoodDonationForm = () => {
       City: location.city,
       latitude: location.lat,
       longitude: location.lng,
-
     }));
   };
   useEffect(() => {
@@ -147,25 +145,6 @@ const FoodDonationForm = () => {
                     We'll collect from your address
                   </span>
                 </button>
-                {/* <button
-                  type="button"
-                  onClick={() =>
-                    handleInputChange({
-                      target: { name: "deliveryMethod", value: "delivery" },
-                    })
-                  }
-                  className={`p-6 border rounded-lg flex flex-col items-center gap-3 transition-all ${
-                    formData.deliveryMethod === "delivery"
-                      ? "border-[#61cf73] bg-green-50 shadow-md"
-                      : "border-gray-300 hover:border-gray-400"
-                  }`}
-                >
-                  <Home className="h-8 w-8 text-[#61cf73]" />
-                  <span className="font-medium">Delivery to location</span>
-                  <span className="text-sm text-gray-500">
-                    We'll deliver to a local charity
-                  </span>
-                </button> */}
               </div>
             </div>
 
@@ -186,7 +165,7 @@ const FoodDonationForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault(); 
 
     try {
       const response = await axios.post(
@@ -194,18 +173,17 @@ const FoodDonationForm = () => {
         {
           foodType: formData.foodType,
           foodCategory: formData.foodCategory,
-          noOfDishes: formData.noOfDishes, // Fixed property name
+          noOfDishes: formData.noOfDishes,
           preparationDate: formData.preparationDate,
           expiryDate: formData.expiryDate,
-          address: formData.address, // Fixed property name
-          City:formData.City,
+          address: formData.address, 
+          City: formData.City,
         },
         {
           headers: {
             "Content-Type": "application/json",
-            // Authorization: `Bearer ${token}`,
           },
-          withCredentials: true, // Ensures cookies are sent
+          withCredentials: true, 
         }
       );
 

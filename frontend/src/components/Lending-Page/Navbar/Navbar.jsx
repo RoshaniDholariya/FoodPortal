@@ -1,33 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Sun, Moon } from "lucide-react";
+import { ArrowRight, Sun, Moon, Menu, X } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(
-    localStorage.getItem("theme") === "dark"
-  );
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  }, [darkMode]);
 
   return (
-    <nav className="fixed w-full z-50 py-4 backdrop-blur-md bg-black/20 dark:bg-gray-900/80">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between">
+    <nav className="fixed w-full z-50 py-4 backdrop-blur-md shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-2 transform hover:scale-105 transition-transform">
-            <span className="text-2xl font-bold text-white dark:text-gray-200">
-              FoodShare
-            </span>
+            <span className="text-2xl font-bold text-white">FoodShare</span>
           </div>
-
           <div className="hidden md:flex items-center space-x-8">
             <NavLink to="/">Home</NavLink>
             <NavLink to="/aboutus">About Us</NavLink>
@@ -36,65 +20,88 @@ const Navbar = () => {
             <NavLink to="/ourmotive">Our Motive</NavLink>
           </div>
 
-          <div className="flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-4">
             <Link
               to="/NGO-register"
-              className="hidden md:flex items-center px-6 py-3 rounded-lg bg-gradient-to-r from-[#6de882] to-[#61cf73] hover:shadow-lg"
+              className="flex items-center px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-500 hover:to-green-600 transition-all hover:shadow-md"
             >
-              <span className="text-white font-medium">NGO-register</span>
+              <span className="text-white font-medium mr-1">NGO Register</span>
               <ArrowRight className="w-4 h-4 text-white" />
             </Link>
 
             <Link
               to="/login"
-              className="hidden md:flex items-center space-x-2 px-6 py-3 rounded-lg bg-gradient-to-r from-[#6de882] to-[#61cf73] hover:shadow-lg"
+              className="flex items-center px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-500 hover:to-green-600 transition-all hover:shadow-md"
             >
-              <span className="text-white font-medium">Login</span>
+              <span className="text-white font-medium mr-1">Login</span>
               <ArrowRight className="w-4 h-4 text-white" />
             </Link>
-
-            {/* Dark Mode Toggle Button
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-full bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 hover:scale-110 transition-transform"
-            >
-              {darkMode ? (
-                <Sun className="w-5 h-5" />
-              ) : (
-                <Moon className="w-5 h-5" />
-              )}
-            </button> */}
           </div>
-          {/* 
-          <button
-            className="md:hidden text-white hover:text-teal-500 transition-colors"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16m-16 6h16"
-              />
-            </svg>
-          </button> */}
-        </div>
 
+          <div className="flex md:hidden items-center space-x-4">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 rounded-md text-white dark:hover:bg-gray-800 transition-colors"
+              aria-expanded={isMenuOpen}
+            >
+              {isMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
+        </div>
         {isMenuOpen && (
-          <div className="mt-4 md:hidden flex flex-col space-y-4">
-            <NavLink to="/">Home</NavLink>
-            <NavLink to="/aboutus">About Us</NavLink>
-            <NavLink to="/how-it-works">How It Works</NavLink>
-            <NavLink to="/contactus">Contact Us</NavLink>
-            <NavLink to="/ourmotive">Our Motive</NavLink>
-            <NavLink to="/NGO-register">NGO-register</NavLink>
-            <NavLink to="/login">Login</NavLink>
+          <div className="md:hidden pt-2 pb-4 border-t border-gray-200">
+            <div className="space-y-1 px-2">
+              <MobileNavLink to="/" onClick={() => setIsMenuOpen(false)}>
+                Home
+              </MobileNavLink>
+              <MobileNavLink to="/aboutus" onClick={() => setIsMenuOpen(false)}>
+                About Us
+              </MobileNavLink>
+              <MobileNavLink
+                to="/how-it-works"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                How It Works
+              </MobileNavLink>
+              <MobileNavLink
+                to="/contactus"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Contact Us
+              </MobileNavLink>
+              <MobileNavLink
+                to="/ourmotive"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Our Motive
+              </MobileNavLink>
+
+              <div className="pt-4 flex flex-col space-y-3">
+                <Link
+                  to="/NGO-register"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-500 hover:to-green-600"
+                >
+                  <span className="text-white font-medium mr-1">
+                    NGO Register
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-white" />
+                </Link>
+
+                <Link
+                  to="/login"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-500 hover:to-green-600"
+                >
+                  <span className="text-white font-medium mr-1">Login</span>
+                  <ArrowRight className="w-4 h-4 text-white" />
+                </Link>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -105,9 +112,19 @@ const Navbar = () => {
 const NavLink = ({ children, to }) => (
   <Link
     to={to}
-    className="flex items-center space-x-1 text-white dark:text-gray-200 hover:text-[#61cf73] transition-transform"
+    className="text-white hover:text-emerald-600  font-medium transition-colors"
   >
     <span>{children}</span>
+  </Link>
+);
+
+const MobileNavLink = ({ children, to, onClick }) => (
+  <Link
+    to={to}
+    onClick={onClick}
+    className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-emerald-600 transition-colors"
+  >
+    {children}
   </Link>
 );
 

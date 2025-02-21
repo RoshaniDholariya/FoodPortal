@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-  Mail,
+  ArrowBigLeft,
   User,
   Phone,
   MapPin,
@@ -131,24 +131,37 @@ const DonorRegistrationForm = () => {
   const convertToBase64 = (file) => {
     return new Promise((resolve, reject) => {
       if (file.size > 5 * 1024 * 1024) {
-        reject(new Error("File size too large. Please choose an image under 5MB"));
+        reject(
+          new Error("File size too large. Please choose an image under 5MB")
+        );
         return;
       }
-  
+
       const fileReader = new FileReader();
       fileReader.readAsDataURL(file);
       fileReader.onload = () => {
-        resolve(fileReader.result); 
+        resolve(fileReader.result);
       };
       fileReader.onerror = (error) => {
         reject(error);
       };
     });
   };
-  
+
+  const handleBack = () => {
+    navigate("/");
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-white">
+      <button
+        onClick={handleBack}
+        className="absolute top-6 left-6 flex items-center gap-2 text-emerald-600 text-lg font-medium hover:text-emerald-500 transition duration-300"
+      >
+        <ArrowBigLeft className="w-6 h-6" />
+        Back
+      </button>
+      <br />
       <div className="w-full max-w-2xl">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">

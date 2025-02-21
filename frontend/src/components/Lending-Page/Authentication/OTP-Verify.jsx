@@ -39,16 +39,10 @@ const OTPVerify = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/donors/verify-otp", // Replace with your backend OTP verification API endpoint
+        "http://localhost:3000/api/donors/verify-otp",
         {
           email: localStorage.getItem("email"),
-          otp: otp.join(""), // Convert array to string
-        },
-        {
-          //         headers: {
-          //           Authorization: `Bearer ${localStorage.getItem("token")}`,
-          //  // Include token if required
-          //         },
+          otp: otp.join(""),
         }
       );
 
@@ -58,7 +52,7 @@ const OTPVerify = () => {
         console.log("OTP Verified Successfully!");
         navigate("/donor-registration", {
           state: { donorId: response.data.donor.id },
-        }); // Redirect to user dashboard
+        });
       } else {
         alert(response.data.message || "Invalid OTP! Please try again.");
       }
@@ -73,7 +67,7 @@ const OTPVerify = () => {
   };
 
   const resendOTP = () => {
-    setTimer(60);
+    // setTimer(15);
     setOtp(Array(6).fill(""));
   };
 
@@ -110,7 +104,7 @@ const OTPVerify = () => {
             <div className="text-center">
               {timer > 0 ? (
                 <p className="text-gray-600">
-                  Resend code in <span className="font-bold">{timer}s</span>
+                  Resend code in <span className="font-bold">15 min</span>
                 </p>
               ) : (
                 <button

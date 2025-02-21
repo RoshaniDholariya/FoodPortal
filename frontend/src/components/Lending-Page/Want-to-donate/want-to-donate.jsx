@@ -1,10 +1,25 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowBigLeft } from "lucide-react";
 
 const WantToDonate = () => {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-200 via-white to-green-200 flex flex-col items-center py-10 px-6 md:px-16 lg:px-32">
+      <button
+        onClick={handleBack}
+        className="absolute top-6 left-6 flex items-center gap-2 text-emerald-600 text-lg font-medium hover:text-emerald-500 transition duration-300"
+      >
+        <ArrowBigLeft className="w-6 h-6" />
+        Back
+      </button>
+      <br />
       <div className="w-full max-w-7xl bg-white shadow-2xl rounded-lg overflow-hidden">
-        {/* Header Section */}
         <div className="bg-green-700 text-white text-center py-10 px-6">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
             Steps to Donate Food
@@ -15,7 +30,6 @@ const WantToDonate = () => {
           </p>
         </div>
 
-        {/* Steps Section */}
         <div className="p-8 md:p-12 flex flex-col space-y-12">
           <div className="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-6">
             <div className="flex-shrink-0 text-center md:text-left md:w-1/2">
@@ -85,8 +99,6 @@ const WantToDonate = () => {
             </div>
           </div>
         </div>
-
-        {/* Call to Action Section */}
         <div className="bg-green-100 text-center py-12 px-6">
           <h2 className="text-3xl md:text-4xl font-bold text-green-700 mb-6">
             Ready to Make a Difference?

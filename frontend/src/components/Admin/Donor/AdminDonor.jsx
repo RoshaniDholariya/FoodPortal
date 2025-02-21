@@ -1,18 +1,23 @@
-import React from "react";
-import { useState, useEffect } from "react";
-import { Menu, Eye, ArrowUpDown, X } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import {
+  Menu,
+  Eye,
+  X,
+  MapPin,
+  Phone,
+  Building,
+  User,
+  Search,
+} from "lucide-react";
 import Sidebar from "../AdminSidebar";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const AdminDonor = () => {
-  const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [donors, setDonors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [selectedDonor, setSelectedDonor] = useState(null);
 
   useEffect(() => {
@@ -50,89 +55,88 @@ const AdminDonor = () => {
     fetchDonors();
   }, []);
 
-  const handleSort = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
-
-    const sortedDonors = [...donors].sort((a, b) => {
-      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
-      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
-      return 0;
-    });
-    setDonors(sortedDonors);
-  };
-
-  const SortButton = ({ column }) => (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        handleSort(column);
-      }}
-      className="inline-flex items-center hover:text-emerald-600"
-    >
-      <ArrowUpDown className="ml-1 h-4 w-4" />
-    </button>
-  );
-
-  const DonorDetailsCard = ({ donor, onClose }) => (
-    <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-      <div className="flex justify-between items-start mb-4">
-        <h2 className="text-xl font-bold text-gray-900">Donor Details</h2>
+  const DonorDetails = ({ donor, onClose }) => (
+    <div className="bg-white rounded-lg shadow-lg">
+      <div className="p-6 bg-emerald-50 border-b border-emerald-100 flex justify-between items-start">
+        <div className="flex items-center gap-3">
+          <User className="h-8 w-8 text-emerald-600" />
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Donor Details</h2>
+            <span className="px-3 py-1 text-sm font-semibold rounded-full bg-emerald-100 text-emerald-800">
+              {donor.donorType}
+            </span>
+          </div>
+        </div>
         <button
           onClick={onClose}
-          className="p-1 hover:bg-gray-100 rounded-full"
+          className="p-2 hover:bg-emerald-100 rounded-full transition-colors"
         >
-          <X className="h-5 w-5 text-gray-500" />
+          <X className="h-6 w-6 text-gray-500" />
         </button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div>
-          <h3 className="text-sm font-medium text-gray-500">
-            Personal Information
-          </h3>
-          <div className="mt-2 space-y-2">
-            <p className="text-sm text-gray-900">
-              <span className="font-medium">Name:</span> {donor.name}
-            </p>
-            <p className="text-sm text-gray-900">
-              <span className="font-medium">Type:</span> {donor.donorType}
-            </p>
-            <p className="text-sm text-gray-900">
-              <span className="font-medium">Email:</span> {donor.email}
-            </p>
-            <p className="text-sm text-gray-900">
-              <span className="font-medium">Phone:</span> {donor.phone}
-            </p>
+
+      <div className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
+                <User className="h-5 w-5 text-emerald-600" />
+                Personal Information
+              </h3>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Full Name</p>
+                  <p className="text-gray-900">Saloni Patel</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">
+                    Restaurant Name
+                  </p>
+                  <p className="text-gray-900">Social Service</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">
+                    Phone Number
+                  </p>
+                  <p className="text-gray-900">9327411550</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">
+                    Donor Type
+                  </p>
+                  <p className="text-gray-900">{donor.donorType}</p>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div>
-          <h3 className="text-sm font-medium text-gray-500">
-            Donation History
-          </h3>
-          <div className="mt-2">
-            <p className="text-sm text-gray-900">
-              <span className="font-medium">Total Donations:</span>{" "}
-              {donor.donations}
-            </p>
-          </div>
-        </div>
-        <div>
-          <h3 className="text-sm font-medium text-gray-500">
-            Additional Information
-          </h3>
-          <div className="mt-2">
-            <p className="text-sm text-gray-900">
-              <span className="font-medium">Status:</span> Active
-            </p>
-            <p className="text-sm text-gray-900">
-              <span className="font-medium">Member Since:</span>{" "}
-              {donor.createdAt
-                ? new Date(donor.createdAt).toLocaleDateString()
-                : "N/A"}
-            </p>
+
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
+                <MapPin className="h-5 w-5 text-emerald-600" />
+                Address Details
+              </h3>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Address</p>
+                  <p className="text-gray-900">
+                    Shantinagar street 4, Janta Society Opposite CHARANAAT
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">City</p>
+                  <p className="text-gray-900">Jamnagar</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">State</p>
+                  <p className="text-gray-900">Gujrat</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Pincode</p>
+                  <p className="text-gray-900">361006</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -140,22 +144,31 @@ const AdminDonor = () => {
   );
 
   const DonorCard = ({ donor }) => (
-    <div className="bg-white p-4 rounded-lg shadow mb-4 cursor-pointer hover:bg-gray-50">
+    <div className="bg-white p-4 rounded-lg shadow mb-4">
       <div className="flex justify-between items-start mb-2">
-        <h3 className="text-lg font-medium text-gray-900">{donor.name}</h3>
+        <h3 className="text-lg font-medium text-gray-900">Saloni Patel</h3>
+        <button
+          onClick={() => setSelectedDonor(donor)}
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          <Eye className="h-5 w-5 text-emerald-600" />
+        </button>
+      </div>
+      <div className="space-y-2 text-sm text-gray-500">
         <span className="px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800">
           {donor.donorType}
         </span>
-      </div>
-      <div className="space-y-2 text-sm text-gray-500">
-        <p className="flex justify-between">
-          <span className="font-medium">Donations:</span> {donor.donations}
+        <p className="flex items-center gap-2 mt-2">
+          <Building className="h-4 w-4" />
+          <span>Social Service</span>
         </p>
-        <p className="flex justify-between">
-          <span className="font-medium">Contact:</span> {donor.phone}
+        <p className="flex items-center gap-2">
+          <Phone className="h-4 w-4" />
+          <span>9327411550</span>
         </p>
-        <p className="flex justify-between">
-          <span className="font-medium">Email:</span> {donor.email}
+        <p className="flex items-center gap-2">
+          <MapPin className="h-4 w-4" />
+          <span>Jamnagar, Gujrat</span>
         </p>
       </div>
     </div>
@@ -205,39 +218,36 @@ const AdminDonor = () => {
           </div>
 
           {selectedDonor && (
-            <DonorDetailsCard
-              donor={selectedDonor}
-              onClose={() => setSelectedDonor(null)}
-            />
+            <div className="mb-8">
+              <DonorDetails
+                donor={selectedDonor}
+                onClose={() => setSelectedDonor(null)}
+              />
+            </div>
           )}
 
-          {/* Mobile View */}
           <div className="block md:hidden">
             {donors.map((donor) => (
               <DonorCard key={donor.id} donor={donor} />
             ))}
           </div>
 
-          {/* Desktop View */}
           <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Donor Name <SortButton column="name" />
+                      Full Name
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Type <SortButton column="type" />
+                      Type
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Donations <SortButton column="donations" />
+                      Donations
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Contact
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
+                      Phone
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -252,22 +262,23 @@ const AdminDonor = () => {
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          {donor.name}
+                          Saloni Patel
                         </div>
-                      </td>
+                      </td>{" "}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">
                           {donor.donorType}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {donor.donations}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">
+                          {donor.donations}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {donor.phone}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {donor.email}
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold ">
+                          {donor.phone}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <Eye

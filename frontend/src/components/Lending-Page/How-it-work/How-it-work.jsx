@@ -6,13 +6,27 @@ import {
   Heart,
   Share2,
   Users,
+  ArrowBigLeft,
 } from "lucide-react";
-import Navbar from "../Navbar/Navbar";
+import { useNavigate } from "react-router-dom";
 
 const HowItWorks = () => {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate("/");
+  };
   return (
     <>
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center py-10 px-6">
+        <button
+          onClick={handleBack}
+          className="absolute top-6 left-6 flex items-center gap-2 text-emerald-600 text-lg font-medium hover:text-emerald-500 transition duration-300"
+        >
+          <ArrowBigLeft className="w-6 h-6" />
+          Back
+        </button>
+        <br />
         <div className="w-full max-w-3xl text-center mb-12">
           <Heart className="w-16 h-16 text-[#8beb7f] mx-auto mb-6" />
           <h2 className="text-4xl font-bold text-gray-800">How It Works</h2>
@@ -22,7 +36,6 @@ const HowItWorks = () => {
         </div>
 
         <div className="flex flex-wrap justify-center gap-10">
-          {/* Step 1: Food Donation */}
           <div className="flex flex-col items-center space-y-6 transition-transform transform hover:scale-105 hover:shadow-2xl duration-300 bg-gray-50 rounded-xl p-6 w-80">
             <ThumbsUp className="w-16 h-16 text-[#8beb7f]" />
             <h3 className="text-2xl font-semibold text-gray-800">
@@ -34,7 +47,6 @@ const HowItWorks = () => {
             </p>
           </div>
 
-          {/* Step 2: Pickup */}
           <div className="flex flex-col items-center space-y-6 transition-transform transform hover:scale-105 hover:shadow-2xl duration-300 bg-gray-50 rounded-xl p-6 w-80">
             <Truck className="w-16 h-16 text-[#8beb7f]" />
             <h3 className="text-2xl font-semibold text-gray-800">
@@ -46,7 +58,6 @@ const HowItWorks = () => {
             </p>
           </div>
 
-          {/* Step 3: Distribution */}
           <div className="flex flex-col items-center space-y-6 transition-transform transform hover:scale-105 hover:shadow-2xl duration-300 bg-gray-50 rounded-xl p-6 w-80">
             <CheckCircle className="w-16 h-16 text-[#8beb7f]" />
             <h3 className="text-2xl font-semibold text-gray-800">
@@ -58,7 +69,6 @@ const HowItWorks = () => {
             </p>
           </div>
 
-          {/* Step 4: Track Impact */}
           <div className="flex flex-col items-center space-y-6 transition-transform transform hover:scale-105 hover:shadow-2xl duration-300 bg-gray-50 rounded-xl p-6 w-80">
             <Heart className="w-16 h-16 text-[#8beb7f]" />
             <h3 className="text-2xl font-semibold text-gray-800">
@@ -70,7 +80,6 @@ const HowItWorks = () => {
             </p>
           </div>
 
-          {/* Step 5: Share Your Story */}
           <div className="flex flex-col items-center space-y-6 transition-transform transform hover:scale-105 hover:shadow-2xl duration-300 bg-gray-50 rounded-xl p-6 w-80">
             <Share2 className="w-16 h-16 text-[#8beb7f]" />
             <h3 className="text-2xl font-semibold text-gray-800">
@@ -82,7 +91,6 @@ const HowItWorks = () => {
             </p>
           </div>
 
-          {/* Step 6: Community Involvement */}
           <div className="flex flex-col items-center space-y-6 transition-transform transform hover:scale-105 hover:shadow-2xl duration-300 bg-gray-50 rounded-xl p-6 w-80">
             <Users className="w-16 h-16 text-[#8beb7f]" />
             <h3 className="text-2xl font-semibold text-gray-800">

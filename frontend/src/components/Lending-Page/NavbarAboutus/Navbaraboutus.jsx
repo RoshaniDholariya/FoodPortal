@@ -1,3 +1,4 @@
+import { ArrowBigLeft } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -5,12 +6,21 @@ const AboutUs = () => {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    navigate(-1);
+    navigate("/");
   };
 
   return (
     <>
-      <section className="bg-white py-12 px-6 md:px-16 lg:px-24">
+      <section className="bg-white py-12 px-6 md:px-16 lg:px-24 relative">
+        <button
+          onClick={handleBack}
+          className="absolute top-6 left-6 flex items-center gap-2 text-emerald-600 text-lg font-medium hover:text-emerald-500 transition duration-300"
+        >
+          <ArrowBigLeft className="w-6 h-6" />
+          Back
+        </button>
+        <br />
+
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
           <div className="relative w-full md:w-1/2 group">
             <img

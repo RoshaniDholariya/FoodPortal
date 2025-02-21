@@ -1,10 +1,25 @@
 import React from "react";
+import { ArrowBigLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const OurMotive = () => {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-yellow-100 via-white to-green-100 flex flex-col items-center py-10 px-6 md:px-16 lg:px-32">
+      <button
+        onClick={handleBack}
+        className="absolute top-6 left-6 flex items-center gap-2 text-emerald-600 text-lg font-medium hover:text-emerald-500 transition duration-300"
+      >
+        <ArrowBigLeft className="w-6 h-6" />
+        Back
+      </button>
+      <br />
       <div className="w-full max-w-7xl bg-white shadow-xl rounded-lg overflow-hidden">
-        {/* Header Section */}
         <div className="bg-green-700 text-white text-center py-10 px-6">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
             Our Motive: Reducing Food Wastage
@@ -15,9 +30,7 @@ const OurMotive = () => {
           </p>
         </div>
 
-        {/* Main Content Section */}
         <div className="p-8 md:p-12 flex flex-col lg:flex-row items-start">
-          {/* Left Section: Why Not Waste Food */}
           <div className="lg:w-1/2 pr-0 lg:pr-8 mb-8 lg:mb-0">
             <h2 className="text-3xl font-bold text-green-700 mb-6">
               Why We Shouldn’t Waste Food
@@ -39,7 +52,6 @@ const OurMotive = () => {
             </ul>
           </div>
 
-          {/* Right Section: How to Use Surplus Food */}
           <div className="lg:w-1/2">
             <h2 className="text-3xl font-bold text-green-700 mb-6">
               How to Handle Surplus Food
@@ -73,7 +85,6 @@ const OurMotive = () => {
           </div>
         </div>
 
-        {/* Call to Action Section */}
         <div className="bg-green-50 text-center py-10 px-6">
           <h2 className="text-3xl md:text-4xl font-bold text-green-700 mb-4">
             Join Our Mission

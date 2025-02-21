@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { User, Lock, Building } from "lucide-react";
+import { User, Lock, Building, ArrowBigLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -8,7 +8,7 @@ const NGOLogin = () => {
   const [formData, setFormData] = useState({
     userId: "",
     password: "",
-    username:""
+    username: "",
   });
 
   const [isFormValid, setIsFormValid] = useState(false);
@@ -31,20 +31,20 @@ const NGOLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-  
+
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/ngo/login", // Ensure correct backend URL
+        "http://localhost:3000/api/ngo/login",
         {
-          email: formData.userId, // Change to send 'email' instead of 'username'
+          email: formData.userId,
           password: formData.password,
         },
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: true, // Enable cookies for authentication
+          withCredentials: true,
         }
       );
-  
+
       if (response.data.success) {
         alert("Login successful!");
         localStorage.setItem("token", response.data.token);
@@ -59,11 +59,21 @@ const NGOLogin = () => {
       setIsSubmitting(false);
     }
   };
-  
 
+  const handleBack = () => {
+    navigate("/");
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
+      <button
+        onClick={handleBack}
+        className="absolute top-6 left-6 flex items-center gap-2 text-emerald-600 text-lg font-medium hover:text-emerald-500 transition duration-300"
+      >
+        <ArrowBigLeft className="w-6 h-6" />
+        Back
+      </button>
+      <br />
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">

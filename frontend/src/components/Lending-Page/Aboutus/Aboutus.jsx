@@ -7,6 +7,7 @@ import {
   GanttChart,
   Trophy,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const AboutPage = () => {
   return (
@@ -36,10 +37,12 @@ const AboutPage = () => {
                   <h3 className="text-2xl font-bold leading-tight">
                     Join Our Mission to Share Food
                   </h3>
-                  <button className="flex items-center space-x-2 text-lg font-medium group">
-                    <span>Become a Donor</span>
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </button>
+                  <Link to="/donor-registration">
+                    <button className="flex items-center space-x-2 text-lg font-medium group">
+                      <span>Become a Donor</span>
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </Link>
                 </div>
               </div>
             </div>

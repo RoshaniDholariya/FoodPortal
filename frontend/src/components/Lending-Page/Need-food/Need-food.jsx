@@ -1,10 +1,25 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowBigLeft } from "lucide-react";
 
 const Needfood = () => {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-300 via-white to-green-300 flex flex-col items-center py-10 px-6 md:px-16 lg:px-32">
+      <button
+        onClick={handleBack}
+        className="absolute top-6 left-6 flex items-center gap-2 text-emerald-900 text-lg font-medium hover:text-emerald-900 transition duration-300"
+      >
+        <ArrowBigLeft className="w-6 h-6" />
+        Back
+      </button>
+      <br />
       <div className="w-full max-w-7xl bg-white shadow-2xl rounded-lg overflow-hidden">
-        {/* Header Section */}
         <div className="bg-gradient-to-r from-green-600 to-green-800 text-white text-center py-12 px-6">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
             Steps to Help NGOs Register
@@ -15,7 +30,6 @@ const Needfood = () => {
           </p>
         </div>
 
-        {/* Steps Section */}
         <div className="p-8 md:p-12 flex flex-col space-y-12">
           <div className="flex flex-col md:flex-row items-center md:space-x-6">
             <div className="text-center md:text-left md:w-1/2 mb-6 md:mb-0">
@@ -85,7 +99,6 @@ const Needfood = () => {
           </div>
         </div>
 
-        {/* Call to Action Section */}
         <div className="bg-green-50 text-center py-12 px-6">
           <h2 className="text-3xl md:text-4xl font-bold text-green-700 mb-6">
             Ready to Support NGOs?

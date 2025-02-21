@@ -1,7 +1,8 @@
 import React from "react";
 import axios from "axios";
+import { ArrowBigLeft } from "lucide-react";
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -10,43 +11,60 @@ const ContactUs = () => {
     message: "",
   });
 
-    const handleChange = (e) => {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-    
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      try {
-        const response = await axios.post("http://localhost:3000/api/ct/ContactUs", formData);
-  
-        if (response.data.success) {
-          alert("Your response has been sent successfully!");
-          setFormData({
-            name: "",
-            email: "",
-            message: "",
-          })
-        } else {
-          alert(response.data.message);
-          setFormData({
-            name: "",
-            email: "",
-            message: "",
-          })
-        }
-      } catch (error) {
-        console.error("Error submitting form:", error);
-        alert("Failed to send message. Please try again.");
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/ct/ContactUs",
+        formData
+      );
+
+      if (response.data.success) {
+        alert("Your response has been sent successfully!");
         setFormData({
           name: "",
           email: "",
           message: "",
-        })
+        });
+      } else {
+        alert(response.data.message);
+        setFormData({
+          name: "",
+          email: "",
+          message: "",
+        });
       }
-    };
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Failed to send message. Please try again.");
+      setFormData({
+        name: "",
+        email: "",
+        message: "",
+      });
+    }
+  };
+
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate("/");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-green-50 to-green-100 flex flex-col items-center py-10 px-6 md:px-16 lg:px-32">
+      <button
+        onClick={handleBack}
+        className="absolute top-6 left-6 flex items-center gap-2 text-emerald-600 text-lg font-medium hover:text-emerald-500 transition duration-300"
+      >
+        <ArrowBigLeft className="w-6 h-6" />
+        Back
+      </button>
+      <br />
       <div className="w-full max-w-7xl bg-white shadow-xl rounded-lg flex flex-col md:flex-row overflow-hidden">
         <div className="w-full md:w-1/2 p-8 md:p-12 bg-green-50 flex flex-col justify-center">
           <h2 className="text-3xl md:text-4xl font-extrabold text-green-700 mb-6 leading-tight">

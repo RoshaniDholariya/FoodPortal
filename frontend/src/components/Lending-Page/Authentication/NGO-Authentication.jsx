@@ -6,6 +6,7 @@ import {
   FileText,
   Building,
   User,
+  ArrowBigLeft,
   Info,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -48,47 +49,58 @@ const NGOAuthentication = () => {
     }
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsSubmitting(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-  // Prepare form data for sending (multipart/form-data)
-  const formDataToSend = new FormData();
-  formDataToSend.append("name", formData.name);
-  formDataToSend.append("email", formData.email);
-  formDataToSend.append("phoneNumber", formData.phoneNumber);
-  formDataToSend.append("city", formData.city);
-  formDataToSend.append("pincode", formData.pincode);
-  formDataToSend.append("address", formData.address);
-  formDataToSend.append("certificate", formData.certificate); // File upload
+    const formDataToSend = new FormData();
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("email", formData.email);
+    formDataToSend.append("phoneNumber", formData.phoneNumber);
+    formDataToSend.append("city", formData.city);
+    formDataToSend.append("pincode", formData.pincode);
+    formDataToSend.append("address", formData.address);
+    formDataToSend.append("certificate", formData.certificate);
 
-  try {
-    const response = await axios.post(
-      "http://localhost:3000/api/ngo/submit",
-      formDataToSend,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/ngo/submit",
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.success) {
+        alert("NGO registered successfully! Await admin approval.");
+        navigate("/data-register");
+      } else {
+        alert("Error: " + response.data.message);
       }
-    );
-
-    if (response.data.success) {
-      alert("NGO registered successfully! Await admin approval.");
-      navigate("/data-register");
-    } else {
-      alert("Error: " + response.data.message);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    alert("Something went wrong. Please try again.");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+  };
+
+  const handleBack = () => {
+    navigate("/");
+  };
 
   return (
     <div className="h-screen flex items-center justify-center p-4 bg-gray-50">
+      <button
+        onClick={handleBack}
+        className="absolute top-6 left-6 flex items-center gap-2 text-emerald-600 text-lg font-medium hover:text-emerald-500 transition duration-300"
+      >
+        <ArrowBigLeft className="w-6 h-6" />
+        Back
+      </button>
+      <br />
       <div className="w-full max-w-4xl h-full max-h-[800px] flex items-center">
         <div className="bg-white rounded-2xl shadow-xl p-8 w-full">
           <div className="text-center mb-6">
