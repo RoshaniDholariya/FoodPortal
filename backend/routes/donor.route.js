@@ -21,6 +21,7 @@ router.post("/add-details", addDonorDetails);
 router.post("/login", Login);
 router.post("/addFood",authenticate, addFood);
 router.get("/getDonorFood",authenticate,getDonorFood);
+router.get("/auth",authenticate);
 router.get('/approved-ngos',authenticate,getApprovedNGOs);
 router.get("/getDonorDetails",authenticate,getDonorDetails);
 router.put("/updateDonorDetails",authenticate,updateDonorDetails);

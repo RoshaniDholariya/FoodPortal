@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { io } from "socket.io-client";
+const socket = io("http://localhost:3000");
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -42,6 +44,10 @@ const AuthPage = () => {
       let response;
 
       if (!isLogin) {
+<<<<<<< Updated upstream
+=======
+        // Registration
+>>>>>>> Stashed changes
         response = await axios.post(
           "http://localhost:3000/api/donors/register",
           {
@@ -54,17 +60,34 @@ const AuthPage = () => {
         localStorage.setItem("email", formData.email);
         navigate("/otp-verify");
       } else {
+<<<<<<< Updated upstream
+=======
+        // Login
+>>>>>>> Stashed changes
         const response = await axios.post(
           "http://localhost:3000/api/donors/login",
           { email: formData.email, password: formData.password },
           { withCredentials: true }
         );
+<<<<<<< Updated upstream
 
         if (response.data.success) {
           console.log(response.data.data);
         }
 
         navigate("/user-dashboard");
+=======
+        console.log(response.data.data);
+        if (response.data.success) {
+          const userId = response.data.data.id;
+          // if (userId) {
+          //   socket.emit("userConnected", userId);
+          // }
+          console.log(response.data.data);
+        }
+
+        navigate("/user-dashboard",{state: { userId: response.data.data.id } });;
+>>>>>>> Stashed changes
       }
     } catch (err) {
       console.error("Auth error:", err.response?.data || err.message);

@@ -8,13 +8,109 @@ import {
   MapPin,
   Clock,
   Calendar,
+<<<<<<< Updated upstream
   Globe2,
   ChevronRight,
+=======
+  X,
+>>>>>>> Stashed changes
 } from "lucide-react";
 import Sidebar from "./UserSidebar/UserSidebar";
+import { useLocation } from "react-router-dom";
+
+
+
+const NotificationItem = ({ message, onClose }) => {
+  
+  const [progress, setProgress] = useState(100);
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const startTime = Date.now();
+    const duration = 1200000; // 60 seconds
+
+    const updateProgress = () => {
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, 100 - (elapsed / duration) * 100);
+      setProgress(remaining);
+
+      if (remaining > 0) {
+        requestAnimationFrame(updateProgress);
+      } else {
+        setIsVisible(false);
+        setTimeout(() => onClose(), 300);
+      }
+    };
+
+    const animationFrame = requestAnimationFrame(updateProgress);
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+    };
+  }, [onClose]);
+
+  if (!isVisible) return null;
+
+  return (
+    <div
+      className={`
+        bg-white rounded-lg shadow-lg p-4 mb-2 relative overflow-hidden
+        transform transition-all duration-300 ease-in-out
+        ${
+          isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+        }
+      `}
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex items-start space-x-3">
+          <Bell className="w-5 h-5 text-blue-500 mt-1" />
+          <div>
+            <p className="text-gray-800 font-medium">New Notification</p>
+            <p className="text-gray-600 text-sm mt-1">{message}</p>
+          </div>
+        </div>
+        <button
+          onClick={() => {
+            setIsVisible(false);
+            setTimeout(() => onClose(), 300);
+          }}
+          className="text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-100">
+        <div
+          className="h-full bg-blue-500 transition-all duration-300"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    </div>
+  );
+};
+
+const NotificationContainer = ({ notifications, onNotificationClose }) => {
+  return (
+    <div className="fixed top-4 right-4 z-50 w-96 space-y-2">
+      {notifications.map((notification) => (
+        <NotificationItem
+          key={notification.id}
+          message={notification}
+          onClose={() => onNotificationClose(notification.id)}
+        />
+      ))}
+    </div>
+  );
+};
 
 const DonorDashboard = () => {
+  const location = useLocation();
+  const userId = location.state.userId && localStorage.setItem("userId", location.state.userId);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [notifications, setNotifications] = useState([]);
+  const [activeNotifications, setActiveNotifications] = useState([]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -24,10 +120,37 @@ const DonorDashboard = () => {
         setIsSidebarOpen(true);
       }
     };
+
+    
+    socket.on("receiveNotification", (notification) => {
+      console.log("Notification received:", notification);
+    });
+
+    socket.on("receiveNotification", (notification) => {
+      setNotifications((prev) => [notification, ...prev]);
+      const newNotification = {
+        id: Date.now(),
+        message: notification,
+      };
+      setActiveNotifications((prev) => [...prev, newNotification]);
+      console.log("Updated notifications:", notifications);
+      console.log("Active notifications:", activeNotifications);
+    });
+
     handleResize();
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      socket.off("receiveNotification"); // ✅ Corrected event name
+    };
   }, []);
+
+  const handleNotificationClose = (id) => {
+    setActiveNotifications((prev) =>
+      prev.filter((notification) => notification.id !== id)
+    );
+  };
 
   const stats = [
     {
@@ -161,7 +284,16 @@ const DonorDashboard = () => {
   );
 
   return (
+<<<<<<< Updated upstream
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
+=======
+    <div className="min-h-screen bg-gray-50">
+      <NotificationContainer
+        notifications={activeNotifications}
+        onNotificationClose={handleNotificationClose}
+      />
+
+>>>>>>> Stashed changes
       <div className="fixed inset-y-0 left-0 z-50">
         <Sidebar
           isSidebarOpen={isSidebarOpen}

@@ -34,6 +34,7 @@ model Donor {
   updatedAt    DateTime @updatedAt
 
   FoodDetails FoodDetails[]
+  notifications Notification[]
 }
 
 enum DonorType {
@@ -85,4 +86,13 @@ model contactus {
   name        String
   email       String   @unique
   message     String
+}
+model Notification {
+  id        Int      @id @default(autoincrement())
+  donorId   Int
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  donor Donor @relation(fields: [donorId], references: [id], onDelete: Cascade)
 }

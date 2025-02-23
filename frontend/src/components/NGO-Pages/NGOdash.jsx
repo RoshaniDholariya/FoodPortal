@@ -16,6 +16,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import NotificationSystem from "./NotificationSystem";
 
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -55,6 +56,7 @@ const Dashboard = () => {
               </p>
             </div>
             <div className="flex items-center space-x-6 mt-4 md:mt-0">
+              <NotificationSystem />
               <button
                 onClick={toggleSidebar}
                 className="text-emerald-600 hover:text-emerald-900 lg:hidden"

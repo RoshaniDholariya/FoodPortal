@@ -12,6 +12,8 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
     "axios": "^1.7.9",
+    "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.469.0",
     "mapbox-gl": "^3.9.4",
     "primereact": "^10.9.2",
@@ -21,7 +23,8 @@
     "react-router-dom": "^7.1.1",
     "react-transition-group": "^4.4.5",
     "recharts": "^2.15.0",
-    "shadcn-ui": "^0.9.4"
+    "shadcn-ui": "^0.9.4",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
