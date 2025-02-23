@@ -44,10 +44,7 @@ const AuthPage = () => {
       let response;
 
       if (!isLogin) {
-<<<<<<< Updated upstream
-=======
         // Registration
->>>>>>> Stashed changes
         response = await axios.post(
           "http://localhost:3000/api/donors/register",
           {
@@ -60,23 +57,18 @@ const AuthPage = () => {
         localStorage.setItem("email", formData.email);
         navigate("/otp-verify");
       } else {
-<<<<<<< Updated upstream
-=======
         // Login
->>>>>>> Stashed changes
         const response = await axios.post(
           "http://localhost:3000/api/donors/login",
           { email: formData.email, password: formData.password },
           { withCredentials: true }
         );
-<<<<<<< Updated upstream
 
         if (response.data.success) {
           console.log(response.data.data);
         }
 
         navigate("/user-dashboard");
-=======
         console.log(response.data.data);
         if (response.data.success) {
           const userId = response.data.data.id;
@@ -87,7 +79,6 @@ const AuthPage = () => {
         }
 
         navigate("/user-dashboard",{state: { userId: response.data.data.id } });;
->>>>>>> Stashed changes
       }
     } catch (err) {
       console.error("Auth error:", err.response?.data || err.message);

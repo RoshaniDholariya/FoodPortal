@@ -8,12 +8,7 @@ import {
   MapPin,
   Clock,
   Calendar,
-<<<<<<< Updated upstream
-  Globe2,
-  ChevronRight,
-=======
   X,
->>>>>>> Stashed changes
 } from "lucide-react";
 import Sidebar from "./UserSidebar/UserSidebar";
 import { useLocation } from "react-router-dom";
@@ -122,27 +117,27 @@ const DonorDashboard = () => {
     };
 
     
-    socket.on("receiveNotification", (notification) => {
-      console.log("Notification received:", notification);
-    });
+    // socket.on("receiveNotification", (notification) => {
+    //   console.log("Notification received:", notification);
+    // });
 
-    socket.on("receiveNotification", (notification) => {
-      setNotifications((prev) => [notification, ...prev]);
-      const newNotification = {
-        id: Date.now(),
-        message: notification,
-      };
-      setActiveNotifications((prev) => [...prev, newNotification]);
-      console.log("Updated notifications:", notifications);
-      console.log("Active notifications:", activeNotifications);
-    });
+    // socket.on("receiveNotification", (notification) => {
+    //   setNotifications((prev) => [notification, ...prev]);
+    //   const newNotification = {
+    //     id: Date.now(),
+    //     message: notification,
+    //   };
+    //   setActiveNotifications((prev) => [...prev, newNotification]);
+    //   console.log("Updated notifications:", notifications);
+    //   console.log("Active notifications:", activeNotifications);
+    // });
 
     handleResize();
     window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      socket.off("receiveNotification"); // ✅ Corrected event name
+      // socket.off("receiveNotification"); // ✅ Corrected event name
     };
   }, []);
 
@@ -284,16 +279,12 @@ const DonorDashboard = () => {
   );
 
   return (
-<<<<<<< Updated upstream
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
-=======
     <div className="min-h-screen bg-gray-50">
       <NotificationContainer
         notifications={activeNotifications}
         onNotificationClose={handleNotificationClose}
       />
 
->>>>>>> Stashed changes
       <div className="fixed inset-y-0 left-0 z-50">
         <Sidebar
           isSidebarOpen={isSidebarOpen}

@@ -136,7 +136,7 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5174",
+    origin: "http://localhost:5173",
     methods: ["GET", "POST"]
   }
 });
@@ -168,7 +168,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5174",
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
     methods: "GET,POST,PUT,DELETE",
     credentials: true,
   })
