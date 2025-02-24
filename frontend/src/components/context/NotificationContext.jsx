@@ -1,34 +1,3 @@
-// import { createContext, useContext, useEffect, useState } from "react";
-// import { io } from "socket.io-client";
-
-// const NotificationContext = createContext();
-
-// export const useNotification = () => useContext(NotificationContext);
-
-// export const NotificationProvider = ({ children, userId }) => {
-//   const [notifications, setNotifications] = useState([]);
-//   const socket = io("http://localhost:3000");
-
-//   useEffect(() => {
-//     if (userId) {
-//       socket.emit("register", userId);
-//     }
-
-//     socket.on("newNotification", (message) => {
-//       setNotifications((prev) => [...prev, message]);
-//     });
-
-//     return () => {
-//       socket.disconnect();
-//     };
-//   }, [userId]);
-
-//   return (
-//     <NotificationContext.Provider value={{ notifications }}>
-//       {children}
-//     </NotificationContext.Provider>
-//   );
-// };
 import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 

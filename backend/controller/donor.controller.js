@@ -6,7 +6,6 @@ const { PrismaClient } = require("@prisma/client");
 require("dotenv").config();
 const cloudinary = require("cloudinary").v2;
 const {socketConfig} = require('../config/Socket')
-// Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -14,24 +13,6 @@ cloudinary.config({
 });
 
 const prisma = new PrismaClient();
-// const sendNotification_create = async (donorId, message) => {
-//   try {
-//     // Save notification to database
-//     await prisma.notification.create({
-//       data: {
-//         donorId,
-//         message,
-//       },
-//     });
-
-//     // Send real-time notification if user is connected
-//     if (users[donorId]) {
-//       io.to(users[donorId]).emit("newNotification", message);
-//     }
-//   } catch (error) {
-//     console.error("Error sending notification:", error);
-//   }
-// };
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -147,10 +128,9 @@ exports.addDonorDetails = async (req, res) => {
         resource_type: "image",
       });
 
-      uploadedPhoto = uploadResponse.secure_url; // Get the URL
+      uploadedPhoto = uploadResponse.secure_url; 
     }
 
-    // Store donor details in DB
     const donor = await prisma.donor.update({
       where: {
         id: parseInt(donorId),
@@ -272,45 +252,7 @@ exports.authenticate = (req, res, next) => {
   }
 };
 
-// exports.addFood = async (req, res) => {
-//   try {
-//     const { foodType, foodCategory, noOfDishes, preparationDate, expiryDate,address, latitude,
-//       City,longitude, } = req.body;
-//     const donorId = req.user.userId; 
 
-//     if (!foodType || !foodCategory || !noOfDishes || !preparationDate || !expiryDate || !address) {
-//       return res.status(400).json({
-//         success: false,
-//         message: 'Please fill all the required fields.',
-//       });
-//     }
-
-//     const foodDetails = await prisma.foodDetails.create({
-//       data: {
-//         donorId,
-//         foodType,
-//         foodCategory,
-//         address,
-//         latitude,
-//         longitude,
-//         City,
-//         noOfDishes: parseInt(noOfDishes),
-//         preparationDate: new Date(preparationDate),
-//         expiryDate: new Date(expiryDate),
-//         status: "available",
-//       },
-//     });
-
-//     res.status(201).json({
-//       success: true,
-//       message: 'Food details added successfully.',
-//       foodDetails,
-//     });
-//   } catch (error) {
-//     console.error('Error adding food details:', error.message);
-//     res.status(500).json({ success: false, message: 'Internal server error.' });
-//   }
-// };
 exports.addFood = async (req, res) => {
   try {
     const { 
@@ -349,7 +291,6 @@ exports.addFood = async (req, res) => {
       },
     });
 
-    // Use global io instance
     if (global.io) {
       global.io.emit('newFoodDonation', {
         type: 'NEW_FOOD_DONATION',

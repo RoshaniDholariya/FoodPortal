@@ -116,28 +116,11 @@ const DonorDashboard = () => {
       }
     };
 
-    
-    // socket.on("receiveNotification", (notification) => {
-    //   console.log("Notification received:", notification);
-    // });
-
-    // socket.on("receiveNotification", (notification) => {
-    //   setNotifications((prev) => [notification, ...prev]);
-    //   const newNotification = {
-    //     id: Date.now(),
-    //     message: notification,
-    //   };
-    //   setActiveNotifications((prev) => [...prev, newNotification]);
-    //   console.log("Updated notifications:", notifications);
-    //   console.log("Active notifications:", activeNotifications);
-    // });
-
     handleResize();
     window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      // socket.off("receiveNotification"); // ✅ Corrected event name
     };
   }, []);
 
