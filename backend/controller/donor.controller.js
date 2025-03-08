@@ -5,7 +5,7 @@ const { PrismaClient } = require("@prisma/client");
 
 require("dotenv").config();
 const cloudinary = require("cloudinary").v2;
-const {socketConfig} = require('../config/Socket')
+const { socketConfig } = require('../config/Socket')
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -79,11 +79,11 @@ exports.verifyOTP = async (req, res) => {
       data: { isVerified: true, otp: null, otpExpiry: null },
     });
 
-    
+
 
     res.status(200).json({ success: true, message: "OTP verified", donor });
   } catch (error) {
-    console.error("Error verifying OTP:", error); 
+    console.error("Error verifying OTP:", error);
     res
       .status(500)
       .json({ message: "Error verifying OTP", error: error.message });
@@ -114,7 +114,6 @@ exports.addDonorDetails = async (req, res) => {
   try {
     let uploadedPhoto = null;
 
-    // Check if photo exists and upload to Cloudinary
     if (photo) {
       if (!photo.startsWith("data:image")) {
         return res.status(400).json({
@@ -128,7 +127,7 @@ exports.addDonorDetails = async (req, res) => {
         resource_type: "image",
       });
 
-      uploadedPhoto = uploadResponse.secure_url; 
+      uploadedPhoto = uploadResponse.secure_url;
     }
 
     const donor = await prisma.donor.update({
@@ -255,18 +254,18 @@ exports.authenticate = (req, res, next) => {
 
 exports.addFood = async (req, res) => {
   try {
-    const { 
-      foodType, 
-      foodCategory, 
-      noOfDishes, 
-      preparationDate, 
+    const {
+      foodType,
+      foodCategory,
+      noOfDishes,
+      preparationDate,
       expiryDate,
-      address, 
+      address,
       latitude,
       City,
-      longitude 
+      longitude
     } = req.body;
-    const donorId = req.user.userId; 
+    const donorId = req.user.userId;
 
     if (!foodType || !foodCategory || !noOfDishes || !preparationDate || !expiryDate || !address) {
       return res.status(400).json({
@@ -312,10 +311,24 @@ exports.addFood = async (req, res) => {
 exports.getDonorFood = async (req, res) => {
   try {
     const donorId = req.user.userId;
+    const currentDate = new Date();
 
+    // First, update any expired food items
+    await prisma.foodDetails.updateMany({
+      where: {
+        donorId,
+        status: "available",
+        expiryDate: {
+          lt: currentDate
+        }
+      },
+      data: {
+        status: "expired"
+      }
+    });
     const foodList = await prisma.foodDetails.findMany({
       where: { donorId },
-      include: { ngo: { select: { name: true, email: true } } }, 
+      include: { ngo: { select: { name: true, email: true } } },
     });
 
     res.status(200).json({ success: true, foodList });
@@ -343,5 +356,111 @@ exports.getApprovedNGOs = async (req, res) => {
   } catch (error) {
     console.error('Error fetching NGOs:', error.message);
     res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+};
+
+exports.getFoodStatusCounts = async (req, res) => {
+  try {
+    const donorId = req.user.userId;
+    const currentDate = new Date();
+
+    await prisma.foodDetails.updateMany({
+      where: {
+        donorId,
+        status: "available",
+        expiryDate: {
+          lt: currentDate
+        }
+      },
+      data: {
+        status: "expired"
+      }
+    });
+
+    const availableCount = await prisma.foodDetails.count({
+      where: {
+        donorId,
+        status: "available"
+      }
+    });
+
+    const expiredCount = await prisma.foodDetails.count({
+      where: {
+        donorId,
+        status: "expired"
+      }
+    });
+
+    const completedCount = await prisma.foodDetails.count({
+      where: {
+        donorId,
+        status: "completed"
+      }
+    });
+
+    const pieData = [
+      { name: "Available", value: availableCount },
+      { name: "Expired", value: expiredCount },
+      { name: "Completed", value: completedCount }
+    ];
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+
+    const weeklyItems = await prisma.foodDetails.findMany({
+      where: {
+        donorId,
+        createdAt: {
+          gte: sevenDaysAgo
+        }
+      },
+      select: {
+        status: true,
+        createdAt: true
+      }
+    });
+
+    const weeklyData = [];
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - (6 - i));
+      const dayName = dayNames[date.getDay()];
+      const formattedDate = date.toISOString().split('T')[0];
+
+      weeklyData.push({
+        name: dayName,
+        date: formattedDate,
+        completed: 0,
+        expired: 0
+      });
+    }
+
+    weeklyItems.forEach(item => {
+      const itemDate = item.createdAt.toISOString().split('T')[0];
+      const dayIndex = weeklyData.findIndex(day => day.date === itemDate);
+
+      if (dayIndex !== -1) {
+        if (item.status === "completed") {
+          weeklyData[dayIndex].completed += 1;
+        } else if (item.status === "expired") {
+          weeklyData[dayIndex].expired += 1;
+        }
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      pieData,
+      weeklyData
+    });
+  } catch (error) {
+    console.error('Error fetching chart data:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Error retrieving dashboard chart data',
+      error: error.message
+    });
   }
 };

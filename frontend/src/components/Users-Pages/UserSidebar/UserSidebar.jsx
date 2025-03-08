@@ -5,7 +5,7 @@ import {
   PlusCircle,
   History,
   MessageSquare,
-  Locate,
+  ChartArea,
   User,
   LogOut,
   X,
@@ -39,6 +39,12 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       label: "NGO Details",
       id: "ngo details",
       path: "/user-ngo-details",
+    },
+    {
+      icon:  ChartArea,
+      label: "Analytics",
+      id: "analysis",
+      path: "/chart-analysis",
     },
     {
       icon: User,

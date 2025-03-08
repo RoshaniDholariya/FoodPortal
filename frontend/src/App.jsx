@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import Dashboard from "./components/Lending-Page/Dashboard/Dashboard";
 import NavbarAboutus from "./components/Lending-Page/NavbarAboutus/Navbaraboutus";
 import AuthPage from "./components/Lending-Page/Authentication/Authenticationpage";
-import UserDashboard from "./components/Users-Pages/UserDashboard";
+import UserDashboard from "./components/Users-Pages/Dashboard/UserDashboard";
 import HowItWorks from "./components/Lending-Page/How-it-work/How-it-work";
 import ContactUs from "./components/Lending-Page/Contactus/Contactus";
 import OurMotive from "./components/Lending-Page/Ourmotive/Ourmotive";
@@ -31,9 +31,7 @@ import AdminNGODetails from "./components/Admin/NGO/NGODetails";
 import AdminDonorDetails from "./components/Admin/Donor/AdminDonor";
 import { AuthProvider } from "./components/context/Authcontext";
 import ProtectedAdminRoute from "./components/Admin/ProtectedAuth";
-import { NotificationProvider } from "./components/context/NotificationContext";
-import Cookies from "js-cookie";
-
+import Charts from "./components/Users-Pages/Dashboard/Charts";
 
 const App = () => {
   return (
@@ -50,12 +48,7 @@ const App = () => {
         <Route path="/otp-verify" element={<OTPVerify />} />
         <Route path="/data-register" element={<RegistrationSuccess />} />
         <Route path="/donor-registration" element={<DonorRegistrationForm />} />
-        <Route
-          path="/user-dashboard"
-          element={
-              <UserDashboard />
-          }
-        />
+        <Route path="/user-dashboard" element={<UserDashboard />} />
         <Route path="/user-donation-form" element={<FoodDonationForm />} />
         <Route path="/mapbox" element={<LocationPicker />} />
         <Route
@@ -64,6 +57,7 @@ const App = () => {
         />
         <Route path="/user-ngo-details" element={<UserNGODetails />} />
         <Route path="/user-profile" element={<Userprofile />} />
+        <Route path="/chart-analysis" element={<Charts />}/>
         <Route path="/NGO-register" element={<NGOAuthentication />} />
         <Route path="/NGO-login" element={<NGOLogin />} />
         <Route path="/NGO-dashboard" element={<NGODashboard />} />

@@ -27,6 +27,34 @@ const FoodDonationForm = () => {
     latitude: "",
     longitude: "",
   });
+
+  const [dateRanges, setDateRanges] = useState({
+    minDate: "",
+    maxDate: "",
+  });
+
+  useEffect(() => {
+    const today = new Date();
+
+    const formatDate = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    };
+
+    const todayFormatted = formatDate(today);
+
+    const maxDate = new Date();
+    maxDate.setDate(today.getDate() + 3);
+    const maxDateFormatted = formatDate(maxDate);
+
+    setDateRanges({
+      minDate: todayFormatted,
+      maxDate: maxDateFormatted,
+    });
+  }, []);
+
   const handleLocationSelect = (location) => {
     console.log("Location selected:", location);
     setFormData((prev) => ({
@@ -37,6 +65,7 @@ const FoodDonationForm = () => {
       longitude: location.lng,
     }));
   };
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
@@ -56,6 +85,18 @@ const FoodDonationForm = () => {
       ...prev,
       [name]: value,
     }));
+    
+    if (name === "preparationDate" && value) {
+      if (
+        formData.expiryDate &&
+        new Date(formData.expiryDate) < new Date(value)
+      ) {
+        setFormData((prev) => ({
+          ...prev,
+          expiryDate: value,
+        }));
+      }
+    }
   };
 
   const steps = [
@@ -66,38 +107,69 @@ const FoodDonationForm = () => {
   const nextStep = () => setStep((prev) => Math.min(prev + 1, 2));
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
-  const renderFormField = (label, name, type = "text", options = null) => (
-    <div className="w-full">
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label}
-      </label>
-      {options ? (
-        <select
-          name={name}
-          value={formData[name]}
-          onChange={handleInputChange}
-          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#61cf73] focus:border-transparent"
-          required
-        >
-          <option value="">Select {label.toLowerCase()}</option>
-          {options.map((opt) => (
-            <option key={opt} value={opt.toLowerCase()}>
-              {opt}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <input
-          type={type}
-          name={name}
-          value={formData[name]}
-          onChange={handleInputChange}
-          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#61cf73] focus:border-transparent"
-          required
-        />
-      )}
-    </div>
-  );
+  const renderFormField = (label, name, type = "text", options = null) => {
+    if (type === "date") {
+      return (
+        <div className="w-full">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {label}
+          </label>
+          <input
+            type={type}
+            name={name}
+            value={formData[name]}
+            onChange={handleInputChange}
+            min={
+              name === "expiryDate" && formData.preparationDate
+                ? formData.preparationDate
+                : dateRanges.minDate
+            }
+            max={dateRanges.maxDate}
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#61cf73] focus:border-transparent"
+            required
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            {name === "preparationDate"
+              ? "Select today or up to 3 days in the future"
+              : "Select a date between preparation date and 3 days from now"}
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="w-full">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {label}
+        </label>
+        {options ? (
+          <select
+            name={name}
+            value={formData[name]}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#61cf73] focus:border-transparent"
+            required
+          >
+            <option value="">Select {label.toLowerCase()}</option>
+            {options.map((opt) => (
+              <option key={opt} value={opt.toLowerCase()}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            type={type}
+            name={name}
+            value={formData[name]}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#61cf73] focus:border-transparent"
+            required
+          />
+        )}
+      </div>
+    );
+  };
 
   const renderStep = () => {
     switch (step) {
@@ -165,7 +237,7 @@ const FoodDonationForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
 
     try {
       const response = await axios.post(
@@ -176,14 +248,14 @@ const FoodDonationForm = () => {
           noOfDishes: formData.noOfDishes,
           preparationDate: formData.preparationDate,
           expiryDate: formData.expiryDate,
-          address: formData.address, 
+          address: formData.address,
           City: formData.City,
         },
         {
           headers: {
             "Content-Type": "application/json",
           },
-          withCredentials: true, 
+          withCredentials: true,
         }
       );
 

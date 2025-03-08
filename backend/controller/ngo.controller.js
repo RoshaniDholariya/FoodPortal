@@ -7,8 +7,8 @@ const jwt = require("jsonwebtoken");
 exports.submitNgoForm = async (req, res) => {
   try {
     const { name, address, email, phoneNumber, city, pincode } = req.body;
-  
-    const certificate = req.file.path; 
+
+    const certificate = req.file.path;
 
     const newNgo = await prisma.nGO.create({
       data: {
@@ -18,31 +18,31 @@ exports.submitNgoForm = async (req, res) => {
         phoneNumber,
         city,
         pincode,
-        certificate, 
+        certificate,
       },
     });
     res.status(200).json({ success: true, message: "Form submitted successfully. Awaiting admin approval." });
   } catch (error) {
-    console.error("Error submitting NGO form:", error); 
-    res.status(500).json({ 
-      success: false, 
-      message: "Error submitting form", 
-      error: error.message || error 
+    console.error("Error submitting NGO form:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error submitting form",
+      error: error.message || error
     });
   }
 };
 exports.Login = async (req, res) => {
   try {
-    console.log("Request Body:", req.body); 
+    console.log("Request Body:", req.body);
 
-    const { email, password } = req.body; 
+    const { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
     const user = await prisma.nGO.findUnique({
-      where: { email }, 
+      where: { email },
     });
 
     if (!user) {
@@ -100,7 +100,7 @@ exports.authenticate = (req, res, next) => {
 
 exports.getAvailableFood = async (req, res) => {
   try {
-    const ngoId = req.user.userId; 
+    const ngoId = req.user.userId;
     const ngo = await prisma.nGO.findUnique({
       where: { id: ngoId },
       select: { city: true }
@@ -109,13 +109,30 @@ exports.getAvailableFood = async (req, res) => {
       return res.status(404).json({ success: false, message: "NGO not found" });
     }
 
+    const currentDate = new Date();
+
+    await prisma.foodDetails.updateMany({
+      where: {
+        status: "available",
+        expiryDate: {
+          lt: currentDate
+        }
+      },
+      data: {
+        status: "expired"
+      }
+    });
+
     const availableFood = await prisma.foodDetails.findMany({
       where: {
         City: {
           equals: ngo.city,
-          mode: 'insensitive' 
+          mode: 'insensitive'
         },
         status: "available",
+        expiryDate: {
+          gt: currentDate
+        }
       },
       include: {
         donor: { select: { name: true, email: true } }
@@ -133,7 +150,7 @@ exports.getAvailableFood = async (req, res) => {
 exports.acceptFood = async (req, res) => {
   try {
     const { foodId } = req.body;
-    const ngoId = req.user.id; 
+    const ngoId = req.user.id;
 
     const food = await prisma.foodDetails.findUnique({ where: { id: foodId } });
 
@@ -170,14 +187,14 @@ exports.getAcceptedFood = async (req, res) => {
 };
 exports.getDonorsForNGO = async (req, res) => {
   try {
-    const ngoId = req.user.id; 
+    const ngoId = req.user.id;
 
     const donors = await prisma.donor.findMany({
       where: {
         FoodDetails: {
           some: {
             ngoId: ngoId,
-            status: "completed", 
+            status: "completed",
           },
         },
       },
@@ -191,11 +208,11 @@ exports.getDonorsForNGO = async (req, res) => {
         state: true,
         pincode: true,
         donorType: true,
-        restaurantName: true, 
-        photo: true, 
+        restaurantName: true,
+        photo: true,
       },
     });
-// console.log(donors)
+    // console.log(donors)
     res.status(200).json({ success: true, donors });
   } catch (error) {
     console.error("Error fetching donors for NGO:", error.message);
@@ -217,16 +234,16 @@ exports.getngoDetails = async (req, res) => {
 
 
 exports.updatengoDetails = async (req, res) => {
-      try{
-        console.log("Edited Profile:", req.body);
-        const updatedNgo = await prisma.nGO.update({
-          where: { id: req.user.userId },
-          data: req.body,
-        });
-        res.status(200).json({ success: true, ngo: updatedNgo });
+  try {
+    console.log("Edited Profile:", req.body);
+    const updatedNgo = await prisma.nGO.update({
+      where: { id: req.user.userId },
+      data: req.body,
+    });
+    res.status(200).json({ success: true, ngo: updatedNgo });
 
-      } catch(error){
-        console.log("Error updating NGO details:", error); 
-        res.status(500).json({ success: false, message: "Error updating NGO details" });
-      }
+  } catch (error) {
+    console.log("Error updating NGO details:", error);
+    res.status(500).json({ success: false, message: "Error updating NGO details" });
+  }
 };

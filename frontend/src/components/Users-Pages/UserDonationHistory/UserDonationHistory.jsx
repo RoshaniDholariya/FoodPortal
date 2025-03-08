@@ -53,6 +53,7 @@ const UserDonationHistory = () => {
     const colors = {
       completed: "text-green-500 ",
       available: "text-blue-500",
+      expired: "text-red-500",
     };
 
     return (
@@ -75,6 +76,10 @@ const UserDonationHistory = () => {
 
   const availableDonations = donations.filter(
     (d) => d.status === "available"
+  ).length;
+
+  const expiredDonations = donations.filter(
+    (d) => d.status === "expired"
   ).length;
 
   return (
@@ -124,6 +129,9 @@ const UserDonationHistory = () => {
                     </div>
                     <div className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
                       Available : {availableDonations}
+                    </div>{" "}
+                    <div className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
+                      Expired : {expiredDonations}
                     </div>
                   </div>
 
@@ -157,6 +165,16 @@ const UserDonationHistory = () => {
                       }`}
                     >
                       Available
+                    </button>
+                    <button
+                      onClick={() => setStatusFilter("expired")}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        statusFilter === "expired"
+                          ? "bg-red-400 text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      }`}
+                    >
+                      Expired
                     </button>
                   </div>
                 </div>
@@ -206,8 +224,13 @@ const UserDonationHistory = () => {
                               <div>
                                 <p className="text-sm text-gray-500">Dates</p>
                                 <p className="text-gray-700">
-                                  {donation.preparationDate} -{" "}
-                                  {donation.expiryDate}
+                                  {new Date(
+                                    donation.preparationDate
+                                  ).toLocaleDateString()}{" "}
+                                  -
+                                  {new Date(
+                                    donation.expiryDate
+                                  ).toLocaleDateString()}
                                 </p>
                               </div>
                             </div>
