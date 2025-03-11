@@ -47,7 +47,6 @@ const Sidebar = ({ isMobile, showMobileSidebar, onCloseSidebar }) => {
 
   const sidebarContent = (
     <div className="flex flex-col h-full max-h-screen">
-      {/* Header */}
       <div className="flex-shrink-0 p-5 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -69,16 +68,15 @@ const Sidebar = ({ isMobile, showMobileSidebar, onCloseSidebar }) => {
         </div>
       </div>
 
-      {/* Profile Section */}
       <div className="flex-shrink-0 p-4">
         <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-xl p-4">
           <div className="flex items-center space-x-3">
             <div className="h-10 w-10 rounded-xl bg-gradient-to-r from-teal-500 to-teal-600 flex items-center justify-center shadow-md">
-              <span className="text-white font-medium">JS</span>
+              <span className="text-white font-medium">SA</span>
             </div>
             <div>
               <h3 className="text-sm font-semibold text-gray-900">
-                John Smith
+                Super Admin
               </h3>
               <p className="text-xs text-gray-500">Administrator</p>
             </div>
@@ -86,7 +84,6 @@ const Sidebar = ({ isMobile, showMobileSidebar, onCloseSidebar }) => {
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 px-3 py-2">
         <div className="space-y-1">
           {menuItems.map((item, index) => (
@@ -98,19 +95,6 @@ const Sidebar = ({ isMobile, showMobileSidebar, onCloseSidebar }) => {
           ))}
         </div>
       </nav>
-
-      {/* Help Section */}
-      <div className="flex-shrink-0 p-4 mt-auto">
-        <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-xl p-4">
-          <h4 className="text-sm font-medium text-teal-700 mb-1">Need Help?</h4>
-          <p className="text-xs text-teal-600 mb-3">
-            Our support team is here to assist you
-          </p>
-          <button className="w-full px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-teal-500 to-teal-600 rounded-lg hover:from-teal-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg">
-            Contact Support
-          </button>
-        </div>
-      </div>
     </div>
   );
 

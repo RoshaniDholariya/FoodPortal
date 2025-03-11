@@ -241,3 +241,153 @@ exports.getAllNgos = async (req, res) => {
     });
   }
 };
+
+exports.getAnalytics = async (req, res) => {
+  try {
+    const totalDonors = await prisma.donor.count({
+      where: { isVerified: true }
+    });
+
+    const totalNgos = await prisma.nGO.count({
+      where: { isApproved: true }
+    });
+
+    const totalDonations = await prisma.foodDetails.count();
+
+    const expiredFoodCount = await prisma.foodDetails.count({
+      where: { status: "expired" }
+    });
+
+    const expiredFoodRatio = totalDonations > 0
+      ? (expiredFoodCount / totalDonations * 100).toFixed(2)
+      : 0;
+
+    const donationsByStatus = await prisma.foodDetails.groupBy({
+      by: ['status'],
+      _count: true
+    });
+
+    const donationStats = {};
+    donationsByStatus.forEach(item => {
+      donationStats[item.status] = item._count;
+    });
+
+    const donationsByFoodType = await prisma.foodDetails.groupBy({
+      by: ['foodType'],
+      _count: true
+    });
+
+    const topDonorCities = await prisma.foodDetails.groupBy({
+      by: ['City'],
+      _count: {
+        id: true 
+      },
+      orderBy: {
+        _count: {
+          id: 'desc'  
+        }
+      },
+      take: 5,
+      where: {
+        City: {
+          not: null
+        }
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalDonors,
+        totalNgos,
+        totalDonations,
+        expiredFoodCount,
+        expiredFoodRatio,
+        donationStats,
+        donationsByFoodType,
+        topDonorCities
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching analytics:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch analytics data",
+      error: error.message
+    });
+  }
+};
+
+exports.getDonationTrends = async (req, res) => {
+  try {
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const donations = await prisma.foodDetails.findMany({
+      where: {
+        createdAt: {
+          gte: sixMonthsAgo
+        }
+      },
+      select: {
+        createdAt: true,
+        status: true,
+        noOfDishes: true
+      }
+    });
+
+    const monthlyData = {};
+
+    donations.forEach(donation => {
+      const month = donation.createdAt.toISOString().substring(0, 7);
+
+      if (!monthlyData[month]) {
+        monthlyData[month] = {
+          total: 0,
+          completed: 0,
+          expired: 0,
+          available: 0,
+          dishes: 0
+        };
+      }
+
+      monthlyData[month].total += 1;
+      monthlyData[month].dishes += donation.noOfDishes || 0;
+
+      if (donation.status === 'completed') {
+        monthlyData[month].completed += 1;
+      } else if (donation.status === 'expired') {
+        monthlyData[month].expired += 1;
+      } else if (donation.status === 'available') {
+        monthlyData[month].available += 1;
+      }
+    });
+
+    const trendsData = Object.keys(monthlyData).map(month => {
+      const data = monthlyData[month];
+      const expiredRatio = data.total > 0 ? (data.expired / data.total * 100).toFixed(2) : 0;
+
+      return {
+        month: month,
+        total: data.total,
+        completed: data.completed,
+        expired: data.expired,
+        available: data.available,
+        dishes: data.dishes,
+        expiredRatio: parseFloat(expiredRatio)
+      };
+    }).sort((a, b) => a.month.localeCompare(b.month));
+
+    res.status(200).json({
+      success: true,
+      data: trendsData
+    });
+  } catch (error) {
+    console.error("Error fetching donation trends:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch donation trends",
+      error: error.message
+    });
+  }
+};

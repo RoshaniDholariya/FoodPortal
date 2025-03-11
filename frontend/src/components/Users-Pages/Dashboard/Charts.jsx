@@ -255,7 +255,7 @@ const Charts = () => {
     completedDonations + availableDonations + expiredDonations;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-white-300 flex">
       <div className="fixed inset-y-0 left-0 z-50">
         <Sidebar
           isSidebarOpen={isSidebarOpen}
@@ -273,10 +273,6 @@ const Charts = () => {
 
         <main className="p-4 lg:p-8">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              Donation Analytics
-            </h2>
-
             {loading ? (
               <div className="flex justify-center items-center h-64">
                 <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-[#61cf73]"></div>

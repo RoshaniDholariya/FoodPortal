@@ -85,8 +85,22 @@ const FoodDonationForm = () => {
       ...prev,
       [name]: value,
     }));
-    
+
     if (name === "preparationDate" && value) {
+      const prepDate = new Date(value);
+      const maxExpiryDate = new Date(prepDate);
+      maxExpiryDate.setDate(prepDate.getDate() + 3);
+
+      const year = maxExpiryDate.getFullYear();
+      const month = String(maxExpiryDate.getMonth() + 1).padStart(2, "0");
+      const day = String(maxExpiryDate.getDate()).padStart(2, "0");
+      const formattedMaxDate = `${year}-${month}-${day}`;
+
+      setDateRanges((prev) => ({
+        ...prev,
+        maxDate: formattedMaxDate,
+      }));
+
       if (
         formData.expiryDate &&
         new Date(formData.expiryDate) < new Date(value)
@@ -131,7 +145,7 @@ const FoodDonationForm = () => {
           <p className="text-xs text-gray-500 mt-1">
             {name === "preparationDate"
               ? "Select today or up to 3 days in the future"
-              : "Select a date between preparation date and 3 days from now"}
+              : "Select a date between preparation date and 3 days after preparation date"}
           </p>
         </div>
       );

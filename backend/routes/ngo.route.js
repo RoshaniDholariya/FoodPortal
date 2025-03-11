@@ -26,11 +26,11 @@ const upload = multer({ storage });
 // Routes
 router.post("/submit", upload.single("certificate"), ngoController.submitNgoForm);
 router.post("/login", ngoController.Login);
-router.get("/getAvailableFood",ngoController.authenticate,ngoController.getAvailableFood);
-router.post("/acceptFood",ngoController.authenticate,ngoController.acceptFood);
-router.get("/getacceptedFood",ngoController.authenticate,ngoController.getAcceptedFood);
-router.get("/getDonorsForNGO",ngoController.authenticate,ngoController.getDonorsForNGO);
-router.get("/getngoDetails",ngoController.authenticate,ngoController.getngoDetails);
-router.put("/updatengoDetails",ngoController.authenticate,ngoController.updatengoDetails);
+router.get("/getAvailableFood", ngoController.authenticate, ngoController.getAvailableFood);
+router.post("/acceptFood", ngoController.authenticate, ngoController.acceptFood);
+router.get("/getacceptedFood", ngoController.authenticate, ngoController.getAcceptedFood);
+router.get("/getDonorsForNGO", ngoController.authenticate, ngoController.getDonorsForNGO);
+router.get("/getngoDetails", ngoController.authenticate, ngoController.getngoDetails);
+router.put("/updatengoDetails", ngoController.authenticate, ngoController.updatengoDetails);
 
 module.exports = router;

@@ -12,7 +12,6 @@ const Dialog = ({ isOpen, onClose, children }) => {
         onClick={onClose}
       />
 
-      {/* Dialog content */}
       <div className="relative bg-white rounded-lg w-full max-w-md mx-4 p-6 shadow-xl">
         <button
           onClick={onClose}
@@ -57,8 +56,6 @@ const DonorDetailsDialog = ({ donor, isOpen, onClose }) => {
             </label>
             <p className="mt-1 text-sm text-gray-900">{donor.donations}</p>
           </div>
-
-          {/* Add any additional donor details you want to display */}
         </div>
       </div>
     </Dialog>

@@ -39,7 +39,7 @@ const DonationCard = ({ donation, onClick }) => (
         <div className="flex items-center space-x-2">
           <Calendar className="w-4 h-4 text-emerald-600" />
           <span className="text-gray-600 text-sm">
-            Expires: {donation.expiryDate}
+            Expires: {new Date(donation.expiryDate).toLocaleDateString()}
           </span>
         </div>
       </div>

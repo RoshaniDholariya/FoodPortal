@@ -18,8 +18,8 @@ import NGODonationpage from "./components/NGO-Pages/DonationPage/NGO-Donationpag
 import NGOProfile from "./components/NGO-Pages/NGO-Profile/NGO-Profile";
 import NGOAccepteddonation from "./components/NGO-Pages/NGO-Accepteddonation/NGO-Accepteddonation";
 import NGODonorDetails from "./components/NGO-Pages/NGO-DonorDeatials/NGO-DonorDetails";
-import AdminDashboard from "./components/Admin/AdminDashboard";
-// import AdminRoute from "./components/Admin/AdminRoute";
+import AdminDashboard from "./components/Admin/AdminDash/AdminDashboard";
+import Report from "./components/Admin/Analytics/Reports";
 import AdminLogin from "./components/Admin/AdminLogin";
 import DonorRegistrationForm from "./components/Lending-Page/Donorregistration/Donorregistrattion";
 import NGOAuthentication from "./components/Lending-Page/Authentication/NGO-Authentication";
@@ -57,7 +57,7 @@ const App = () => {
         />
         <Route path="/user-ngo-details" element={<UserNGODetails />} />
         <Route path="/user-profile" element={<Userprofile />} />
-        <Route path="/chart-analysis" element={<Charts />}/>
+        <Route path="/chart-analysis" element={<Charts />} />
         <Route path="/NGO-register" element={<NGOAuthentication />} />
         <Route path="/NGO-login" element={<NGOLogin />} />
         <Route path="/NGO-dashboard" element={<NGODashboard />} />
@@ -90,6 +90,14 @@ const App = () => {
           element={
             <ProtectedAdminRoute>
               <AdminDonorDetails />
+            </ProtectedAdminRoute>
+          }
+        />{" "}
+        <Route
+          path="/Admin-reports"
+          element={
+            <ProtectedAdminRoute>
+              <Report />
             </ProtectedAdminRoute>
           }
         />

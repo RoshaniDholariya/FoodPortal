@@ -34,7 +34,9 @@ const AcceptedDonationRow = ({ donation, onClick }) => (
         </div>
         <div className="flex items-center space-x-2">
           <Calendar className="w-4 h-4 text-emerald-600" />
-          <span className="text-gray-600">{donation.expiryDate}</span>
+          <span className="text-gray-600">
+            {new Date(donation.expiryDate).toLocaleDateString()}
+          </span>
         </div>
         <ChevronRight className="w-5 h-5 text-emerald-600" />
       </div>
@@ -91,12 +93,15 @@ const DonationDetails = ({ donation, onClose }) => (
           </div>
           <div className="flex items-center space-x-3">
             <Clock className="w-5 h-5 text-emerald-600" />
-            <span className="text-gray-700">Prepared: {donation.preparationDate}</span>
+            <span className="text-gray-700">
+              Prepared:{" "}
+              {new Date(donation.preparationDate).toLocaleDateString()}
+            </span>
           </div>
           <div className="flex items-center space-x-3">
             <Calendar className="w-5 h-5 text-emerald-600" />
             <span className="text-gray-700">
-              Expires: {donation.expiryDate}
+              Expires: {new Date(donation.expiryDate).toLocaleDateString()}
             </span>
           </div>
         </div>
@@ -118,9 +123,12 @@ const NGOAccepteddonation = () => {
   useEffect(() => {
     const fetchAcceptedDonations = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/ngo/getacceptedFood",{
-          withCredentials:true
-        });
+        const response = await axios.get(
+          "http://localhost:3000/api/ngo/getacceptedFood",
+          {
+            withCredentials: true,
+          }
+        );
         console.log(response.data);
         if (response.data.success) {
           setAcceptedDonations(response.data.acceptedFood);
@@ -187,7 +195,9 @@ const NGOAccepteddonation = () => {
                 />
               ))
             ) : (
-              <p className="text-center text-gray-600">No accepted donations found.</p>
+              <p className="text-center text-gray-600">
+                No accepted donations found.
+              </p>
             )}
           </div>
         )}
