@@ -147,12 +147,102 @@ exports.getAvailableFood = async (req, res) => {
   }
 };
 
+// exports.acceptFood = async (req, res) => {
+//   try {
+//     const { foodId } = req.body;
+//     const ngoId = req.user.id;
+
+//     const food = await prisma.foodDetails.findUnique({ where: { id: foodId } });
+
+//     if (!food) {
+//       return res.status(404).json({ success: false, message: "Food not found" });
+//     }
+
+//     if (food.status !== "available") {
+//       return res.status(400).json({ success: false, message: "Food is already taken" });
+//     }
+
+//     const updatedFood = await prisma.foodDetails.update({
+//       where: { id: foodId },
+//       data: { status: "completed", ngoId },
+//     });
+
+//     res.status(200).json({ success: true, message: "Food accepted successfully", updatedFood });
+//   } catch (error) {
+//     console.error('Error accepting food:', error.message);
+//     res.status(500).json({ success: false, message: 'Internal server error.' });
+//   }
+// };
+
+// exports.acceptFood = async (req, res) => {
+//   try {
+//     const { foodId } = req.body;
+//     const ngoId = req.user.id;
+
+//     // Fetch the food details along with the donor's information
+//     const food = await prisma.foodDetails.findUnique({
+//       where: { id: foodId },
+//       include: { donor: true }, // Assuming donor details are linked
+//     });
+
+//     if (!food) {
+//       return res.status(404).json({ success: false, message: "Food not found" });
+//     }
+
+//     if (food.status !== "available") {
+//       return res.status(400).json({ success: false, message: "Food is already taken" });
+//     }
+
+//     // Update the food status and associate it with the NGO
+//     const updatedFood = await prisma.foodDetails.update({
+//       where: { id: foodId },
+//       data: { status: "completed", ngoId },
+//     });
+
+//     // Send real-time notification via Socket.io
+//     if (food.donor) {
+//       const donorId = food.donor.id; // Assuming donor has an ID
+//       global.io.to(donorId).emit("foodAccepted", {
+//         message: `Your food donation (${food.name}) has been accepted by an NGO.`,
+//         ngoId,
+//         foodName: food.name,
+//       });
+//     }
+
+//     res.status(200).json({ success: true, message: "Food accepted successfully", updatedFood });
+//   } catch (error) {
+//     console.error("Error accepting food:", error.message);
+//     res.status(500).json({ success: false, message: "Internal server error." });
+//   }
+// };
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+
+function generateCertificate(donorId) {
+    const doc = new PDFDocument();
+    const filePath = `certificates/${donorId}_certificate.pdf`;
+
+    doc.pipe(fs.createWriteStream(filePath));
+    doc.fontSize(20).text("Certificate of Appreciation", { align: "center" });
+    doc.moveDown();
+    doc.fontSize(14).text(`This certificate is awarded to Donor ID: ${donorId}`, { align: "center" });
+    doc.moveDown();
+    doc.text("Thank you for your valuable contribution towards reducing food wastage!", { align: "center" });
+    doc.end();
+    
+    return filePath;
+}
+
 exports.acceptFood = async (req, res) => {
   try {
     const { foodId } = req.body;
     const ngoId = req.user.id;
 
-    const food = await prisma.foodDetails.findUnique({ where: { id: foodId } });
+    // Fetch the food details along with the donor's information
+    const food = await prisma.foodDetails.findUnique({
+      where: { id: foodId },
+      include: { donor: true }, // Assuming donor details are linked
+    });
 
     if (!food) {
       return res.status(404).json({ success: false, message: "Food not found" });
@@ -162,17 +252,51 @@ exports.acceptFood = async (req, res) => {
       return res.status(400).json({ success: false, message: "Food is already taken" });
     }
 
+    // Update the food status and associate it with the NGO
     const updatedFood = await prisma.foodDetails.update({
       where: { id: foodId },
       data: { status: "completed", ngoId },
     });
 
-    res.status(200).json({ success: true, message: "Food accepted successfully", updatedFood });
+    // Increase donor's points by 10
+    if (food.donor) {
+      const donorId = food.donor.id;
+
+      const updatedDonor = await prisma.donor.update({
+        where: { id: donorId },
+        data: {
+          totalPoints: food.donor.totalPoints !== null ? { increment: 10 } : 10, 
+        },
+      });
+      if (updatedDonor.totalPoints >= 100) {
+        await prisma.donor.update({
+          where: { id: donorId },
+          data: {
+            certificatesEarned: { increment: 1 },
+            points:updatedDonor.totalPoints,
+            totalPoints: 0, 
+          },
+        });
+        generateCertificate(donorId);
+        global.io.to(donorId).emit("certificateEarned", {
+          message: "Congratulations! You've earned a certificate for your contributions.",
+        });
+      }
+
+      global.io.to(donorId).emit("foodAccepted", {
+        message: `Your food donation (${food.name}) has been accepted by an NGO.`,
+        ngoId,
+        foodName: food.name,
+      });
+    }
+
+    res.status(200).json({ success: true, message: "Food accepted successfully, donor rewarded.", updatedFood });
   } catch (error) {
-    console.error('Error accepting food:', error.message);
-    res.status(500).json({ success: false, message: 'Internal server error.' });
+    console.error("Error accepting food:", error.message);
+    res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
+
 exports.getAcceptedFood = async (req, res) => {
   try {
     const acceptedFood = await prisma.foodDetails.findMany({

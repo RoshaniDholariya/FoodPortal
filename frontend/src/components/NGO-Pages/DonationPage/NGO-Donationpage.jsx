@@ -3,6 +3,7 @@ import axios from "axios";
 import DonationModal from "./NGO-DonationModel";
 import { User, Package, Calendar, Menu, PackageX } from "lucide-react";
 import Sidebar from "../NGOsidebar";
+import { io } from "socket.io-client";
 
 const DonationCard = ({ donation, onClick }) => (
   <div
@@ -92,25 +93,51 @@ const DonationGrid = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const handleAccept = async (id) => {
-    try {
-      const response = await axios.post(
-        "http://localhost:3000/api/ngo/acceptFood",
-        { foodId: id },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
-      alert(response.data.message);
-      fetchDonations();
-      setSelectedDonation(null);
-    } catch (error) {
-      console.error("Error accepting donation:", error);
-    }
-  };
+  // const handleAccept = async (id) => {
+  //   try {
+  //     const response = await axios.post(
+  //       "http://localhost:3000/api/ngo/acceptFood",
+  //       { foodId: id },
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         withCredentials: true,
+  //       }
+  //     );
+  //     alert(response.data.message);
+  //     fetchDonations();
+  //     setSelectedDonation(null);
+  //   } catch (error) {
+  //     console.error("Error accepting donation:", error);
+  //   }
+  // };
+
+ 
+
+const socket = io("http://localhost:3000"); // Adjust backend URL accordingly
+
+const handleAccept = async (id) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:3000/api/ngo/acceptFood",
+      { foodId: id },
+      { withCredentials: true }
+    );
+
+    alert(response.data.message);
+    fetchDonations();
+    setSelectedDonation(null);
+
+    socket.emit("foodAccepted", {
+      donorId: response.data.donorId,
+      message: `Your food donation (#${id}) has been accepted!`,
+    });
+  } catch (error) {
+    console.error("Error accepting donation:", error);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-emerald-50">

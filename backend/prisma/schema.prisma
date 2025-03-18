@@ -28,6 +28,9 @@ model Donor {
   pincode      String?
   phone        String?
   photo        String?
+  totalPoints  Int      @default(0) 
+  points       Int      @default(0)
+  certificatesEarned Int? @default(0)
   donorType    DonorType?
   restaurantName String? 
   createdAt    DateTime @default(now())

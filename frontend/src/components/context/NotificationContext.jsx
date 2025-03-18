@@ -7,7 +7,7 @@ export const useNotification = () => useContext(NotificationContext);
 
 export const NotificationProvider = ({ children, userId }) => {
   const [notifications, setNotifications] = useState([]);
-  const socketRef = useRef(null); // Use useRef to persist socket instance
+  const socketRef = useRef(null); 
 
   useEffect(() => {
     if (!userId) {
