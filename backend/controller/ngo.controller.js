@@ -371,3 +371,77 @@ exports.updatengoDetails = async (req, res) => {
     res.status(500).json({ success: false, message: "Error updating NGO details" });
   }
 };
+
+
+
+exports.ngoconnectdetails = async (req, res) => {
+  try {
+    const { Date, quantity } = req.body;
+    const ngoId = req.user.userId; 
+
+    if (!Date || !quantity) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please fill all the required fields.',
+      });
+    }
+
+    const ngoconnectEntry = await prisma.ngoconnect.create({
+      data: {
+        ngoId,
+        Date,
+        quantity,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'NGO connection details added successfully.',
+      ngoconnectEntry,
+    });
+  } catch (error) {
+    console.error('❌ Error adding NGO connection details:', error.message);
+    res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+};
+
+exports.getNgoConnectDetails = async (req, res) => {
+  try {
+    const { ngoId } = req.params; // Extract NGO ID from request parameters
+
+    if (!ngoId) {
+      return res.status(400).json({
+        success: false,
+        message: "NGO ID is required.",
+      });
+    }
+
+    const ngoConnectDetails = await prisma.ngoconnect.findMany({
+      where: { ngoId: parseInt(ngoId) },
+      select: {
+        id: true,
+        Date: true,
+        quantity: true,
+      },
+      orderBy: {
+        Date: "desc", // Sorting by latest records
+      },
+    });
+
+    if (ngoConnectDetails.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No records found for the given NGO ID.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "NGO connection details retrieved successfully.",
+      data: ngoConnectDetails,
+    });
+  } catch (error) {
+    console.error("❌ Error fetching NGO connection details:", error.message);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};

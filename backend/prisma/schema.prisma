@@ -62,6 +62,7 @@ model NGO {
   contactTime String?
 
   FoodDetails FoodDetails[]
+  Ngoconnect Ngoconnect[]
 }
 
 model FoodDetails {
@@ -99,4 +100,12 @@ model Notification {
   createdAt DateTime @default(now())
 
   donor Donor @relation(fields: [donorId], references: [id], onDelete: Cascade)
+}
+
+model Ngoconnect{
+  id Int @id @default(autoincrement())
+  Date DateTime
+  quantity Int
+  ngoId    Int  
+  NGO      NGO  @relation(fields: [ngoId], references: [id])
 }

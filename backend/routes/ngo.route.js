@@ -32,5 +32,7 @@ router.get("/getacceptedFood", ngoController.authenticate, ngoController.getAcce
 router.get("/getDonorsForNGO", ngoController.authenticate, ngoController.getDonorsForNGO);
 router.get("/getngoDetails", ngoController.authenticate, ngoController.getngoDetails);
 router.put("/updatengoDetails", ngoController.authenticate, ngoController.updatengoDetails);
+router.post("/ngoconnectdetails", ngoController.authenticate, ngoController.ngoconnectdetails);
+router.get("/getNgoConnectDetails/:ngoId", ngoController.authenticate, ngoController.getNgoConnectDetails);
 
 module.exports = router;
