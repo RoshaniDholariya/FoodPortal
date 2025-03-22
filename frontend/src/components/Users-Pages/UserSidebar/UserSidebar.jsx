@@ -10,6 +10,8 @@ import {
   LogOut,
   X,
   Menu,
+  FileBadge2,
+  File,
 } from "lucide-react";
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
@@ -41,10 +43,22 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       path: "/user-ngo-details",
     },
     {
-      icon:  ChartArea,
+      icon: ChartArea,
       label: "Analytics",
       id: "analysis",
       path: "/chart-analysis",
+    },
+    {
+      icon: FileBadge2,
+      label: "Rewards",
+      id: "rewards",
+      path: "/user-reward",
+    },
+    {
+      icon: File,
+      label: "Certificate",
+      id: "certifiacte",
+      path: "/user-certificate",
     },
     {
       icon: User,

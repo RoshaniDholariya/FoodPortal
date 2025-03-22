@@ -215,22 +215,24 @@ exports.getAvailableFood = async (req, res) => {
 //     res.status(500).json({ success: false, message: "Internal server error." });
 //   }
 // };
+
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 
-function generateCertificate(donorId) {
-    const doc = new PDFDocument();
-    const filePath = `certificates/${donorId}_certificate.pdf`;
 
-    doc.pipe(fs.createWriteStream(filePath));
-    doc.fontSize(20).text("Certificate of Appreciation", { align: "center" });
-    doc.moveDown();
-    doc.fontSize(14).text(`This certificate is awarded to Donor ID: ${donorId}`, { align: "center" });
-    doc.moveDown();
-    doc.text("Thank you for your valuable contribution towards reducing food wastage!", { align: "center" });
-    doc.end();
-    
-    return filePath;
+function generateCertificate(donorId) {
+  const doc = new PDFDocument();
+  const filePath = `certificates/${donorId}_certificate.pdf`;
+
+  doc.pipe(fs.createWriteStream(filePath));
+  doc.fontSize(20).text("Certificate of Appreciation", { align: "center" });
+  doc.moveDown();
+  doc.fontSize(14).text(`This certificate is awarded to Donor ID: ${donorId}`, { align: "center" });
+  doc.moveDown();
+  doc.text("Thank you for your valuable contribution towards reducing food wastage!", { align: "center" });
+  doc.end();
+
+  return filePath;
 }
 
 exports.acceptFood = async (req, res) => {
@@ -238,10 +240,9 @@ exports.acceptFood = async (req, res) => {
     const { foodId } = req.body;
     const ngoId = req.user.id;
 
-    // Fetch the food details along with the donor's information
     const food = await prisma.foodDetails.findUnique({
       where: { id: foodId },
-      include: { donor: true }, // Assuming donor details are linked
+      include: { donor: true },
     });
 
     if (!food) {
@@ -252,29 +253,28 @@ exports.acceptFood = async (req, res) => {
       return res.status(400).json({ success: false, message: "Food is already taken" });
     }
 
-    // Update the food status and associate it with the NGO
     const updatedFood = await prisma.foodDetails.update({
       where: { id: foodId },
       data: { status: "completed", ngoId },
     });
 
-    // Increase donor's points by 10
     if (food.donor) {
       const donorId = food.donor.id;
 
       const updatedDonor = await prisma.donor.update({
         where: { id: donorId },
         data: {
-          totalPoints: food.donor.totalPoints !== null ? { increment: 10 } : 10, 
+          totalPoints: food.donor.totalPoints !== null ? { increment: 10 } : 10,
         },
       });
+
       if (updatedDonor.totalPoints >= 100) {
         await prisma.donor.update({
           where: { id: donorId },
           data: {
             certificatesEarned: { increment: 1 },
-            points:updatedDonor.totalPoints,
-            totalPoints: 0, 
+            points: updatedDonor.totalPoints,
+            totalPoints: 0,
           },
         });
         generateCertificate(donorId);
@@ -286,6 +286,7 @@ exports.acceptFood = async (req, res) => {
       global.io.to(donorId).emit("foodAccepted", {
         message: `Your food donation (${food.name}) has been accepted by an NGO.`,
         ngoId,
+        pointsEarned: 10,
         foodName: food.name,
       });
     }
@@ -377,7 +378,7 @@ exports.updatengoDetails = async (req, res) => {
 exports.ngoconnectdetails = async (req, res) => {
   try {
     const { Date, quantity } = req.body;
-    const ngoId = req.user.userId; 
+    const ngoId = req.user.userId;
 
     if (!Date || !quantity) {
       return res.status(400).json({
@@ -443,5 +444,93 @@ exports.getNgoConnectDetails = async (req, res) => {
   } catch (error) {
     console.error("❌ Error fetching NGO connection details:", error.message);
     res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+
+
+const resetCodes = new Map();
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await prisma.nGO.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    resetCodes.set(email, { code: verificationCode, expiresAt: Date.now() + 15 * 60 * 1000 });
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Password Reset Verification Code",
+      html: `<p>Your password reset code is: <b>${verificationCode}</b></p>
+             <p>This code is valid for 15 minutes.</p>`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: "Verification code sent to your email" });
+  } catch (error) {
+    console.error("Forgot Password Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, code, newPassword } = req.body;
+
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({ message: "Email, code, and new password are required" });
+    }
+
+    const storedCodeData = resetCodes.get(email);
+
+    if (!storedCodeData) {
+      return res.status(400).json({ message: "Invalid or expired code" });
+    }
+
+    if (Date.now() > storedCodeData.expiresAt) {
+      resetCodes.delete(email);
+      return res.status(400).json({ message: "Code has expired, request a new one" });
+    }
+
+    if (code !== storedCodeData.code) {
+      return res.status(400).json({ message: "Invalid verification code" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.nGO.update({
+      where: { email },
+      data: { password: hashedPassword },
+    });
+
+    resetCodes.delete(email);
+
+    res.status(200).json({ message: "Password reset successfully" });
+  } catch (error) {
+    console.error("Reset Password Error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

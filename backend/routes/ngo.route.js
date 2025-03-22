@@ -34,5 +34,7 @@ router.get("/getngoDetails", ngoController.authenticate, ngoController.getngoDet
 router.put("/updatengoDetails", ngoController.authenticate, ngoController.updatengoDetails);
 router.post("/ngoconnectdetails", ngoController.authenticate, ngoController.ngoconnectdetails);
 router.get("/getNgoConnectDetails/:ngoId", ngoController.authenticate, ngoController.getNgoConnectDetails);
+router.post("/forgot-password", ngoController.forgotPassword);
+router.post("/reset-password", ngoController.resetPassword);
 
 module.exports = router;

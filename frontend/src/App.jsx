@@ -32,6 +32,9 @@ import AdminDonorDetails from "./components/Admin/Donor/AdminDonor";
 import { AuthProvider } from "./components/context/Authcontext";
 import ProtectedAdminRoute from "./components/Admin/ProtectedAuth";
 import Charts from "./components/Users-Pages/Dashboard/Charts";
+import UserReward from "./components/Users-Pages/Reward/UserReward";
+import Certificate from "./components/Users-Pages/Certificate/Certificate";
+import ForgotPassword from "./components/Lending-Page/Authentication/NGO-Forget";
 
 const App = () => {
   return (
@@ -50,6 +53,8 @@ const App = () => {
         <Route path="/donor-registration" element={<DonorRegistrationForm />} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
         <Route path="/user-donation-form" element={<FoodDonationForm />} />
+        <Route path="/user-reward" element={<UserReward />} />
+        <Route path="/user-certificate" element={<Certificate />} />
         <Route path="/mapbox" element={<LocationPicker />} />
         <Route
           path="/user-donation-history"
@@ -60,6 +65,7 @@ const App = () => {
         <Route path="/chart-analysis" element={<Charts />} />
         <Route path="/NGO-register" element={<NGOAuthentication />} />
         <Route path="/NGO-login" element={<NGOLogin />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/NGO-dashboard" element={<NGODashboard />} />
         <Route path="/NGO-donationpage" element={<NGODonationpage />} />
         <Route path="/NGO-profilepage" element={<NGOProfile />} />

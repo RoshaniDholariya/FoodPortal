@@ -58,24 +58,14 @@ const Profile = ({ donorDetails }) => {
                 <p className="truncate">{fullAddress}</p>
               </div>
             )}
-
-            {donorDetails.phone && (
-              <div className="flex items-center gap-2 text-emerald-100">
-                <Phone size={16} className="flex-shrink-0" />
-                <p>{donorDetails.phone}</p>
-              </div>
-            )}
           </div>
 
           <div className="flex flex-wrap gap-2 mt-4">
             <span className="bg-white/20 text-white px-4 py-1 rounded-full text-sm">
               ID: {donorDetails.id || "New Donor"}
-            </span>
+            </span>{" "}
             <span className="bg-white/20 text-white px-4 py-1 rounded-full text-sm">
-              Active Donations:
-            </span>
-            <span className="bg-white/20 text-white px-4 py-1 rounded-full text-sm">
-              Total Donated:
+              <p>{donorDetails.phone}</p>
             </span>
           </div>
         </div>

@@ -84,3 +84,85 @@ body {
 .animate-blob {
   animation: blob 7s infinite;
 }
+
+/* Add this to your CSS file */
+
+/* Certificate modal animations */
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out forwards;
+}
+
+/* Confetti animation */
+.confetti-container {
+  overflow: hidden;
+}
+
+.confetti-container::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: 0;
+  width: 100%;
+  height: 120%;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.8) 8px, transparent 8px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.6) 6px, transparent 6px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.4) 4px, transparent 4px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.2) 2px, transparent 2px);
+  background-size: 80px 80px, 60px 60px, 40px 40px, 20px 20px;
+  animation: confetti-fall 8s linear infinite;
+}
+
+@keyframes confetti-fall {
+  0% {
+    background-position: 0 0, 0 0, 0 0, 0 0;
+  }
+
+  100% {
+    background-position: 80px 800px, -60px 600px, 40px 400px, -20px 300px;
+  }
+}
+
+/* Certificate preview */
+.certificate-preview {
+  height: 300px;
+  transition: opacity 0.3s ease;
+}
+
+.certificate-frame {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.5s ease;
+}
+
+/* Trophy badge animation */
+@keyframes glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px 2px rgba(255, 215, 0, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.5);
+  }
+}
+
+.trophy-badge {
+  animation: glow 2s ease-in-out infinite;
+}
