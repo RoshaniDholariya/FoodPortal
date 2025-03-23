@@ -374,7 +374,6 @@ exports.updatengoDetails = async (req, res) => {
 };
 
 
-
 exports.ngoconnectdetails = async (req, res) => {
   try {
     const { Date, quantity } = req.body;

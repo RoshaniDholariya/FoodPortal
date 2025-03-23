@@ -15,31 +15,18 @@ import Sidebar from "../NGOsidebar";
 import axios from "axios"; // Make sure to install axios
 
 const DonorCard = ({ donor }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
   return (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all border border-emerald-100">
       <div className="p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
           <div className="flex items-center space-x-4 mb-4 md:mb-0">
-            {/* <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
-              {donor.photo ? (
-                <img 
-                  src={donor.photo} 
-                  alt={donor.name} 
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-              ) : (
-                <User className="w-6 h-6 text-emerald-600" />
-              )}
-            </div> */}
             <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
               {donor.photo ? (
                 <img
                   src={
                     donor.photo.startsWith("data:image")
-                      ? donor.photo // If already in proper Base64 format
-                      : `data:image/png;base64,${donor.photo}` // If it's just a Base64 string
+                      ? donor.photo
+                      : `data:image/png;base64,${donor.photo}`
                   }
                   alt={donor.name}
                   className="w-12 h-12 rounded-full object-cover"
@@ -162,19 +149,6 @@ const NGODonorDetails = () => {
               View and manage information about all food donors
             </p>
           </div>
-
-          {/* <div className="p-6">
-            <div className="relative max-w-md">
-              <input
-                type="text"
-                placeholder="Search donors..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-              />
-              <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
-            </div>
-          </div> */}
 
           <div className="space-y-6 p-6">
             {isLoading ? (

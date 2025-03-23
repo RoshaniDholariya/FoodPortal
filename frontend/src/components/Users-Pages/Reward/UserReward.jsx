@@ -1037,7 +1037,7 @@ const UserReward = () => {
                               Next Certificate
                             </span>
                             <span className="text-gray-600 font-medium">
-                              {userRewards.totalPoints % 40}/40 points
+                              {userRewards.totalPoints % 100}/100 points
                             </span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
@@ -1046,7 +1046,7 @@ const UserReward = () => {
                               style={{
                                 width: fadeIn
                                   ? `${Math.min(
-                                      ((userRewards.totalPoints % 40) / 40) *
+                                      ((userRewards.totalPoints % 100) / 100) *
                                         100,
                                       100
                                     )}%`

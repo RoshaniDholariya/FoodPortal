@@ -195,7 +195,7 @@ const Charts = () => {
   const [error, setError] = useState(null);
   const [chartView, setChartView] = useState("all");
 
-  const COLORS = ["#10B981", "#6366F1", "#EF4444"];
+  const COLORS = ["#6366F1", "#EF4444", "#10B981"];
 
   useEffect(() => {
     const handleResize = () => {
