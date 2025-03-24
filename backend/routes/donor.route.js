@@ -12,7 +12,9 @@ const {
   getApprovedNGOs,
   getDonorDetails,
   updateDonorDetails,
-  getFoodStatusCounts
+  getFoodStatusCounts,
+  donorResponse,
+  getDonorRequests
 } = require("../controller/donor.controller.js");
 
 const router = express.Router();
@@ -29,6 +31,10 @@ router.get('/approved-ngos', authenticate, getApprovedNGOs);
 router.get("/getDonorDetails", authenticate, getDonorDetails);
 router.put("/updateDonorDetails", authenticate, updateDonorDetails);
 router.get('/food-status-counts', authenticate, getFoodStatusCounts);
+
+router.post('/sendNGOAcceptence', authenticate, donorResponse);
+router.get('/getNGOrequest', authenticate, getDonorRequests);
+
 router.get("/download-certificate/:donorId", async (req, res) => {
   try {
     const { donorId } = req.params;

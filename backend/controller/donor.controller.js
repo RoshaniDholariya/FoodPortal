@@ -464,3 +464,65 @@ exports.getFoodStatusCounts = async (req, res) => {
     });
   }
 };
+
+exports.donorResponse = async (req, res) => {
+  try {
+    const { ngoconnectId, response } = req.body; // response = true (accept) or false (reject)
+    const donorId = req.user.userId; // Assuming logged-in user is a donor
+
+    const ngoconnect = await prisma.ngoconnect.findUnique({ where: { id: parseInt(ngoconnectId) } });
+
+    if (!ngoconnect || ngoconnect.donorId !== donorId) {
+      return res.status(404).json({ success: false, message: "Request not found or unauthorized." });
+    }
+
+    if (ngoconnect.status !== "PENDING") {
+      return res.status(400).json({ success: false, message: "Request already processed." });
+    }
+
+    // Update status and donorResponse
+    const updatedNgoconnect = await prisma.ngoconnect.update({
+      where: { id: parseInt(ngoconnectId) },
+      data: {
+        status: response ? "ACCEPTED" : "REJECTED",
+        donorResponse: response
+      },
+    });
+
+    // Notify NGO
+    await prisma.notification.create({
+      data: {
+        donorId: ngoconnect.ngoId,
+        message: response
+          ? `Your donation request has been accepted by Donor ${donorId}.`
+          : `Your donation request was rejected by Donor ${donorId}.`,
+      },
+    });
+
+    res.status(200).json({ success: true, message: `Request ${response ? "accepted" : "rejected"} successfully.` });
+  } catch (error) {
+    console.error("❌ Error updating request status:", error.message);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+exports.getDonorRequests = async (req, res) => {
+  try {
+    const donorId = req.user.userId; // Assuming donor is logged in
+
+    const requests = await prisma.ngoconnect.findMany({
+      where: { donorId: donorId, status: "PENDING" },
+      select: {
+        id: true,
+        Date: true,
+        quantity: true,
+        NGO: { select: { name: true, address: true } },
+      },
+      orderBy: { Date: "desc" },
+    });
+
+    res.status(200).json({ success: true, message: "Pending requests fetched.", data: requests });
+  } catch (error) {
+    console.error("❌ Error fetching donor requests:", error.message);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};

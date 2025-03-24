@@ -31,6 +31,7 @@ model Donor {
   totalPoints  Int      @default(0) 
   points       Int      @default(0)
   certificatesEarned Int? @default(0)
+  latestCertificateUrl String?
   donorType    DonorType?
   restaurantName String? 
   createdAt    DateTime @default(now())
@@ -38,6 +39,8 @@ model Donor {
 
   FoodDetails FoodDetails[]
   notifications Notification[]
+
+  Ngoconnect Ngoconnect[]
 }
 
 enum DonorType {
@@ -102,10 +105,15 @@ model Notification {
   donor Donor @relation(fields: [donorId], references: [id], onDelete: Cascade)
 }
 
-model Ngoconnect{
-  id Int @id @default(autoincrement())
-  Date DateTime
-  quantity Int
-  ngoId    Int  
-  NGO      NGO  @relation(fields: [ngoId], references: [id])
+model Ngoconnect {
+  id           Int      @id @default(autoincrement())
+  Date         DateTime
+  quantity     Int
+  ngoId        Int
+  donorId      Int
+  status       String   @default("PENDING")  // PENDING, ACCEPTED, REJECTED
+  donorResponse Boolean? @default(false)  // NULL if no response, true if accepted, false if rejected
+
+  NGO      NGO     @relation(fields: [ngoId], references: [id])
+  Donor    Donor   @relation(fields: [donorId], references: [id])
 }

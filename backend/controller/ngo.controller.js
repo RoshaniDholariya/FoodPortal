@@ -147,92 +147,49 @@ exports.getAvailableFood = async (req, res) => {
   }
 };
 
-// exports.acceptFood = async (req, res) => {
-//   try {
-//     const { foodId } = req.body;
-//     const ngoId = req.user.id;
 
-//     const food = await prisma.foodDetails.findUnique({ where: { id: foodId } });
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
+const cloudinary = require("../config/cloudinaryConfig"); // Import Cloudinary config
 
-//     if (!food) {
-//       return res.status(404).json({ success: false, message: "Food not found" });
-//     }
+async function generateCertificate(donorId) {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument();
+    const filePath = `certificates/${donorId}_certificate.pdf`;
 
-//     if (food.status !== "available") {
-//       return res.status(400).json({ success: false, message: "Food is already taken" });
-//     }
+    // Create a write stream and save locally
+    const writeStream = fs.createWriteStream(filePath);
+    doc.pipe(writeStream);
 
-//     const updatedFood = await prisma.foodDetails.update({
-//       where: { id: foodId },
-//       data: { status: "completed", ngoId },
-//     });
+    // Generate Certificate Content
+    doc.fontSize(20).text("Certificate of Appreciation", { align: "center" });
+    doc.moveDown();
+    doc.fontSize(14).text(`This certificate is awarded to Donor ID: ${donorId}`, { align: "center" });
+    doc.moveDown();
+    doc.text("Thank you for your valuable contribution towards reducing food wastage!", { align: "center" });
+    doc.end();
 
-//     res.status(200).json({ success: true, message: "Food accepted successfully", updatedFood });
-//   } catch (error) {
-//     console.error('Error accepting food:', error.message);
-//     res.status(500).json({ success: false, message: 'Internal server error.' });
-//   }
-// };
+    // Wait for the file to be fully written
+    writeStream.on("finish", async () => {
+      try {
+        // Upload to Cloudinary
+        const result = await cloudinary.uploader.upload(filePath, {
+          resource_type: "raw",
+          folder: "certificates",
+          public_id: `${donorId}_certificate`,
+        });
 
-// exports.acceptFood = async (req, res) => {
-//   try {
-//     const { foodId } = req.body;
-//     const ngoId = req.user.id;
+        // Delete local file after upload
+        fs.unlinkSync(filePath);
 
-//     // Fetch the food details along with the donor's information
-//     const food = await prisma.foodDetails.findUnique({
-//       where: { id: foodId },
-//       include: { donor: true }, // Assuming donor details are linked
-//     });
+        resolve(result.secure_url); // Return Cloudinary URL
+      } catch (error) {
+        reject(error);
+      }
+    });
 
-//     if (!food) {
-//       return res.status(404).json({ success: false, message: "Food not found" });
-//     }
-
-//     if (food.status !== "available") {
-//       return res.status(400).json({ success: false, message: "Food is already taken" });
-//     }
-
-//     // Update the food status and associate it with the NGO
-//     const updatedFood = await prisma.foodDetails.update({
-//       where: { id: foodId },
-//       data: { status: "completed", ngoId },
-//     });
-
-//     // Send real-time notification via Socket.io
-//     if (food.donor) {
-//       const donorId = food.donor.id; // Assuming donor has an ID
-//       global.io.to(donorId).emit("foodAccepted", {
-//         message: `Your food donation (${food.name}) has been accepted by an NGO.`,
-//         ngoId,
-//         foodName: food.name,
-//       });
-//     }
-
-//     res.status(200).json({ success: true, message: "Food accepted successfully", updatedFood });
-//   } catch (error) {
-//     console.error("Error accepting food:", error.message);
-//     res.status(500).json({ success: false, message: "Internal server error." });
-//   }
-// };
-
-const PDFDocument = require('pdfkit');
-const fs = require('fs');
-
-
-function generateCertificate(donorId) {
-  const doc = new PDFDocument();
-  const filePath = `certificates/${donorId}_certificate.pdf`;
-
-  doc.pipe(fs.createWriteStream(filePath));
-  doc.fontSize(20).text("Certificate of Appreciation", { align: "center" });
-  doc.moveDown();
-  doc.fontSize(14).text(`This certificate is awarded to Donor ID: ${donorId}`, { align: "center" });
-  doc.moveDown();
-  doc.text("Thank you for your valuable contribution towards reducing food wastage!", { align: "center" });
-  doc.end();
-
-  return filePath;
+    writeStream.on("error", reject);
+  });
 }
 
 exports.acceptFood = async (req, res) => {
@@ -268,18 +225,25 @@ exports.acceptFood = async (req, res) => {
         },
       });
 
+      let certificateUrl = null;
       if (updatedDonor.totalPoints >= 100) {
+        // Generate and upload certificate
+        certificateUrl = await generateCertificate(donorId);
+
+        // Update donor certificate count & reset points
         await prisma.donor.update({
           where: { id: donorId },
           data: {
             certificatesEarned: { increment: 1 },
             points: updatedDonor.totalPoints,
             totalPoints: 0,
+            latestCertificateUrl: certificateUrl, // Store certificate URL in DB
           },
         });
-        generateCertificate(donorId);
+
         global.io.to(donorId).emit("certificateEarned", {
           message: "Congratulations! You've earned a certificate for your contributions.",
+          certificateUrl,
         });
       }
 
@@ -297,6 +261,7 @@ exports.acceptFood = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
+
 
 exports.getAcceptedFood = async (req, res) => {
   try {
@@ -374,64 +339,123 @@ exports.updatengoDetails = async (req, res) => {
 };
 
 
+// exports.ngoconnectdetails = async (req, res) => {
+//   try {
+//     const { Date, quantity, donorId } = req.body;
+//     const ngoId = req.user.userId; // Assuming the user is an NGO
+
+//     if (!Date || !quantity || !donorId) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Please fill all the required fields.",
+//       });
+//     }
+
+//     // Check if the donor exists
+//     const donorExists = await prisma.donor.findUnique({
+//       where: { id: parseInt(donorId) },
+//     });
+
+//     if (!donorExists) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Donor not found.",
+//       });
+//     }
+
+//     // Create the NGO connect entry linked to a donor
+//     const ngoconnectEntry = await prisma.ngoconnect.create({
+//       data: {
+//         ngoId,
+//         donorId,
+//         Date,
+//         quantity,
+//       },
+//     });
+
+//     res.status(201).json({
+//       success: true,
+//       message: "NGO connection details added successfully.",
+//       ngoconnectEntry,
+//     });
+//   } catch (error) {
+//     console.error("❌ Error adding NGO connection details:", error.message);
+//     res.status(500).json({ success: false, message: "Internal server error." });
+//   }
+// };
+
 exports.ngoconnectdetails = async (req, res) => {
   try {
-    const { Date, quantity } = req.body;
-    const ngoId = req.user.userId;
+    const { Date, quantity, donorId } = req.body;
+    const ngoId = req.user.userId; // Assuming logged-in user is an NGO
 
-    if (!Date || !quantity) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please fill all the required fields.',
-      });
+    if (!Date || !quantity || !donorId) {
+      return res.status(400).json({ success: false, message: "Please fill all required fields." });
     }
 
+    const donorExists = await prisma.donor.findUnique({ where: { id: parseInt(donorId) } });
+
+    if (!donorExists) {
+      return res.status(404).json({ success: false, message: "Donor not found." });
+    }
+
+    // Create the NGO connection request
     const ngoconnectEntry = await prisma.ngoconnect.create({
       data: {
         ngoId,
+        donorId,
         Date,
         quantity,
+        status: "PENDING",  // Initial status
+        donorResponse: null // Donor has not responded yet
       },
     });
 
-    res.status(201).json({
-      success: true,
-      message: 'NGO connection details added successfully.',
-      ngoconnectEntry,
+    // Send notification to the donor
+    await prisma.notification.create({
+      data: {
+        donorId: parseInt(donorId),
+        message: `NGO ${ngoId} has requested a food donation.`,
+      },
     });
+
+    res.status(201).json({ success: true, message: "Request sent successfully.", ngoconnectEntry });
   } catch (error) {
-    console.error('❌ Error adding NGO connection details:', error.message);
-    res.status(500).json({ success: false, message: 'Internal server error.' });
+    console.error("❌ Error adding NGO connection:", error.message);
+    res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
 
 exports.getNgoConnectDetails = async (req, res) => {
   try {
-    const { ngoId } = req.params; // Extract NGO ID from request parameters
-
-    if (!ngoId) {
+    const { donorId } = req.body; 
+    if (!donorId) {
       return res.status(400).json({
         success: false,
-        message: "NGO ID is required.",
+        message: "Donor ID is required.",
       });
     }
 
     const ngoConnectDetails = await prisma.ngoconnect.findMany({
-      where: { ngoId: parseInt(ngoId) },
+      where: { donorId: parseInt(donorId) },
       select: {
         id: true,
         Date: true,
         quantity: true,
+        ngoId: true,
+        NGO: {
+          select: { name: true, address: true }, 
+        },
       },
       orderBy: {
-        Date: "desc", // Sorting by latest records
+        Date: "desc",
       },
     });
 
     if (ngoConnectDetails.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No records found for the given NGO ID.",
+        message: "No records found for the given Donor ID.",
       });
     }
 
@@ -445,8 +469,6 @@ exports.getNgoConnectDetails = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
-
-
 
 const resetCodes = new Map();
 
