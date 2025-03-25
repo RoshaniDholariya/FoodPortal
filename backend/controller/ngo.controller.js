@@ -407,7 +407,7 @@ exports.ngoconnectdetails = async (req, res) => {
         Date,
         quantity,
         status: "PENDING",  // Initial status
-        donorResponse: null // Donor has not responded yet
+        donorResponse: true // Donor has not responded yet
       },
     });
 
@@ -428,23 +428,20 @@ exports.ngoconnectdetails = async (req, res) => {
 
 exports.getNgoConnectDetails = async (req, res) => {
   try {
-    const { donorId } = req.body; 
-    if (!donorId) {
-      return res.status(400).json({
-        success: false,
-        message: "Donor ID is required.",
-      });
-    }
+    const { ngoId } = req.params
+    console.log(ngoId);
 
     const ngoConnectDetails = await prisma.ngoconnect.findMany({
-      where: { donorId: parseInt(donorId) },
+      where: { ngoId: parseInt(ngoId) },
       select: {
         id: true,
         Date: true,
         quantity: true,
-        ngoId: true,
-        NGO: {
-          select: { name: true, address: true }, 
+        donorId: true,
+        donorResponse: true,
+        status: true,
+        Donor: {
+          select: { name: true, address: true },
         },
       },
       orderBy: {

@@ -12,6 +12,7 @@ import {
   Menu,
   FileBadge2,
   File,
+  MailIcon,
 } from "lucide-react";
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
@@ -41,6 +42,12 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       label: "NGO Details",
       id: "ngo details",
       path: "/user-ngo-details",
+    },
+    {
+      icon: MailIcon,
+      label: "Requested NGO",
+      id: "requested ngo",
+      path: "/user-ngo-request",
     },
     {
       icon: ChartArea,
