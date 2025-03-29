@@ -505,10 +505,9 @@ exports.donorResponse = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
-
 exports.getDonorRequests = async (req, res) => {
   try {
-    const donorId = req.user.userId; // Assuming donor is logged in
+    const donorId = req.user.userId; 
 
     const requests = await prisma.ngoconnect.findMany({
       where: { donorId: donorId, status: "PENDING" },

@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,110 +7,102 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Donor {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
-  password     String
-  isVerified   Boolean  @default(false)
-  otp          String?  
-  otpExpiry    DateTime? 
-  name         String?
-  address      String?
-  city         String?
-  state        String?
-  pincode      String?
-  phone        String?
-  photo        String?
-  totalPoints  Int      @default(0) 
-  points       Int      @default(0)
-  certificatesEarned Int? @default(0)
+  id                   Int            @id @default(autoincrement())
+  email                String         @unique
+  password             String
+  isVerified           Boolean        @default(false)
+  otp                  String?
+  otpExpiry            DateTime?
+  name                 String?
+  address              String?
+  city                 String?
+  state                String?
+  pincode              String?
+  phone                String?
+  photo                String?
+  totalPoints          Int            @default(0)
+  points               Int            @default(0)
+  certificatesEarned   Int?           @default(0)
   latestCertificateUrl String?
-  warning      Int?
-  status       String @default("Active")
-  donorType    DonorType?
-  restaurantName String? 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  FoodDetails FoodDetails[]
-  notifications Notification[]
-
-  Ngoconnect Ngoconnect[]
+  donorType            DonorType?
+  restaurantName       String?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  FoodDetails          FoodDetails[]
+  Ngoconnect           Ngoconnect[]
+  notifications        Notification[]
 }
 
-enum DonorType {
-  INDIVIDUAL
-  RESTAURANT
-}
 model NGO {
-  id          Int      @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   name        String
   address     String
-  email       String   @unique
+  email       String        @unique
   phoneNumber String
   city        String
   pincode     String
-  certificate String   // Path to the uploaded PDF
-  isApproved  Boolean  @default(false)
-  username    String?  
-  password    String?  
-  report      String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  certificate String
+  isApproved  Boolean       @default(false)
+  username    String?
+  password    String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   description String?
   contactTime String?
-
   FoodDetails FoodDetails[]
-  Ngoconnect Ngoconnect[]
+  Ngoconnect  Ngoconnect[]
 }
 
 model FoodDetails {
-  id             Int      @id @default(autoincrement())
-  donorId        Int
-  foodType       String
-  foodCategory   String
-  address        String
-  latitude       Float?
-  longitude      Float?
-  City           String?
-  noOfDishes     Int
+  id              Int      @id @default(autoincrement())
+  donorId         Int
+  foodType        String
+  foodCategory    String
+  address         String
+  latitude        Float?
+  longitude       Float?
+  City            String?
+  noOfDishes      Int
   preparationDate DateTime
-  expiryDate     DateTime
-  status         String   @default("available")
-  ngoId          Int?    
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  donor          Donor?     @relation(fields: [donorId], references: [id])
-  ngo            NGO?    @relation(fields: [ngoId], references: [id])
+  expiryDate      DateTime
+  status          String   @default("available")
+  ngoId           Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  donor           Donor    @relation(fields: [donorId], references: [id])
+  ngo             NGO?     @relation(fields: [ngoId], references: [id])
 }
 
 model contactus {
-  id          Int      @id @default(autoincrement())
-  name        String
-  email       String   @unique
-  message     String
+  id      Int    @id @default(autoincrement())
+  name    String
+  email   String @unique
+  message String
 }
+
 model Notification {
   id        Int      @id @default(autoincrement())
   donorId   Int
   message   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
-
-  donor Donor @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  donor     Donor    @relation(fields: [donorId], references: [id], onDelete: Cascade)
 }
 
 model Ngoconnect {
-  id           Int      @id @default(autoincrement())
-  Date         DateTime
-  quantity     Int
-  ngoId        Int
-  donorId      Int
-  status       String   @default("PENDING")  // PENDING, ACCEPTED, REJECTED
-  donorResponse Boolean? @default(false)  // NULL if no response, true if accepted, false if rejected
+  id            Int      @id @default(autoincrement())
+  Date          DateTime
+  quantity      Int
+  ngoId         Int
+  donorId       Int
+  status        String   @default("PENDING")
+  donorResponse Boolean? @default(false)
+  Donor         Donor    @relation(fields: [donorId], references: [id])
+  NGO           NGO      @relation(fields: [ngoId], references: [id])
+}
 
-  NGO      NGO     @relation(fields: [ngoId], references: [id])
-  Donor    Donor   @relation(fields: [donorId], references: [id])
+enum DonorType {
+  INDIVIDUAL
+  RESTAURANT
 }
