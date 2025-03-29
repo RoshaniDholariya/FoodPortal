@@ -508,7 +508,7 @@ exports.donorResponse = async (req, res) => {
 
 exports.getDonorRequests = async (req, res) => {
   try {
-    const donorId = req.user.userId; 
+    const donorId = req.user.userId;
 
     const requests = await prisma.ngoconnect.findMany({
       where: { donorId: donorId, status: "PENDING" },
@@ -530,14 +530,15 @@ exports.getDonorRequests = async (req, res) => {
 
 exports.getallDonorRequests = async (req, res) => {
   try {
-    const donorId = req.user.userId; 
+    const donorId = req.user.userId;
 
     const requests = await prisma.ngoconnect.findMany({
-      where: { donorId: donorId},
+      where: { donorId: donorId },
       select: {
         id: true,
         Date: true,
         quantity: true,
+        status: true,
         NGO: { select: { name: true, address: true } },
       },
       orderBy: { Date: "desc" },

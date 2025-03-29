@@ -37,6 +37,7 @@ import Certificate from "./components/Users-Pages/Certificate/Certificate";
 import ForgotPassword from "./components/Lending-Page/Authentication/NGO-Forget";
 import DonorRequests from "./components/Users-Pages/NGO-request/DonorNGOrequest";
 import NGOConnectRequest from "./components/NGO-Pages/DonorRequest/Donorrequest";
+import DonorAllRequests from "./components/Users-Pages/AllRequest/Allrequest";
 
 const App = () => {
   return (
@@ -58,6 +59,10 @@ const App = () => {
         <Route path="/user-reward" element={<UserReward />} />
         <Route path="/user-certificate" element={<Certificate />} />
         <Route path="/user-ngo-request" element={<DonorRequests />} />
+        <Route
+          path="/user-ngo-request-history"
+          element={<DonorAllRequests />}
+        />
         <Route path="/mapbox" element={<LocationPicker />} />
         <Route
           path="/user-donation-history"
