@@ -32,6 +32,8 @@ model Donor {
   points       Int      @default(0)
   certificatesEarned Int? @default(0)
   latestCertificateUrl String?
+  warning      Int?
+  status       String @default("Active")
   donorType    DonorType?
   restaurantName String? 
   createdAt    DateTime @default(now())
@@ -57,8 +59,9 @@ model NGO {
   pincode     String
   certificate String   // Path to the uploaded PDF
   isApproved  Boolean  @default(false)
-  username    String?  // Generated after approval
-  password    String?  // Encrypted, generated after approval
+  username    String?  
+  password    String?  
+  report      String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   description String?
