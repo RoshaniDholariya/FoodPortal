@@ -9,6 +9,7 @@ import {
   LogOut,
   BookOpenCheck,
   X,
+  MailCheck,
 } from "lucide-react";
 
 const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
@@ -27,7 +28,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
       icon: ReceiptText,
       path: "/NGO-Doner-detailspage",
     },
-    // { title: "Nearest Donar", icon: Locate, path: "/NGO-nearest-donar" },
+    { title: "Donor Request", icon: MailCheck, path: "/NGO-donor-request" },
     { title: "Profile", icon: User, path: "/NGO-Profilepage" },
   ];
 
