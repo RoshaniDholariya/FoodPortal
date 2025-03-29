@@ -505,6 +505,7 @@ exports.donorResponse = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
+
 exports.getDonorRequests = async (req, res) => {
   try {
     const donorId = req.user.userId; 
@@ -526,3 +527,26 @@ exports.getDonorRequests = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
+
+exports.getallDonorRequests = async (req, res) => {
+  try {
+    const donorId = req.user.userId; 
+
+    const requests = await prisma.ngoconnect.findMany({
+      where: { donorId: donorId},
+      select: {
+        id: true,
+        Date: true,
+        quantity: true,
+        NGO: { select: { name: true, address: true } },
+      },
+      orderBy: { Date: "desc" },
+    });
+
+    res.status(200).json({ success: true, message: "Pending requests fetched.", data: requests });
+  } catch (error) {
+    console.error("❌ Error fetching donor requests:", error.message);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+

@@ -14,12 +14,12 @@ const {
   updateDonorDetails,
   getFoodStatusCounts,
   donorResponse,
-  getDonorRequests
+  getDonorRequests,
+  getallDonorRequests
 } = require("../controller/donor.controller.js");
 
 const router = express.Router();
 
-// Routes
 router.post("/register", registerDonor);
 router.post("/verify-otp", verifyOTP);
 router.post("/add-details", addDonorDetails);
@@ -34,18 +34,17 @@ router.get('/food-status-counts', authenticate, getFoodStatusCounts);
 
 router.post('/sendNGOAcceptence', authenticate, donorResponse);
 router.get('/getNGOrequest', authenticate, getDonorRequests);
+router.get('/getallNGOrequest', authenticate, getallDonorRequests);
 
 router.get("/download-certificate/:donorId", async (req, res) => {
   try {
     const { donorId } = req.params;
     const filePath = path.join(__dirname, "..", "certificates", `${donorId}_certificate.pdf`);
 
-    // Check if the file exists
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ success: false, message: "Certificate not found" });
     }
 
-    // Send the file for download
     res.download(filePath, `${donorId}_certificate.pdf`, (err) => {
       if (err) {
         console.error("Error downloading certificate:", err);
