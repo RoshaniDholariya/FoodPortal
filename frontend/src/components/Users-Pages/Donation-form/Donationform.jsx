@@ -289,7 +289,7 @@ const FoodDonationForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white-300">
+    <div className="min-h-screen bg-white-50">
       <div className="fixed inset-y-0 left-0 z-50">
         <Sidebar
           isSidebarOpen={isSidebarOpen}

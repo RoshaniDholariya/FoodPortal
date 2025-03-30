@@ -11,6 +11,7 @@ import {
   X,
   MailCheck,
 } from "lucide-react";
+import logo from "../../../assets/logo.jpg";
 
 const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
   const location = useLocation();
@@ -34,13 +35,13 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-screen w-64 bg-white/80 backdrop-blur-md z-50 border-r border-emerald-100 transform transition-transform duration-200 ease-in-out ${
+      className={`fixed top-0 left-0 h-screen w-64 bg-white backdrop-blur-md z-50 border-r border-emerald-100 transform transition-transform duration-200 ease-in-out ${
         isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       }`}
     >
       <div className="p-6">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-emerald-900">NGO Panel</h1>
+        <div className="flex justify-between items-center mb-2">
+          <img src={logo} alt="" className="h-50 w-50" />
           <button
             onClick={toggleSidebar}
             className="lg:hidden text-emerald-600 hover:text-emerald-900"

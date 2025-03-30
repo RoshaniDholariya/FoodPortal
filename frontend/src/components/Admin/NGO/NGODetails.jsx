@@ -10,6 +10,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Sidebar from "../AdminSidebar";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const NGODetailsPage = () => {
   const [ngos, setNgos] = useState([]);
@@ -22,18 +23,14 @@ const NGODetailsPage = () => {
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [viewMode, setViewMode] = useState("table");
 
   useEffect(() => {
     fetchNGOs();
-
     const handleResize = () => {
-      const width = window.innerWidth;
-      setIsMobile(width < 768);
-      setIsTablet(width >= 768 && width < 1024);
-      setViewMode(width < 768 ? "card" : "table");
-
-      if (width >= 1024) {
+      setIsMobile(window.innerWidth < 1024);
+      if (window.innerWidth >= 1024) {
         setShowMobileSidebar(false);
       }
     };
@@ -42,30 +39,6 @@ const NGODetailsPage = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  useEffect(() => {
-    filterNGOs();
-  }, [statusFilter, ngos]);
-
-  const filterNGOs = () => {
-    if (statusFilter === "all") {
-      setFilteredNGOs(ngos);
-    } else {
-      const filtered = ngos.filter((ngo) => {
-        switch (statusFilter) {
-          case "approved":
-            return ngo.isApproved;
-          case "rejected":
-            return ngo.isRejected;
-          case "pending":
-            return !ngo.isApproved && !ngo.isRejected;
-          default:
-            return true;
-        }
-      });
-      setFilteredNGOs(filtered);
-    }
-  };
 
   const fetchNGOs = async () => {
     try {
@@ -167,6 +140,38 @@ const NGODetailsPage = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex">
+        <div className="fixed inset-y-0 left-0 z-50">
+          <Sidebar
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
+        </div>
+
+        <div
+          className={`flex-1 transition-all duration-300 ${
+            isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+          } min-h-screen bg-gray-50 flex items-center justify-center`}
+        >
+          <div className="text-center">
+            <div className="w-80 h-80 mx-auto">
+              <DotLottieReact
+                src="https://lottie.host/5e14278b-11dd-40da-b4d8-99ada5e3fe82/ksmwXmfbTJ.lottie"
+                loop
+                autoplay
+              />
+            </div>
+            <p className="mt-4 text-gray-600 font-semibold">
+              Loading dashboard data...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const getStatusBadgeClasses = (ngo) => {
     if (ngo.isApproved) return "bg-green-100 text-green-700";
     if (ngo.isRejected) return "bg-red-100 text-red-700";
@@ -178,33 +183,6 @@ const NGODetailsPage = () => {
     if (ngo.isRejected) return "Rejected";
     return "Pending";
   };
-
-  const FilterDropdown = () => (
-    <div className="relative inline-block">
-      <div className="p-2 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center space-x-2 text-sm hover:border-teal-300 transition-colors">
-        <Filter className="h-4 w-4 text-teal-500" />
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="appearance-none bg-transparent border-none focus:outline-none focus:ring-0 pr-8 py-1 text-gray-700"
-        >
-          <option value="all">All NGOs</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-          <option value="pending">Pending</option>
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-          <svg
-            className="fill-current h-4 w-4"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-          >
-            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-          </svg>
-        </div>
-      </div>
-    </div>
-  );
 
   const EmptyState = () => (
     <div className="mt-8 flex flex-col items-center justify-center py-12 px-4 text-center">
@@ -227,38 +205,19 @@ const NGODetailsPage = () => {
 
   const NGOTable = () => (
     <div className="flex h-screen">
-      <Sidebar
-        isMobile={isMobile}
-        showMobileSidebar={showMobileSidebar}
-        onCloseSidebar={() => setShowMobileSidebar(false)}
-      />
-
+      <div className="fixed inset-y-0 left-0 z-50">
+        <Sidebar
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+      </div>
       <main className="flex-1 lg:pl-60 bg-gradient-to-b from-emerald-50 to-teal-50">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-            {isMobile && (
-              <button
-                onClick={() => setShowMobileSidebar(true)}
-                className="p-2 hover:bg-gray-100 rounded-lg self-start"
-              >
-                <Menu className="h-6 w-6 text-gray-600" />
-              </button>
-            )}
-
-            <h1 className="text-xl font-bold text-gray-800">NGO Management</h1>
-
-            <FilterDropdown />
+            <h1 className="text-2xl font-bold text-gray-800">NGO List</h1>
           </div>
 
-          {loading ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500"></div>
-            </div>
-          ) : error ? (
-            <div className="bg-red-50 text-red-600 p-4 rounded-lg text-center">
-              {error}
-            </div>
-          ) : filteredNGOs.length === 0 ? (
+          {filteredNGOs.length === 0 ? (
             <EmptyState />
           ) : viewMode === "table" ? (
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -417,11 +376,12 @@ const NGODetailsPage = () => {
 
   const NGODetails = ({ ngo }) => (
     <div className="flex h-screen bg-gradient-to-b from-emerald-50 to-teal-50">
-      <Sidebar
-        isMobile={isMobile}
-        showMobileSidebar={showMobileSidebar}
-        onCloseSidebar={() => setShowMobileSidebar(false)}
-      />
+      <div className="fixed inset-y-0 left-0 z-50">
+        <Sidebar
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+      </div>
 
       <main className="flex-1 lg:pl-60">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6">

@@ -158,65 +158,6 @@ const UserReward = () => {
     );
   };
 
-  // Badge configuration with dynamic information
-  const badges = [
-    {
-      name: "First Donation",
-      icon: Gift,
-      threshold: 1,
-      description: `${
-        userRewards.totalDonations >= 1 ? userRewards.totalDonations : 0
-      }/${1} donation${userRewards.totalDonations !== 1 ? "s" : ""}`,
-      achieved: userRewards.totalDonations >= 1,
-    },
-    {
-      name: "Regular Donor",
-      icon: Trophy,
-      threshold: 5,
-      description: `${Math.min(userRewards.totalDonations, 5)}/${5} donations`,
-      achieved: userRewards.totalDonations >= 5,
-    },
-    {
-      name: "Super Donor",
-      icon: Star,
-      threshold: 10,
-      description: `${Math.min(
-        userRewards.totalDonations,
-        10
-      )}/${10} donations`,
-      achieved: userRewards.totalDonations >= 10,
-    },
-    {
-      name: "Hero Donor",
-      icon: Shield,
-      threshold: 20,
-      description: `${Math.min(
-        userRewards.totalDonations,
-        20
-      )}/${20} donations`,
-      achieved: userRewards.totalDonations >= 20,
-    },
-    {
-      name: "Certified Donor",
-      icon: Award,
-      threshold: 4, // 40 points = 4 donations
-      description: `${userRewards.certificatesEarned}/${1} certificate${
-        userRewards.certificatesEarned !== 1 ? "s" : ""
-      }`,
-      achieved: userRewards.certificatesEarned >= 1,
-    },
-    {
-      name: "Legendary",
-      icon: Target,
-      threshold: 50,
-      description: `${Math.min(
-        userRewards.totalDonations,
-        50
-      )}/${50} donations`,
-      achieved: userRewards.totalDonations >= 50,
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-white-50 flex">
       {showConfetti && <Confetti />}
@@ -263,17 +204,6 @@ const UserReward = () => {
                           >
                             <FileBadge className="w-5 h-5" />
                             <span>Certificate</span>
-                          </button>
-                          <button
-                            onClick={() => setActiveTab("badges")}
-                            className={`px-6 py-4 font-medium flex items-center space-x-2 transition-colors ${
-                              activeTab === "badges"
-                                ? "border-b-2 border-[#61cf73] text-[#61cf73]"
-                                : "text-gray-600 hover:bg-gray-50"
-                            }`}
-                          >
-                            <Medal className="w-5 h-5" />
-                            <span>Badges</span>
                           </button>
                         </div>
                       </div>
@@ -362,52 +292,6 @@ const UserReward = () => {
                               <Download className="h-5 w-5 mr-2" />
                               Download Certificate
                             </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {activeTab === "badges" && (
-                        <div className="p-6">
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                            {badges.map((badge, index) => (
-                              <div
-                                key={index}
-                                className={`text-center p-4 border border-gray-200 rounded-lg ${
-                                  badge.achieved
-                                    ? "bg-gray-50"
-                                    : "bg-gray-100 opacity-50"
-                                }`}
-                              >
-                                <badge.icon
-                                  className={`mx-auto h-10 w-10 mb-2 ${
-                                    badge.achieved
-                                      ? "text-[#61cf73]"
-                                      : "text-gray-400"
-                                  }`}
-                                />
-                                <h4 className="font-semibold">{badge.name}</h4>
-                                <p className="text-xs text-gray-500">
-                                  {badge.description}
-                                </p>
-                                {!badge.achieved && (
-                                  <div className="mt-2 w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                                    <div
-                                      className="bg-[#61cf73] h-2 rounded-full transition-all duration-1000 ease-out"
-                                      style={{
-                                        width: fadeIn
-                                          ? `${Math.min(
-                                              (userRewards.totalDonations /
-                                                badge.threshold) *
-                                                100,
-                                              100
-                                            )}%`
-                                          : "0%",
-                                      }}
-                                    ></div>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
                           </div>
                         </div>
                       )}

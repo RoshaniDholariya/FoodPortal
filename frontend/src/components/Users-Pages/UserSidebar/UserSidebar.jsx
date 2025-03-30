@@ -15,6 +15,7 @@ import {
   MailIcon,
   MailOpenIcon,
 } from "lucide-react";
+import logo from "../../../../assets/logo.jpg";
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const location = useLocation();
@@ -83,16 +84,14 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   ];
 
   return (
-    <div
-      className={`${
-        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-      } fixed lg:relative lg:translate-x-0 z-30 transition-transform duration-300 ease-in-out`}
+    <aside
+      className={`fixed top-0 left-0 h-screen w-64 bg-white backdrop-blur-md z-50 border-r border-emerald-100 transform transition-transform overflow-hidden overflow-y-auto duration-200 ease-in-out scrollbar-hide ${
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      }`}
     >
-      <div className="flex flex-col h-screen w-64 bg-white/80 backdrop-blur-md border-r border-gray-200 shadow-lg">
-        <div className="flex items-center justify-between h-16 px-6 bg-gradient-to-r from-emerald-800 to-green-500">
-          <span className="text-xl font-bold text-white tracking-wide">
-            FoodShare
-          </span>
+      <div className="flex flex-col h-screen w-64 bg-white backdrop-blur-md border-r border-gray-200 shadow-lg">
+        <div className="flex items-center justify-between h-16 px-6 mb-[-10px]">
+          <img src={logo} alt="" className="h-50 w-50 mt-5" />
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="lg:hidden text-emerald-600 hover:text-emerald-900"
@@ -154,7 +153,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           </Link>
         </div>
       </div>
-    </div>
+    </aside>
   );
 };
 

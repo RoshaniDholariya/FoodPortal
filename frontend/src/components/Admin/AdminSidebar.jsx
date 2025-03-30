@@ -6,116 +6,100 @@ import {
   AlertCircle,
   LogOut,
   X,
+  Menu,
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
+import logo from "../../../assets/logo.jpg";
 
-const MenuItem = ({ icon: Icon, label, path, onClick }) => {
+const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const location = useLocation();
-  const isActive = location.pathname === path;
 
-  return (
-    <Link
-      to={path}
-      onClick={onClick}
-      className={`
-        w-full flex items-center px-4 py-2.5 rounded-lg transition-all duration-200
-        ${
-          isActive
-            ? "bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/30"
-            : "text-gray-600 hover:bg-teal-50 hover:text-teal-600"
-        }
-      `}
-    >
-      <Icon
-        className={`h-5 w-5 flex-shrink-0 ${
-          isActive ? "text-white" : "text-current"
-        }`}
-      />
-      <span className="ml-3 font-medium truncate">{label}</span>
-    </Link>
-  );
-};
-
-const Sidebar = ({ isMobile, showMobileSidebar, onCloseSidebar }) => {
   const menuItems = [
-    { icon: PieChart, label: "Overview", path: "/Admin-dashboard" },
-    { icon: MessageSquare, label: "NGO Details", path: "/Admin-NGO" },
-    { icon: Users, label: "Donors", path: "/Admin-Donor" },
-    { icon: AlertCircle, label: "Reports", path: "/Admin-reports" },
-    { icon: LogOut, label: "Logout", path: "/Admin-login" },
+    {
+      icon: PieChart,
+      label: "Dashbaord",
+      id: "dashboard",
+      path: "/Admin-dashboard",
+    },
+    {
+      icon: MessageSquare,
+      label: "NGO Details",
+      id: "ngo details",
+      path: "/Admin-NGO",
+    },
+    { icon: Users, label: "Donors", id: "donors", path: "/Admin-Donor" },
   ];
-
-  const sidebarContent = (
-    <div className="flex flex-col h-full max-h-screen">
-      <div className="flex-shrink-0 p-5 border-b border-gray-100">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-r from-teal-400 to-teal-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
-              <span className="text-white font-bold text-xl">F</span>
-            </div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent">
-              FoodSaver
-            </h1>
-          </div>
-          {isMobile && (
-            <button
-              onClick={onCloseSidebar}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <X className="h-6 w-6 text-gray-600" />
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="flex-shrink-0 p-4">
-        <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-xl p-4">
-          <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-r from-teal-500 to-teal-600 flex items-center justify-center shadow-md">
-              <span className="text-white font-medium">SA</span>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900">
-                Super Admin
-              </h3>
-              <p className="text-xs text-gray-500">Administrator</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <nav className="flex-1 px-3 py-2">
-        <div className="space-y-1">
-          {menuItems.map((item, index) => (
-            <MenuItem
-              key={index}
-              {...item}
-              onClick={isMobile ? onCloseSidebar : undefined}
-            />
-          ))}
-        </div>
-      </nav>
-    </div>
-  );
-
   return (
-    <>
-      <aside className="hidden lg:block fixed top-0 left-0 w-72 bg-white border-r border-gray-100 h-screen">
-        {sidebarContent}
-      </aside>
-
-      {isMobile && showMobileSidebar && (
-        <div className="fixed inset-0 z-50">
-          <div
-            className="absolute inset-0 bg-black/20 backdrop-blur-sm transition-opacity"
-            onClick={onCloseSidebar}
-          />
-          <aside className="fixed left-0 top-0 w-72 bg-white shadow-2xl h-screen">
-            {sidebarContent}
-          </aside>
+    <div
+      className={`${
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      } fixed lg:relative lg:translate-x-0 z-30 transition-transform duration-300 ease-in-out`}
+    >
+      <div className="flex flex-col h-screen w-64 bg-white/80 backdrop-blur-md border-r border-gray-200 shadow-lg">
+        <div className="flex items-center justify-between h-30 px-2 mb-[-20px]">
+          <img src={logo} alt="" className="h-30 w-50" />
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="lg:hidden text-emerald-600 hover:text-emerald-900"
+          >
+            {isSidebarOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
         </div>
-      )}
-    </>
+
+        <nav className="flex-1 overflow-y-auto py-6">
+          <ul className="space-y-2 px-3">
+            {menuItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <li key={item.id}>
+                  <Link to={item.path}>
+                    <button
+                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 
+                        ${
+                          isActive
+                            ? "bg-emerald-100 text-emerald-900"
+                            : "text-emerald-600 hover:text-emerald-900 hover:bg-emerald-50"
+                        }`}
+                    >
+                      <item.icon
+                        className={`h-5 w-5 ${
+                          isActive ? "text-emerald-900" : ""
+                        }`}
+                      />
+                      <span
+                        className={`font-medium ${
+                          isActive ? "text-emerald-900" : ""
+                        }`}
+                      >
+                        {item.label}
+                      </span>
+                      {isActive && (
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald" />
+                      )}
+                    </button>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <div className="p-4 border-t border-gray-100">
+          <Link
+            to="/Admin-login"
+            className="group flex items-center space-x-3 px-4 py-3 text-gray-600 
+              hover:bg-red-50 rounded-lg transition-all duration-200"
+          >
+            <LogOut className="h-5 w-5 text-red-600 group-hover:rotate-12 transition-transform duration-300" />
+            <span className="font-medium text-red-600">Logout</span>
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 };
 

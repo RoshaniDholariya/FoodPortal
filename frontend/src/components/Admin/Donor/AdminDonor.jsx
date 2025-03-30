@@ -11,14 +11,16 @@ import {
 } from "lucide-react";
 import Sidebar from "../AdminSidebar";
 import axios from "axios";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const AdminDonor = () => {
   const [isMobile, setIsMobile] = useState(false);
-  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(true);
   const [donors, setDonors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDonor, setSelectedDonor] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     const handleResize = () => {
@@ -54,6 +56,38 @@ const AdminDonor = () => {
 
     fetchDonors();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex">
+        <div className="fixed inset-y-0 left-0 z-50">
+          <Sidebar
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
+        </div>
+
+        <div
+          className={`flex-1 transition-all duration-300 ${
+            isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+          } min-h-screen bg-gray-50 flex items-center justify-center`}
+        >
+          <div className="text-center">
+            <div className="w-80 h-80 mx-auto">
+              <DotLottieReact
+                src="https://lottie.host/5e14278b-11dd-40da-b4d8-99ada5e3fe82/ksmwXmfbTJ.lottie"
+                loop
+                autoplay
+              />
+            </div>
+            <p className="mt-4 text-gray-600 font-semibold">
+              Loading dashboard data...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const DonorDetails = ({ donor, onClose }) => (
     <div className="bg-white rounded-lg shadow-lg">
@@ -174,46 +208,17 @@ const AdminDonor = () => {
     </div>
   );
 
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-4">
-        <div
-          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative"
-          role="alert"
-        >
-          <span className="block sm:inline">{error}</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex h-screen">
-      <Sidebar
-        isMobile={isMobile}
-        showMobileSidebar={showMobileSidebar}
-        onCloseSidebar={() => setShowMobileSidebar(false)}
-      />
-
+      <div className="fixed inset-y-0 left-0 z-50">
+        <Sidebar
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+      </div>
       <main className="flex-1 lg:pl-60 bg-gradient-to-b from-emerald-50 to-teal-50">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="flex items-center justify-between mb-6">
-            {isMobile && (
-              <button
-                onClick={() => setShowMobileSidebar(true)}
-                className="p-2 rounded-lg hover:bg-gray-100"
-              >
-                <Menu className="h-6 w-6" />
-              </button>
-            )}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
             <h1 className="text-2xl font-bold text-gray-800">Donors List</h1>
           </div>
 

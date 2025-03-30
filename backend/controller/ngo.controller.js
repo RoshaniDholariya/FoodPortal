@@ -338,52 +338,6 @@ exports.updatengoDetails = async (req, res) => {
   }
 };
 
-
-// exports.ngoconnectdetails = async (req, res) => {
-//   try {
-//     const { Date, quantity, donorId } = req.body;
-//     const ngoId = req.user.userId; // Assuming the user is an NGO
-
-//     if (!Date || !quantity || !donorId) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Please fill all the required fields.",
-//       });
-//     }
-
-//     // Check if the donor exists
-//     const donorExists = await prisma.donor.findUnique({
-//       where: { id: parseInt(donorId) },
-//     });
-
-//     if (!donorExists) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Donor not found.",
-//       });
-//     }
-
-//     // Create the NGO connect entry linked to a donor
-//     const ngoconnectEntry = await prisma.ngoconnect.create({
-//       data: {
-//         ngoId,
-//         donorId,
-//         Date,
-//         quantity,
-//       },
-//     });
-
-//     res.status(201).json({
-//       success: true,
-//       message: "NGO connection details added successfully.",
-//       ngoconnectEntry,
-//     });
-//   } catch (error) {
-//     console.error("❌ Error adding NGO connection details:", error.message);
-//     res.status(500).json({ success: false, message: "Internal server error." });
-//   }
-// };
-
 exports.ngoconnectdetails = async (req, res) => {
   try {
     const { Date, quantity, donorId } = req.body;
@@ -560,61 +514,61 @@ exports.reportDonation = async function (req, res) {
   const prisma = new PrismaClient();
 
   try {
-      const { donorId, ngoId, donationId, report } = req.body;
+    const { donorId, ngoId, donationId, report } = req.body;
 
-      const donor = await prisma.donor.findUnique({ where: { id: donorId } });
-      if (!donor) {
-          return res.status(404).json({ error: "Donor not found" });
-      }
-
-      let updatedWarnings = donor.warning + 1;
-      let updateData = { warning: updatedWarnings };
-
-     
-      if (updatedWarnings >= 3) {
-          let disableUntil = new Date();
-          disableUntil.setDate(disableUntil.getDate() + 14); 
-          updateData.disabledUntil = disableUntil;
-      }
-
-      await prisma.donor.update({
-          where: { id: donorId },
-          data: updateData
-      });
-      const foodDetail = await prisma.foodDetails.findUnique({
-        where: { id: donationId }
-    });
-    
-    if (!foodDetail) {
-        return res.status(404).json({ error: "Food donation not found" });
+    const donor = await prisma.donor.findUnique({ where: { id: donorId } });
+    if (!donor) {
+      return res.status(404).json({ error: "Donor not found" });
     }
-      await prisma.foodDetails.update({
-        where: { id: donationId },
-        data:{
-       report:report
-        }
+
+    let updatedWarnings = donor.warning + 1;
+    let updateData = { warning: updatedWarnings };
+
+
+    if (updatedWarnings >= 3) {
+      let disableUntil = new Date();
+      disableUntil.setDate(disableUntil.getDate() + 14);
+      updateData.disabledUntil = disableUntil;
+    }
+
+    await prisma.donor.update({
+      where: { id: donorId },
+      data: updateData
+    });
+    const foodDetail = await prisma.foodDetails.findUnique({
+      where: { id: donationId }
     });
 
-      let transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-              user: process.env.EMAIL,
-              pass: process.env.PASSWORD
-          }
-      });
+    if (!foodDetail) {
+      return res.status(404).json({ error: "Food donation not found" });
+    }
+    await prisma.foodDetails.update({
+      where: { id: donationId },
+      data: {
+        report: report
+      }
+    });
 
-      let mailOptions = {
-          from: process.env.EMAIL,
-          to: donor.email,
-          subject: "Warning: Issue with Your Donation",
-          text: `Your donation has been reported by an NGO.\n\nReport Message: ${report}\nWarning Count: ${updatedWarnings}/3\n\nIf you receive 3 warnings, your account will be disabled for 2 weeks.`
-      };
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD
+      }
+    });
 
-      await transporter.sendMail(mailOptions);
+    let mailOptions = {
+      from: process.env.EMAIL,
+      to: donor.email,
+      subject: "Warning: Issue with Your Donation",
+      text: `Your donation has been reported by an NGO.\n\nReport Message: ${report}\nWarning Count: ${updatedWarnings}/3\n\nIf you receive 3 warnings, your account will be disabled for 2 weeks.`
+    };
 
-      return res.json({ success: true, message: "Donation reported, and donor warned." });
+    await transporter.sendMail(mailOptions);
+
+    return res.json({ success: true, message: "Donation reported, and donor warned." });
   } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: "Internal server error" });
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };

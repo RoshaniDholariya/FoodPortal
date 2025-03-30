@@ -19,7 +19,6 @@ import NGOProfile from "./components/NGO-Pages/NGO-Profile/NGO-Profile";
 import NGOAccepteddonation from "./components/NGO-Pages/NGO-Accepteddonation/NGO-Accepteddonation";
 import NGODonorDetails from "./components/NGO-Pages/NGO-DonorDeatials/NGO-DonorDetails";
 import AdminDashboard from "./components/Admin/AdminDash/AdminDashboard";
-import Report from "./components/Admin/Analytics/Reports";
 import AdminLogin from "./components/Admin/AdminLogin";
 import DonorRegistrationForm from "./components/Lending-Page/Donorregistration/Donorregistrattion";
 import NGOAuthentication from "./components/Lending-Page/Authentication/NGO-Authentication";
@@ -108,14 +107,6 @@ const App = () => {
             </ProtectedAdminRoute>
           }
         />{" "}
-        <Route
-          path="/Admin-reports"
-          element={
-            <ProtectedAdminRoute>
-              <Report />
-            </ProtectedAdminRoute>
-          }
-        />
       </Routes>
     </AuthProvider>
   );
