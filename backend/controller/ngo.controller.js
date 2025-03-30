@@ -552,3 +552,69 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+exports.reportDonation = async function (req, res) {
+  const { PrismaClient } = require('@prisma/client');
+  const nodemailer = require('nodemailer');
+
+  const prisma = new PrismaClient();
+
+  try {
+      const { donorId, ngoId, donationId, report } = req.body;
+
+      const donor = await prisma.donor.findUnique({ where: { id: donorId } });
+      if (!donor) {
+          return res.status(404).json({ error: "Donor not found" });
+      }
+
+      let updatedWarnings = donor.warning + 1;
+      let updateData = { warning: updatedWarnings };
+
+     
+      if (updatedWarnings >= 3) {
+          let disableUntil = new Date();
+          disableUntil.setDate(disableUntil.getDate() + 14); 
+          updateData.disabledUntil = disableUntil;
+      }
+
+      await prisma.donor.update({
+          where: { id: donorId },
+          data: updateData
+      });
+      const foodDetail = await prisma.foodDetails.findUnique({
+        where: { id: donationId }
+    });
+    
+    if (!foodDetail) {
+        return res.status(404).json({ error: "Food donation not found" });
+    }
+      await prisma.foodDetails.update({
+        where: { id: donationId },
+        data:{
+       report:report
+        }
+    });
+
+      let transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+              user: process.env.EMAIL,
+              pass: process.env.PASSWORD
+          }
+      });
+
+      let mailOptions = {
+          from: process.env.EMAIL,
+          to: donor.email,
+          subject: "Warning: Issue with Your Donation",
+          text: `Your donation has been reported by an NGO.\n\nReport Message: ${report}\nWarning Count: ${updatedWarnings}/3\n\nIf you receive 3 warnings, your account will be disabled for 2 weeks.`
+      };
+
+      await transporter.sendMail(mailOptions);
+
+      return res.json({ success: true, message: "Donation reported, and donor warned." });
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal server error" });
+  }
+};

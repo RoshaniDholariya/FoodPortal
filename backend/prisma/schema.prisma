@@ -25,6 +25,8 @@ model Donor {
   points               Int            @default(0)
   certificatesEarned   Int?           @default(0)
   latestCertificateUrl String?
+  warning              Int?           @default(0)
+  disabledUntil        DateTime? 
   donorType            DonorType?
   restaurantName       String?
   createdAt            DateTime       @default(now())
@@ -67,6 +69,7 @@ model FoodDetails {
   preparationDate DateTime
   expiryDate      DateTime
   status          String   @default("available")
+  report          String?
   ngoId           Int?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

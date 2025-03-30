@@ -538,7 +538,11 @@ exports.getallDonorRequests = async (req, res) => {
         id: true,
         Date: true,
         quantity: true,
+<<<<<<< Updated upstream
         status: true,
+=======
+        status:true,
+>>>>>>> Stashed changes
         NGO: { select: { name: true, address: true } },
       },
       orderBy: { Date: "desc" },
