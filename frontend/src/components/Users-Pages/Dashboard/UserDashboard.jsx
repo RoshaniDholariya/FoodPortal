@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
@@ -9,10 +8,10 @@ import Charts from "./Charts";
 import { NotificationContainer } from "./Notifications";
 import { Menu, Bell } from "lucide-react";
 import { io } from "socket.io-client";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const DonorDashboard = () => {
-  const location = useLocation();
-
+  const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeNotifications, setActiveNotifications] = useState([]);
   const [fadeIn, setFadeIn] = useState(false);
@@ -52,6 +51,7 @@ const DonorDashboard = () => {
 
     const fetchDonorDetails = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(
           "http://localhost:3000/api/donors/getDonorDetails"
         );
@@ -63,6 +63,8 @@ const DonorDashboard = () => {
         }
       } catch (err) {
         console.error("Error fetching Donor Data:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -94,6 +96,37 @@ const DonorDashboard = () => {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="flex">
+        <div className="fixed inset-y-0 left-0 z-50">
+          <Sidebar
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
+        </div>
+        <div
+          className={`flex-1 transition-all duration-300 ${
+            isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+          } min-h-screen bg-gray-50 flex items-center justify-center`}
+        >
+          <div className="text-center">
+            <div className="w-80 h-80 mx-auto">
+              <DotLottieReact
+                src="https://lottie.host/5e14278b-11dd-40da-b4d8-99ada5e3fe82/ksmwXmfbTJ.lottie"
+                loop
+                autoplay
+              />
+            </div>
+            <p className="mt-4 text-gray-600 font-semibold">
+              Loading dashboard data...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white-300">
       <div className="fixed top-4 right-6 z-50 flex items-center space-x-4">
@@ -118,7 +151,10 @@ const DonorDashboard = () => {
       )}
 
       <div className="fixed inset-y-0 left-0 z-50">
-        <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+        <Sidebar
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
       </div>
 
       <div className={`${isSidebarOpen ? "lg:ml-64" : ""}`}>
@@ -130,7 +166,11 @@ const DonorDashboard = () => {
           <Menu className="h-6 w-6 m-5" />
         </button>
         <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-          <div className={`transition-opacity duration-1000 ${fadeIn ? "opacity-100" : "opacity-0"}`}>
+          <div
+            className={`transition-opacity duration-1000 ${
+              fadeIn ? "opacity-100" : "opacity-0"
+            }`}
+          >
             <Profile donorDetails={donorDetails} />
             <RecentDonations fadeIn={fadeIn} />
           </div>

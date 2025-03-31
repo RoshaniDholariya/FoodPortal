@@ -12,12 +12,14 @@ import {
   BadgeCheck,
   ArrowBigLeft,
 } from "lucide-react";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const Certificate = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [loading, setLoading] = useState(true);
   const [fadeIn, setFadeIn] = useState(false);
   const [selectedCertificate, setSelectedCertificate] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -87,6 +89,37 @@ const Certificate = () => {
     setSelectedCertificate(certificate);
   };
 
+  if (loading) {
+    return (
+      <div className="flex">
+        <div className="fixed inset-y-0 left-0 z-50">
+          <Sidebar
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
+        </div>
+        <div
+          className={`flex-1 transition-all duration-300 ${
+            isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+          } min-h-screen bg-gray-50 flex items-center justify-center`}
+        >
+          <div className="text-center">
+            <div className="w-80 h-80 mx-auto">
+              <DotLottieReact
+                src="https://lottie.host/5e14278b-11dd-40da-b4d8-99ada5e3fe82/ksmwXmfbTJ.lottie"
+                loop
+                autoplay
+              />
+            </div>
+            <p className="mt-4 text-gray-600 font-semibold">
+              Loading dashboard data...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white-50 flex">
       <div className="fixed inset-y-0 left-0 z-50">
@@ -107,9 +140,9 @@ const Certificate = () => {
 
         <main className="p-4 lg:p-8">
           <div className="max-w-6xl mx-auto">
-            {loading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-[#61cf73]"></div>
+            {error ? (
+              <div className="bg-red-50 rounded-xl p-6 text-center text-red-600">
+                <p>{error}</p>
               </div>
             ) : (
               <>

@@ -6,15 +6,18 @@ import {
   Truck,
   Home,
   Package,
+  Loader2,
   Menu,
 } from "lucide-react";
 import Sidebar from "../UserSidebar/UserSidebar";
 import axios from "axios";
 import LocationPicker from "./LocationPicker";
+
 const FoodDonationForm = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     foodType: "",
@@ -253,6 +256,10 @@ const FoodDonationForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
     try {
       const response = await axios.post(
         "http://localhost:3000/api/donors/addFood",
@@ -280,11 +287,13 @@ const FoodDonationForm = () => {
         });
       } else {
         alert(response.data.message);
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.log(error);
       console.error("Error submitting form:", error);
       alert("Failed to add food. Please try again.");
+      setIsSubmitting(false);
     }
   };
 
@@ -349,7 +358,7 @@ const FoodDonationForm = () => {
                 onClick={handleSubmit}
                 className="px-4 py-2 bg-[#61cf73] text-white rounded-md hover:bg-[#55c16e]"
               >
-                Submit
+                {isSubmitting ? <>Submitting...</> : "Submit"}
               </button>
             )}
           </div>

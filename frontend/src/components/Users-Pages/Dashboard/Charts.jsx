@@ -1,172 +1,3 @@
-// import React, { useState, useEffect } from "react";
-// import {
-//   PieChart,
-//   Pie,
-//   Cell,
-//   BarChart,
-//   Bar,
-//   XAxis,
-//   YAxis,
-//   CartesianGrid,
-//   Tooltip,
-//   Legend,
-//   ResponsiveContainer,
-// } from "recharts";
-// import axios from "axios";
-
-// const Charts = ({ fadeIn }) => {
-//   const [pieData, setPieData] = useState([]);
-//   const [weeklyData, setWeeklyData] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-
-//   const COLORS = ["#10B981", "#6366F1", "#3B82F6"];
-
-//   useEffect(() => {
-//     const fetchChartData = async () => {
-//       try {
-//         setLoading(true);
-//         const response = await axios.get(
-//           "http://localhost:3000/api/donors/food-status-counts",
-//           {
-//             withCredentials: true,
-//           }
-//         );
-
-//         if (response.data.success) {
-//           setPieData(response.data.pieData);
-//           setWeeklyData(response.data.weeklyData);
-//         } else {
-//           setError("Failed to load chart data");
-//         }
-//       } catch (err) {
-//         console.error("Error fetching chart data:", err);
-//         setError("An error occurred while fetching chart data");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchChartData();
-//   }, []);
-
-//   const CustomTooltip = ({ active, payload }) => {
-//     if (active && payload && payload.length) {
-//       return (
-//         <div className="bg-white p-3 rounded-lg shadow-md border border-gray-200">
-//           <p className="font-medium text-gray-800">{`${payload[0].name}: ${payload[0].value}`}</p>
-//         </div>
-//       );
-//     }
-//     return null;
-//   };
-
-//   if (loading) {
-//     return (
-//       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-//         <div className="bg-white rounded-2xl border border-emerald-100 p-6 shadow-md h-80 flex items-center justify-center">
-//           <p className="text-gray-500">Loading chart data...</p>
-//         </div>
-//         <div className="bg-white rounded-2xl border border-emerald-100 p-6 shadow-md h-80 flex items-center justify-center">
-//           <p className="text-gray-500">Loading chart data...</p>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   if (error) {
-//     return (
-//       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-//         <div className="bg-white rounded-2xl border border-red-100 p-6 shadow-md h-80 flex items-center justify-center">
-//           <p className="text-red-500">{error}</p>
-//         </div>
-//         <div className="bg-white rounded-2xl border border-red-100 p-6 shadow-md h-80 flex items-center justify-center">
-//           <p className="text-red-500">{error}</p>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-//       <div
-//         className={`bg-white rounded-2xl border border-emerald-100 p-6 shadow-md transition-all duration-500 ${
-//           fadeIn ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-//         }`}
-//         style={{ transitionDelay: "300ms" }}
-//       >
-//         <h3 className="text-lg font-semibold text-emerald-900 mb-4">
-//           Donation Status Distribution
-//         </h3>
-//         <div className="h-64">
-//           {pieData.length > 0 ? (
-//             <ResponsiveContainer width="100%" height="100%">
-//               <PieChart>
-//                 <Pie
-//                   data={pieData}
-//                   cx="50%"
-//                   cy="50%"
-//                   labelLine={false}
-//                   outerRadius={80}
-//                   fill="#8884d8"
-//                   dataKey="value"
-//                   label={({ name, percent }) =>
-//                     `${name} ${(percent * 100).toFixed(0)}%`
-//                   }
-//                 >
-//                   {pieData.map((entry, index) => (
-//                     <Cell
-//                       key={`cell-${index}`}
-//                       fill={COLORS[index % COLORS.length]}
-//                     />
-//                   ))}
-//                 </Pie>
-//                 <Tooltip content={<CustomTooltip />} />
-//                 <Legend />
-//               </PieChart>
-//             </ResponsiveContainer>
-//           ) : (
-//             <div className="h-full flex items-center justify-center">
-//               <p className="text-gray-500">No donation data available</p>
-//             </div>
-//           )}
-//         </div>
-//       </div>
-
-//       <div
-//         className={`bg-white rounded-2xl border border-emerald-100 p-6 shadow-md transition-all duration-500 ${
-//           fadeIn ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-//         }`}
-//         style={{ transitionDelay: "600ms" }}
-//       >
-//         <h3 className="text-lg font-semibold text-emerald-900 mb-4">
-//           Weekly Donation Records
-//         </h3>
-//         <div className="h-64">
-//           {weeklyData.length > 0 ? (
-//             <ResponsiveContainer width="100%" height="100%">
-//               <BarChart data={weeklyData}>
-//                 <CartesianGrid strokeDasharray="3 3" />
-//                 <XAxis dataKey="name" />
-//                 <YAxis />
-//                 <Tooltip />
-//                 <Legend />
-//                 <Bar dataKey="completed" name="Completed" fill="#10B981" />
-//                 <Bar dataKey="expired" name="Expired" fill="#EF4444" />
-//               </BarChart>
-//             </ResponsiveContainer>
-//           ) : (
-//             <div className="h-full flex items-center justify-center">
-//               <p className="text-gray-500">No weekly donation data available</p>
-//             </div>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Charts;
 import React, { useState, useEffect } from "react";
 import Sidebar from "../UserSidebar/UserSidebar";
 import { useLocation } from "react-router-dom";
@@ -185,6 +16,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Menu, ChartPie, BarChart2, TrendingUp } from "lucide-react";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const Charts = () => {
   const { state } = useLocation();
@@ -245,6 +77,37 @@ const Charts = () => {
     return null;
   };
 
+  if (loading) {
+    return (
+      <div className="flex">
+        <div className="fixed inset-y-0 left-0 z-50">
+          <Sidebar
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
+        </div>
+        <div
+          className={`flex-1 transition-all duration-300 ${
+            isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+          } min-h-screen bg-gray-50 flex items-center justify-center`}
+        >
+          <div className="text-center">
+            <div className="w-80 h-80 mx-auto">
+              <DotLottieReact
+                src="https://lottie.host/5e14278b-11dd-40da-b4d8-99ada5e3fe82/ksmwXmfbTJ.lottie"
+                loop
+                autoplay
+              />
+            </div>
+            <p className="mt-4 text-gray-600 font-semibold">
+              Loading dashboard data...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const completedDonations =
     pieData.find((item) => item.name === "Completed")?.value || 0;
   const availableDonations =
@@ -273,13 +136,9 @@ const Charts = () => {
 
         <main className="p-4 lg:p-8">
           <div className="max-w-5xl mx-auto">
-            {loading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-[#61cf73]"></div>
-              </div>
-            ) : error ? (
-              <div className="text-center bg-red-100 text-red-600 p-4 rounded-lg">
-                {error}
+            {error ? (
+              <div className="bg-red-50 rounded-xl p-6 text-center text-red-600">
+                <p>{error}</p>
               </div>
             ) : (
               <>

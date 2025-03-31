@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Sidebar from "../UserSidebar/UserSidebar";
 import axios from "axios";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const NGODetails = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -53,6 +54,37 @@ const NGODetails = () => {
     fetchNGOs();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="flex">
+        <div className="fixed inset-y-0 left-0 z-50">
+          <Sidebar
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
+        </div>
+        <div
+          className={`flex-1 transition-all duration-300 ${
+            isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+          } min-h-screen bg-gray-50 flex items-center justify-center`}
+        >
+          <div className="text-center">
+            <div className="w-80 h-80 mx-auto">
+              <DotLottieReact
+                src="https://lottie.host/5e14278b-11dd-40da-b4d8-99ada5e3fe82/ksmwXmfbTJ.lottie"
+                loop
+                autoplay
+              />
+            </div>
+            <p className="mt-4 text-gray-600 font-semibold">
+              Loading dashboard data...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
       <div className="fixed inset-y-0 left-0 z-50">
@@ -83,11 +115,7 @@ const NGODetails = () => {
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-          {loading ? (
-            <div className="flex items-center justify-center min-h-[400px]">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-            </div>
-          ) : error ? (
+          {error ? (
             <div className="bg-red-50 rounded-xl p-6 text-center text-red-600">
               <p>{error}</p>
             </div>

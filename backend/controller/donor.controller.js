@@ -511,7 +511,7 @@ exports.getDonorRequests = async (req, res) => {
     const donorId = req.user.userId;
 
     const requests = await prisma.ngoconnect.findMany({
-      where: { donorId: donorId, status: "PENDING" },
+      where: { donorId: donorId, status: "PENDING"},
       select: {
         id: true,
         Date: true,
@@ -531,6 +531,7 @@ exports.getDonorRequests = async (req, res) => {
 exports.getallDonorRequests = async (req, res) => {
   try {
     const donorId = req.user.userId;
+    const today = new Date();
 
     const requests = await prisma.ngoconnect.findMany({
       where: { donorId: donorId },
@@ -544,7 +545,12 @@ exports.getallDonorRequests = async (req, res) => {
       orderBy: { Date: "desc" },
     });
 
-    res.status(200).json({ success: true, message: "Pending requests fetched.", data: requests });
+    const updatedRequests = requests.map(request => ({
+      ...request,
+      isDisabled: new Date(request.Date) < today, // Disable past requests
+    }));
+
+    res.status(200).json({ success: true, message: "Pending requests fetched.", data: updatedRequests });
   } catch (error) {
     console.error("❌ Error fetching donor requests:", error.message);
     res.status(500).json({ success: false, message: "Internal server error." });

@@ -3,9 +3,9 @@ import Sidebar from "../UserSidebar/UserSidebar";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { Calendar, Utensils, MapPin, Package, Tag, Menu } from "lucide-react";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const UserDonationHistory = () => {
-  const { state } = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -82,6 +82,37 @@ const UserDonationHistory = () => {
     (d) => d.status === "expired"
   ).length;
 
+  if (loading) {
+    return (
+      <div className="flex">
+        <div className="fixed inset-y-0 left-0 z-50">
+          <Sidebar
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
+        </div>
+        <div
+          className={`flex-1 transition-all duration-300 ${
+            isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+          } min-h-screen bg-gray-50 flex items-center justify-center`}
+        >
+          <div className="text-center">
+            <div className="w-80 h-80 mx-auto">
+              <DotLottieReact
+                src="https://lottie.host/5e14278b-11dd-40da-b4d8-99ada5e3fe82/ksmwXmfbTJ.lottie"
+                loop
+                autoplay
+              />
+            </div>
+            <p className="mt-4 text-gray-600 font-semibold">
+              Loading dashboard data...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-30 flex">
       <div className="fixed inset-y-0 left-0 z-50">
@@ -101,11 +132,7 @@ const UserDonationHistory = () => {
 
         <main className="p-4 lg:p-8">
           <div className="max-w-5xl mx-auto">
-            {loading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-[#61cf73]"></div>
-              </div>
-            ) : error ? (
+            {error ? (
               <div className="text-center bg-red-100 text-red-600 p-4 rounded-lg">
                 {error}
               </div>

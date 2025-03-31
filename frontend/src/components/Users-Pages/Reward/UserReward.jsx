@@ -16,12 +16,14 @@ import {
   Medal,
 } from "lucide-react";
 import axios from "axios";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const UserReward = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [loading, setLoading] = useState(true);
   const [fadeIn, setFadeIn] = useState(false);
   const [activeTab, setActiveTab] = useState("certificate");
+  const [error, setError] = useState(null);
   const [userRewards, setUserRewards] = useState({
     name: "",
     totalPoints: 0,
@@ -79,7 +81,7 @@ const UserReward = () => {
           }
         }
       } catch (error) {
-        console.error("Error fetching user reward data:", error);
+        setError("Failed to fetch Reward");
       } finally {
         setTimeout(() => {
           setLoading(false);
@@ -94,6 +96,37 @@ const UserReward = () => {
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex">
+        <div className="fixed inset-y-0 left-0 z-50">
+          <Sidebar
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
+        </div>
+        <div
+          className={`flex-1 transition-all duration-300 ${
+            isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+          } min-h-screen bg-gray-50 flex items-center justify-center`}
+        >
+          <div className="text-center">
+            <div className="w-80 h-80 mx-auto">
+              <DotLottieReact
+                src="https://lottie.host/5e14278b-11dd-40da-b4d8-99ada5e3fe82/ksmwXmfbTJ.lottie"
+                loop
+                autoplay
+              />
+            </div>
+            <p className="mt-4 text-gray-600 font-semibold">
+              Loading dashboard data...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const downloadCertificate = async () => {
     try {
@@ -180,12 +213,9 @@ const UserReward = () => {
 
         <main className="p-4 lg:p-8">
           <div className="max-w-5xl mx-auto">
-            {loading ? (
-              <div className="flex flex-col justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#61cf73]"></div>
-                <p className="mt-4 text-gray-500 animate-pulse">
-                  Loading your achievements...
-                </p>
+            {error ? (
+              <div className="bg-red-50 rounded-xl p-6 text-center text-red-600">
+                <p>{error}</p>
               </div>
             ) : (
               <>
