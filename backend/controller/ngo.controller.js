@@ -192,14 +192,86 @@ async function generateCertificate(donorId) {
   });
 }
 
+// exports.acceptFood = async (req, res) => {
+//   try {
+//     const { foodId } = req.body;
+//     const ngoId = req.user.id;
+
+//     const food = await prisma.foodDetails.findUnique({
+//       where: { id: foodId },
+//       include: { donor: true },
+//     });
+
+//     if (!food) {
+//       return res.status(404).json({ success: false, message: "Food not found" });
+//     }
+
+//     if (food.status !== "available") {
+//       return res.status(400).json({ success: false, message: "Food is already taken" });
+//     }
+
+//     const updatedFood = await prisma.foodDetails.update({
+//       where: { id: foodId },
+//       data: { status: "completed",ngoId:ngoId },
+//     });
+
+//     if (food.donor) {
+//       const donorId = food.donor.id;
+
+//       const updatedDonor = await prisma.donor.update({
+//         where: { id: donorId },
+//         data: {
+//           totalPoints: food.donor.totalPoints !== null ? { increment: 10 } : 10,
+//         },
+//       });
+
+//       let certificateUrl = null;
+//       if (updatedDonor.totalPoints >= 100) {
+//         // Generate and upload certificate
+//         certificateUrl = await generateCertificate(donorId);
+
+//         // Update donor certificate count & reset points
+//         await prisma.donor.update({
+//           where: { id: donorId },
+//           data: {
+//             certificatesEarned: { increment: 1 },
+//             points: updatedDonor.totalPoints,
+//             totalPoints: 0,
+//             latestCertificateUrl: certificateUrl, // Store certificate URL in DB
+//           },
+//         });
+
+//         global.io.to(donorId).emit("certificateEarned", {
+//           message: "Congratulations! You've earned a certificate for your contributions.",
+//           certificateUrl,
+//         });
+//       }
+
+//       global.io.to(donorId).emit("foodAccepted", {
+//         message: `Your food donation (${food.name}) has been accepted by an NGO.`,
+//         ngoId,
+//         pointsEarned: 10,
+//         foodName: food.name,
+//       });
+//     }
+
+//     res.status(200).json({ success: true, message: "Food accepted successfully, donor rewarded.", updatedFood });
+//   } catch (error) {
+//     console.error("Error accepting food:", error.message);
+//     res.status(500).json({ success: false, message: "Internal server error." });
+//   }
+// };
+
+
 exports.acceptFood = async (req, res) => {
   try {
     const { foodId } = req.body;
-    const ngoId = req.user.id;
-
+    const ngoId = req.user.userId; // Ensure NGO ID is correctly retrieved
+   console.log(ngoId);
+    // Fetch food details including donorId (explicitly)
     const food = await prisma.foodDetails.findUnique({
       where: { id: foodId },
-      include: { donor: true },
+      include: { donor: true }, // Ensure donor relationship exists
     });
 
     if (!food) {
@@ -210,14 +282,19 @@ exports.acceptFood = async (req, res) => {
       return res.status(400).json({ success: false, message: "Food is already taken" });
     }
 
+    // ✅ Update Food Details: Set status & assign NGO ID
     const updatedFood = await prisma.foodDetails.update({
       where: { id: foodId },
-      data: { status: "completed", ngoId },
+      data: { 
+        status: "completed",
+        ngoId: ngoId // Ensure NGO ID is correctly assigned
+      },
     });
 
     if (food.donor) {
       const donorId = food.donor.id;
 
+      // ✅ Update Donor's Points
       const updatedDonor = await prisma.donor.update({
         where: { id: donorId },
         data: {
@@ -227,17 +304,16 @@ exports.acceptFood = async (req, res) => {
 
       let certificateUrl = null;
       if (updatedDonor.totalPoints >= 100) {
-        // Generate and upload certificate
+        // ✅ Generate and Upload Certificate
         certificateUrl = await generateCertificate(donorId);
 
-        // Update donor certificate count & reset points
+        // ✅ Update Donor Certificate Count & Reset Points
         await prisma.donor.update({
           where: { id: donorId },
           data: {
             certificatesEarned: { increment: 1 },
-            points: updatedDonor.totalPoints,
             totalPoints: 0,
-            latestCertificateUrl: certificateUrl, // Store certificate URL in DB
+            latestCertificateUrl: certificateUrl,
           },
         });
 
@@ -247,6 +323,7 @@ exports.acceptFood = async (req, res) => {
         });
       }
 
+      // ✅ Send Socket Notification to Donor
       global.io.to(donorId).emit("foodAccepted", {
         message: `Your food donation (${food.name}) has been accepted by an NGO.`,
         ngoId,
@@ -255,7 +332,12 @@ exports.acceptFood = async (req, res) => {
       });
     }
 
-    res.status(200).json({ success: true, message: "Food accepted successfully, donor rewarded.", updatedFood });
+    res.status(200).json({ 
+      success: true, 
+      message: "Food accepted successfully, NGO assigned, and donor rewarded.", 
+      updatedFood 
+    });
+
   } catch (error) {
     console.error("Error accepting food:", error.message);
     res.status(500).json({ success: false, message: "Internal server error." });
@@ -277,7 +359,7 @@ exports.getAcceptedFood = async (req, res) => {
 };
 exports.getDonorsForNGO = async (req, res) => {
   try {
-    const ngoId = req.user.id;
+    const ngoId = req.user.userId;
 
     const donors = await prisma.donor.findMany({
       where: {
@@ -382,7 +464,8 @@ exports.ngoconnectdetails = async (req, res) => {
 
 exports.getNgoConnectDetails = async (req, res) => {
   try {
-    const { ngoId } = req.params
+    const { ngoId } = req.params;
+    
     console.log(ngoId);
 
     const ngoConnectDetails = await prisma.ngoconnect.findMany({
@@ -572,3 +655,66 @@ exports.reportDonation = async function (req, res) {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+exports.getNgoDashboard = async (req, res) => {
+  const { ngoId } = req.params;
+  console.log(ngoId);
+  const ngoIdInt = parseInt(ngoId);
+
+  try {
+    const ngo = await prisma.nGO.findUnique({
+      where: { id: ngoIdInt },
+      include: {
+        FoodDetails: true,
+        Ngoconnect: true,
+      },
+    });
+
+    if (!ngo) {
+      return res.status(404).json({ success: false, message: "NGO not found" });
+    }
+
+    const totalFoodDonations = await prisma.foodDetails.count({
+      where: { ngoId: ngoIdInt },
+    });
+
+    const acceptedFoodDonations = await prisma.foodDetails.count({
+      where: { ngoId: ngoIdInt, status: "completed" },
+    });
+    
+    const pendingFoodDonations = await prisma.foodDetails.count({
+      where: { ngoId: ngoIdInt, status: "available" },
+    });
+
+    const totalDonorsConnected = await prisma.ngoconnect.count({
+      where: { ngoId: ngoIdInt },
+    });
+
+    const notifications = await prisma.notification.findMany({
+      where: { donorId: ngoIdInt },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const connections = await prisma.ngoconnect.findMany({
+      where: { ngoId: ngoIdInt },
+      include: { Donor: true },
+    });
+
+    res.json({
+      success: true,
+      data: {
+        ngo,
+        totalFoodDonations,
+        acceptedFoodDonations,
+        pendingFoodDonations,
+        totalDonorsConnected,
+        notifications,
+        connections,
+      },
+    });
+
+  } catch (error) {
+    console.error("Error fetching NGO dashboard data:", error);
+    res.status(500).json({ success: false, message: "Error fetching dashboard data", error });
+  }
+};
+

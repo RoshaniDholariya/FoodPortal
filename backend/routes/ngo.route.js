@@ -37,5 +37,5 @@ router.get("/getNgoConnectDetails/:ngoId", ngoController.authenticate, ngoContro
 router.post("/forgot-password", ngoController.forgotPassword);
 router.post("/reset-password", ngoController.resetPassword);
 router.post('/report-donation',ngoController.authenticate,ngoController.reportDonation);
-
+router.get("/dashboard/:ngoId", ngoController.authenticate,ngoController.getNgoDashboard);
 module.exports = router;
