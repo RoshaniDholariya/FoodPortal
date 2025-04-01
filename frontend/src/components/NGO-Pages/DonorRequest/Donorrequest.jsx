@@ -25,10 +25,9 @@ const NGOConnectRequest = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
-  const [activeTab, setActiveTab] = useState("request"); // "request" or "history"
+  const [activeTab, setActiveTab] = useState("request");
   const [requestHistory, setRequestHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
-
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -62,7 +61,6 @@ const NGOConnectRequest = () => {
     fetchDonors();
   }, []);
 
-  // Fetch request history when tab changes to history
   useEffect(() => {
     if (activeTab === "history") {
       fetchRequestHistory();
@@ -72,7 +70,6 @@ const NGOConnectRequest = () => {
   const fetchRequestHistory = async () => {
     try {
       setHistoryLoading(true);
-      // Get NGO ID from user profile or context
       const currentUser = await axios.get(
         "http://localhost:3000/api/ngo/getngoDetails",
         {
@@ -91,7 +88,27 @@ const NGOConnectRequest = () => {
       );
 
       if (response.data.success) {
-        setRequestHistory(response.data.data);
+        // Process request history to auto-reject past dates
+        const processedHistory = response.data.data.map((request) => {
+          // Clone the request object
+          const processedRequest = { ...request };
+
+          // Check if the date is in the past
+          const requestDate = new Date(request.Date);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          if (
+            requestDate < today &&
+            (request.status === "PENDING" || !request.status)
+          ) {
+            processedRequest.status = "REJECTED (auto)";
+          }
+
+          return processedRequest;
+        });
+
+        setRequestHistory(processedHistory);
       } else {
         throw new Error(
           response.data.message || "Failed to fetch request history"
@@ -109,6 +126,15 @@ const NGOConnectRequest = () => {
 
     if (!selectedDonor || !quantity || !date) {
       setError("Please fill all required fields");
+      return;
+    }
+
+    const selectedDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      setError("Cannot request donations for past dates");
       return;
     }
 
@@ -137,17 +163,14 @@ const NGOConnectRequest = () => {
 
       if (response.data.success) {
         setSuccessMessage("Request sent successfully to the donor");
-        // Reset form
         setSelectedDonor(null);
         setQuantity("");
         setDate("");
 
-        // Clear success message after 3 seconds
         setTimeout(() => {
           setSuccessMessage(null);
         }, 3000);
 
-        // Refresh request history if we're viewing it
         if (activeTab === "history") {
           fetchRequestHistory();
         }
@@ -177,6 +200,8 @@ const NGOConnectRequest = () => {
         return "text-green-600";
       case "REJECTED":
         return "text-red-600";
+      case "REJECTED (auto)":
+        return "text-red-600";
       case "PENDING":
       default:
         return "text-yellow-600";
@@ -189,6 +214,8 @@ const NGOConnectRequest = () => {
         return <Check className="w-4 h-4" />;
       case "REJECTED":
         return <X className="w-4 h-4" />;
+      case "REJECTED (auto)":
+        return <X className="w-4 h-4" />;s
       case "PENDING":
       default:
         return <Clock className="w-4 h-4" />;

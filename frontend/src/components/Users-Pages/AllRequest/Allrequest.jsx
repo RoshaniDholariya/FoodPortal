@@ -108,22 +108,27 @@ const DonorRequestHistory = () => {
     });
   };
 
-  // Get status metrics
   const getStatusMetrics = () => {
+    const today = new Date();
+
     const accepted = filteredHistory.filter(
       (r) => r.status === "ACCEPTED"
     ).length;
+
     const rejected = filteredHistory.filter(
-      (r) => r.status === "REJECTED"
+      (r) =>
+        r.status === "REJECTED" ||
+        (new Date(r.Date) < today && (!r.status || r.status === "PENDING"))
     ).length;
+
     const pending = filteredHistory.filter(
-      (r) => !r.status || r.status === "PENDING"
+      (r) => (!r.status || r.status === "PENDING") && new Date(r.Date) >= today
     ).length;
+
     const total = filteredHistory.length;
 
     return { accepted, rejected, pending, total };
   };
-
   const metrics = getStatusMetrics();
 
   if (loading) {
@@ -158,7 +163,20 @@ const DonorRequestHistory = () => {
   }
 
   // Get status badge based on request status
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status, dateString) => {
+    const requestDate = new Date(dateString);
+    const today = new Date();
+
+    // Check if date is in the past and status is not already set
+    if (requestDate < today && (!status || status === "PENDING")) {
+      return (
+        <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+          <XCircle className="w-3 h-3 mr-1" />
+          Rejected (Expired)
+        </div>
+      );
+    }
+
     if (status === "ACCEPTED") {
       return (
         <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -498,10 +516,13 @@ const DonorRequestHistory = () => {
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          {/* <td className="px-6 py-4 whitespace-nowrap">
                             {request.status
                               ? getStatusBadge(request.status)
                               : getStatusBadge("pending")}
+                          </td> */}
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {getStatusBadge(request.status, request.Date)}
                           </td>
                         </tr>
                       ))}
