@@ -12,6 +12,7 @@ import {
 import Sidebar from "../AdminSidebar";
 import axios from "axios";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import DonorDetailsDialog from "./DonorDialog";
 
 const AdminDonor = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -20,6 +21,7 @@ const AdminDonor = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDonor, setSelectedDonor] = useState(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
@@ -41,10 +43,10 @@ const AdminDonor = () => {
         const response = await axios.get(
           "http://localhost:3000/admin/alldonor",
           {
-            withCredential: true,
+            withCredentials: true, // Fixed typo from 'withCredential'
           }
         );
-        if (response.data) {
+        if (response.data && response.data.success) {
           setDonors(response.data.data);
         }
       } catch (err) {
@@ -56,6 +58,15 @@ const AdminDonor = () => {
 
     fetchDonors();
   }, []);
+
+  const handleViewDonor = (donor) => {
+    setSelectedDonor(donor);
+    setIsDialogOpen(true);
+  };
+
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+  };
 
   if (loading) {
     return (
@@ -89,100 +100,39 @@ const AdminDonor = () => {
     );
   }
 
-  const DonorDetails = ({ donor, onClose }) => (
-    <div className="bg-white rounded-lg shadow-lg">
-      <div className="p-6 bg-emerald-50 border-b border-emerald-100 flex justify-between items-start">
-        <div className="flex items-center gap-3">
-          <User className="h-8 w-8 text-emerald-600" />
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Donor Details</h2>
-            <span className="px-3 py-1 text-sm font-semibold rounded-full bg-emerald-100 text-emerald-800">
-              {donor.donorType}
-            </span>
-          </div>
+  if (error) {
+    return (
+      <div className="flex">
+        <div className="fixed inset-y-0 left-0 z-50">
+          <Sidebar
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
         </div>
-        <button
-          onClick={onClose}
-          className="p-2 hover:bg-emerald-100 rounded-full transition-colors"
+
+        <div
+          className={`flex-1 transition-all duration-300 ${
+            isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+          } min-h-screen bg-gray-50 flex items-center justify-center`}
         >
-          <X className="h-6 w-6 text-gray-500" />
-        </button>
-      </div>
-
-      <div className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-                <User className="h-5 w-5 text-emerald-600" />
-                Personal Information
-              </h3>
-              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Full Name</p>
-                  <p className="text-gray-900">Saloni Patel</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">
-                    Restaurant Name
-                  </p>
-                  <p className="text-gray-900">Social Service</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">
-                    Phone Number
-                  </p>
-                  <p className="text-gray-900">9327411550</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">
-                    Donor Type
-                  </p>
-                  <p className="text-gray-900">{donor.donorType}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-                <MapPin className="h-5 w-5 text-emerald-600" />
-                Address Details
-              </h3>
-              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Address</p>
-                  <p className="text-gray-900">
-                    Shantinagar street 4, Janta Society Opposite CHARANAAT
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">City</p>
-                  <p className="text-gray-900">Jamnagar</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">State</p>
-                  <p className="text-gray-900">Gujrat</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Pincode</p>
-                  <p className="text-gray-900">361006</p>
-                </div>
-              </div>
-            </div>
+          <div className="text-center">
+            <p className="text-red-500 font-semibold">
+              Error loading donors: {error}
+            </p>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   const DonorCard = ({ donor }) => (
     <div className="bg-white p-4 rounded-lg shadow mb-4">
       <div className="flex justify-between items-start mb-2">
-        <h3 className="text-lg font-medium text-gray-900">Saloni Patel</h3>
+        <h3 className="text-lg font-medium text-gray-900">
+          {donor.name || "No Name"}
+        </h3>
         <button
-          onClick={() => setSelectedDonor(donor)}
+          onClick={() => handleViewDonor(donor)}
           className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
         >
           <Eye className="h-5 w-5 text-emerald-600" />
@@ -190,20 +140,26 @@ const AdminDonor = () => {
       </div>
       <div className="space-y-2 text-sm text-gray-500">
         <span className="px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800">
-          {donor.donorType}
+          {donor.donorType || "Unknown"}
         </span>
-        <p className="flex items-center gap-2 mt-2">
-          <Building className="h-4 w-4" />
-          <span>Social Service</span>
-        </p>
+        {donor.organizationName && (
+          <p className="flex items-center gap-2 mt-2">
+            <Building className="h-4 w-4" />
+            <span>{donor.organizationName}</span>
+          </p>
+        )}
         <p className="flex items-center gap-2">
           <Phone className="h-4 w-4" />
-          <span>9327411550</span>
+          <span>{donor.phone || "No Phone"}</span>
         </p>
-        <p className="flex items-center gap-2">
-          <MapPin className="h-4 w-4" />
-          <span>Jamnagar, Gujrat</span>
-        </p>
+        {donor.city && donor.state && (
+          <p className="flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
+            <span>
+              {donor.city}, {donor.state}
+            </span>
+          </p>
+        )}
       </div>
     </div>
   );
@@ -216,27 +172,36 @@ const AdminDonor = () => {
           setIsSidebarOpen={setIsSidebarOpen}
         />
       </div>
-      <main className="flex-1 lg:pl-60 bg-gradient-to-b from-emerald-50 to-teal-50">
+      <main
+        className={`flex-1 transition-all duration-300 ${
+          isSidebarOpen ? "lg:pl-64" : "lg:pl-20"
+        } bg-gradient-to-b from-emerald-50 to-teal-50`}
+      >
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
             <h1 className="text-2xl font-bold text-gray-800">Donors List</h1>
-          </div>
-
-          {selectedDonor && (
-            <div className="mb-8">
-              <DonorDetails
-                donor={selectedDonor}
-                onClose={() => setSelectedDonor(null)}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
+                placeholder="Search donors..."
               />
             </div>
-          )}
-
-          <div className="block md:hidden">
-            {donors.map((donor) => (
-              <DonorCard key={donor.id} donor={donor} />
-            ))}
           </div>
 
+          {/* Mobile view */}
+          <div className="block md:hidden">
+            {donors.length > 0 ? (
+              donors.map((donor) => <DonorCard key={donor.id} donor={donor} />)
+            ) : (
+              <p className="text-center py-8 text-gray-500">No donors found</p>
+            )}
+          </div>
+
+          {/* Desktop view */}
           <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
@@ -260,45 +225,58 @@ const AdminDonor = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {donors.map((donor) => (
-                    <tr
-                      key={donor.id}
-                      className="hover:bg-gray-50 transition-colors duration-200"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          Saloni Patel
-                        </div>
-                      </td>{" "}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">
-                          {donor.donorType}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">
-                          {donor.donations}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold ">
-                          {donor.phone}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <Eye
-                          className="h-5 w-5 text-emerald-600 hover:text-emerald-700 cursor-pointer"
-                          onClick={() => setSelectedDonor(donor)}
-                        />
+                  {donors.length > 0 ? (
+                    donors.map((donor) => (
+                      <tr
+                        key={donor.id}
+                        className="hover:bg-gray-50 transition-colors duration-200"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {donor.name || "No Name"}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">
+                            {donor.donorType || "Unknown"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">
+                            {donor.donations || 0}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {donor.phone || "No Phone"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <button onClick={() => handleViewDonor(donor)}>
+                            <Eye className="h-5 w-5 text-emerald-600 hover:text-emerald-700 cursor-pointer" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="5"
+                        className="px-6 py-4 text-center text-gray-500"
+                      >
+                        No donors found
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
         </div>
       </main>
+      <DonorDetailsDialog
+        donor={selectedDonor}
+        isOpen={isDialogOpen}
+        onClose={closeDialog}
+      />
     </div>
   );
 };

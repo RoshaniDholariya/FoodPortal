@@ -657,7 +657,7 @@ exports.reportDonation = async function (req, res) {
 };
 exports.getNgoDashboard = async (req, res) => {
   const { ngoId } = req.params;
-  console.log(ngoId);
+  // console.log(ngoId);
   const ngoIdInt = parseInt(ngoId);
 
   try {
