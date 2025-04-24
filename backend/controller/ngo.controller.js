@@ -192,82 +192,12 @@ async function generateCertificate(donorId) {
   });
 }
 
-// exports.acceptFood = async (req, res) => {
-//   try {
-//     const { foodId } = req.body;
-//     const ngoId = req.user.id;
-
-//     const food = await prisma.foodDetails.findUnique({
-//       where: { id: foodId },
-//       include: { donor: true },
-//     });
-
-//     if (!food) {
-//       return res.status(404).json({ success: false, message: "Food not found" });
-//     }
-
-//     if (food.status !== "available") {
-//       return res.status(400).json({ success: false, message: "Food is already taken" });
-//     }
-
-//     const updatedFood = await prisma.foodDetails.update({
-//       where: { id: foodId },
-//       data: { status: "completed",ngoId:ngoId },
-//     });
-
-//     if (food.donor) {
-//       const donorId = food.donor.id;
-
-//       const updatedDonor = await prisma.donor.update({
-//         where: { id: donorId },
-//         data: {
-//           totalPoints: food.donor.totalPoints !== null ? { increment: 10 } : 10,
-//         },
-//       });
-
-//       let certificateUrl = null;
-//       if (updatedDonor.totalPoints >= 100) {
-//         // Generate and upload certificate
-//         certificateUrl = await generateCertificate(donorId);
-
-//         // Update donor certificate count & reset points
-//         await prisma.donor.update({
-//           where: { id: donorId },
-//           data: {
-//             certificatesEarned: { increment: 1 },
-//             points: updatedDonor.totalPoints,
-//             totalPoints: 0,
-//             latestCertificateUrl: certificateUrl, // Store certificate URL in DB
-//           },
-//         });
-
-//         global.io.to(donorId).emit("certificateEarned", {
-//           message: "Congratulations! You've earned a certificate for your contributions.",
-//           certificateUrl,
-//         });
-//       }
-
-//       global.io.to(donorId).emit("foodAccepted", {
-//         message: `Your food donation (${food.name}) has been accepted by an NGO.`,
-//         ngoId,
-//         pointsEarned: 10,
-//         foodName: food.name,
-//       });
-//     }
-
-//     res.status(200).json({ success: true, message: "Food accepted successfully, donor rewarded.", updatedFood });
-//   } catch (error) {
-//     console.error("Error accepting food:", error.message);
-//     res.status(500).json({ success: false, message: "Internal server error." });
-//   }
-// };
-
 
 exports.acceptFood = async (req, res) => {
   try {
     const { foodId } = req.body;
     const ngoId = req.user.userId; // Ensure NGO ID is correctly retrieved
-   console.log(ngoId);
+    console.log(ngoId);
     // Fetch food details including donorId (explicitly)
     const food = await prisma.foodDetails.findUnique({
       where: { id: foodId },
@@ -285,7 +215,7 @@ exports.acceptFood = async (req, res) => {
     // ✅ Update Food Details: Set status & assign NGO ID
     const updatedFood = await prisma.foodDetails.update({
       where: { id: foodId },
-      data: { 
+      data: {
         status: "completed",
         ngoId: ngoId // Ensure NGO ID is correctly assigned
       },
@@ -332,10 +262,10 @@ exports.acceptFood = async (req, res) => {
       });
     }
 
-    res.status(200).json({ 
-      success: true, 
-      message: "Food accepted successfully, NGO assigned, and donor rewarded.", 
-      updatedFood 
+    res.status(200).json({
+      success: true,
+      message: "Food accepted successfully, NGO assigned, and donor rewarded.",
+      updatedFood
     });
 
   } catch (error) {
@@ -465,7 +395,7 @@ exports.ngoconnectdetails = async (req, res) => {
 exports.getNgoConnectDetails = async (req, res) => {
   try {
     const { ngoId } = req.params;
-    
+
     console.log(ngoId);
 
     const ngoConnectDetails = await prisma.ngoconnect.findMany({
@@ -680,14 +610,17 @@ exports.getNgoDashboard = async (req, res) => {
     const acceptedFoodDonations = await prisma.foodDetails.count({
       where: { ngoId: ngoIdInt, status: "completed" },
     });
-    
+
     const pendingFoodDonations = await prisma.foodDetails.count({
       where: { ngoId: ngoIdInt, status: "available" },
     });
 
-    const totalDonorsConnected = await prisma.ngoconnect.count({
+    const uniqueDonorCount = await prisma.ngoconnect.groupBy({
+      by: ['donorId'],
       where: { ngoId: ngoIdInt },
     });
+
+    const totalDonorsConnected = uniqueDonorCount.length;
 
     const notifications = await prisma.notification.findMany({
       where: { donorId: ngoIdInt },

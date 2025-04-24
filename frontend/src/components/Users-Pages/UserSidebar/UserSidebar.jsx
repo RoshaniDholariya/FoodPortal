@@ -70,12 +70,6 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       path: "/user-reward",
     },
     {
-      icon: File,
-      label: "Certificate",
-      id: "certifiacte",
-      path: "/user-certificate",
-    },
-    {
       icon: User,
       label: "Profile",
       id: "profile",
