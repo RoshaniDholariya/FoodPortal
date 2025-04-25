@@ -480,7 +480,6 @@ exports.donorResponse = async (req, res) => {
       return res.status(400).json({ success: false, message: "Request already processed." });
     }
 
-    // Update status and donorResponse
     const updatedNgoconnect = await prisma.ngoconnect.update({
       where: { id: parseInt(ngoconnectId) },
       data: {
@@ -489,7 +488,6 @@ exports.donorResponse = async (req, res) => {
       },
     });
 
-    // Notify NGO
     await prisma.notification.create({
       data: {
         donorId: ngoconnect.ngoId,

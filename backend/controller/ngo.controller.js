@@ -587,7 +587,6 @@ exports.reportDonation = async function (req, res) {
 };
 exports.getNgoDashboard = async (req, res) => {
   const { ngoId } = req.params;
-  // console.log(ngoId);
   const ngoIdInt = parseInt(ngoId);
 
   try {
@@ -615,12 +614,14 @@ exports.getNgoDashboard = async (req, res) => {
       where: { ngoId: ngoIdInt, status: "available" },
     });
 
+
+
     const uniqueDonorCount = await prisma.ngoconnect.groupBy({
-      by: ['donorId'],
+      by: ['donorId'], // Group by donorId to get unique donors
       where: { ngoId: ngoIdInt },
     });
 
-    const totalDonorsConnected = uniqueDonorCount.length;
+    const totalDonorsConnected = uniqueDonorCount.length; // Count unique donors
 
     const notifications = await prisma.notification.findMany({
       where: { donorId: ngoIdInt },
