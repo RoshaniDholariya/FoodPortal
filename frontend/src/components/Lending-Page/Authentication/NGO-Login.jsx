@@ -94,7 +94,7 @@ const NGOLogin = () => {
                 value={formData.userId}
                 onChange={handleChange}
                 className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#8beb7f] focus:border-transparent"
-                placeholder="User ID"
+                placeholder="Email"
                 required
               />
             </div>

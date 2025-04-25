@@ -538,10 +538,11 @@ exports.reportDonation = async function (req, res) {
     let updateData = { warning: updatedWarnings };
 
 
-    if (updatedWarnings >= 3) {
+    if (updatedWarnings == 3) {
       let disableUntil = new Date();
       disableUntil.setDate(disableUntil.getDate() + 14);
       updateData.disabledUntil = disableUntil;
+      updateData.warning=0;
     }
 
     await prisma.donor.update({
@@ -585,6 +586,8 @@ exports.reportDonation = async function (req, res) {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
 exports.getNgoDashboard = async (req, res) => {
   const { ngoId } = req.params;
   const ngoIdInt = parseInt(ngoId);
@@ -611,17 +614,16 @@ exports.getNgoDashboard = async (req, res) => {
     });
 
     const pendingFoodDonations = await prisma.foodDetails.count({
-      where: { ngoId: ngoIdInt, status: "available" },
+      where: { ngoId:ngoIdInt, status: "available" },
     });
 
-
-
+    console.log(pendingFoodDonations);
     const uniqueDonorCount = await prisma.ngoconnect.groupBy({
       by: ['donorId'], // Group by donorId to get unique donors
       where: { ngoId: ngoIdInt },
     });
 
-    const totalDonorsConnected = uniqueDonorCount.length; // Count unique donors
+    const totalDonorsConnected = uniqueDonorCount.length; 
 
     const notifications = await prisma.notification.findMany({
       where: { donorId: ngoIdInt },

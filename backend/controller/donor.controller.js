@@ -199,38 +199,76 @@ exports.updateDonorDetails = async (req, res) => {
 };
 
 
+// exports.Login = async (req, res) => {
+//   const { email, password } = req.body;
+
+//   const user = await prisma.donor.findUnique({ where: { email } });
+
+//   if (!user)
+//     return res.status(404).json({ message: "Register to access Portal" });
+
+//   const isValid = await bcrypt.compare(password, user.password);
+//   if (!isValid) return res.status(400).json({ message: "Invalid password" });
+
+//   const token = jwt.sign(
+//     { userId: user.id },
+//     process.env.JWT_SECRET || "your_secret_key",
+//     { expiresIn: "1d" }
+//   );
+
+//   res
+//     .cookie("token", token, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === "production" ? true : false,
+//       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+//       path: "/",
+//     })
+//     .status(200)
+//     .json({
+//       message: "Login successful",
+//       success: true,
+//       data: user,
+//     });
+// };
 exports.Login = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await prisma.donor.findUnique({ where: { email } });
+const user = await prisma.donor.findUnique({ where: { email } });
 
-  if (!user)
-    return res.status(404).json({ message: "Register to access Portal" });
+if (!user)
+  return res.status(404).json({ message: "Register to access Portal" });
+console.log(user.disabledUntil);
+// Check if user is disabled
+if (user.disabledUntil && new Date() < new Date(user.disabledUntil)) {
+  return res.status(403).json({
+    message: `Account disabled until ${new Date(user.disabledUntil).toLocaleString()}`,
+  });
+}
 
-  const isValid = await bcrypt.compare(password, user.password);
-  if (!isValid) return res.status(400).json({ message: "Invalid password" });
+const isValid = await bcrypt.compare(password, user.password);
+if (!isValid) return res.status(400).json({ message: "Invalid password" });
 
-  const token = jwt.sign(
-    { userId: user.id },
-    process.env.JWT_SECRET || "your_secret_key",
-    { expiresIn: "1d" }
-  );
+const token = jwt.sign(
+  { userId: user.id },
+  process.env.JWT_SECRET || "your_secret_key",
+  { expiresIn: "1d" }
+);
 
-  res
-    .cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production" ? true : false,
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-      path: "/",
-    })
-    .status(200)
-    .json({
-      message: "Login successful",
-      success: true,
-      data: user,
-    });
-};
+res
+  .cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    path: "/",
+  })
+  .status(200)
+  .json({
+    message: "Login successful",
+    success: true,
+    data: user,
+  });
 
+}
 
 exports.authenticate = (req, res, next) => {
   const token = req.cookies.token;
