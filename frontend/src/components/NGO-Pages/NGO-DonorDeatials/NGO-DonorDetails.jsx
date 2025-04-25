@@ -12,7 +12,8 @@ import {
   Menu,
 } from "lucide-react";
 import Sidebar from "../NGOsidebar";
-import axios from "axios"; // Make sure to install axios
+import axios from "axios";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const DonorCard = ({ donor }) => {
   return (
@@ -76,7 +77,7 @@ const NGODonorDetails = () => {
   const [donors, setDonors] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const toggleSidebar = () => {
@@ -86,7 +87,7 @@ const NGODonorDetails = () => {
   useEffect(() => {
     const fetchDonors = async () => {
       try {
-        setIsLoading(true);
+        setLoading(true);
         const response = await axios.get(
           "http://localhost:3000/api/ngo/getDonorsForNGO",
           {
@@ -103,12 +104,43 @@ const NGODonorDetails = () => {
         setError(error.message || "Failed to fetch donors");
         console.error("Error fetching donors:", error);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
     fetchDonors();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex">
+        <div className="fixed inset-y-0 left-0 z-50">
+          <Sidebar
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
+        </div>
+        <div
+          className={`flex-1 transition-all duration-300 ${
+            isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+          } min-h-screen bg-gray-50 flex items-center justify-center`}
+        >
+          <div className="text-center">
+            <div className="w-80 h-80 mx-auto">
+              <DotLottieReact
+                src="https://lottie.host/5e14278b-11dd-40da-b4d8-99ada5e3fe82/ksmwXmfbTJ.lottie"
+                loop
+                autoplay
+              />
+            </div>
+            <p className="mt-4 text-gray-600 font-semibold">
+              Loading dashboard data...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const filteredDonors = donors.filter(
     (donor) =>
@@ -151,11 +183,7 @@ const NGODonorDetails = () => {
           </div>
 
           <div className="space-y-6 p-6">
-            {isLoading ? (
-              <div className="text-center text-gray-600">Loading donors...</div>
-            ) : error ? (
-              <div className="text-center text-red-600">{error}</div>
-            ) : filteredDonors.length === 0 ? (
+            {filteredDonors.length === 0 ? (
               <div className="text-center text-gray-600">No donors found</div>
             ) : (
               filteredDonors.map((donor) => (

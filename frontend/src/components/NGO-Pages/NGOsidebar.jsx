@@ -42,12 +42,6 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
       <div className="p-6">
         <div className="flex justify-between items-center mb-2">
           <img src={logo} alt="" className="h-50 w-50" />
-          <button
-            onClick={toggleSidebar}
-            className="lg:hidden text-emerald-600 hover:text-emerald-900"
-          >
-            <X className="h-6 w-6" />
-          </button>
         </div>
         <nav className="space-y-2">
           {navigationItems.map((item) => {

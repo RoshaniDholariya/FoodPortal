@@ -11,6 +11,7 @@ import {
   Filter,
 } from "lucide-react";
 import Sidebar from "../NGOsidebar";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const ReportDonationModal = ({ donation, onClose, onSubmit }) => {
   const [reportMessage, setReportMessage] = useState("");
@@ -151,9 +152,13 @@ const FilterButton = ({ label, isActive, onClick, count }) => (
   >
     <span>{label}</span>
     {count !== undefined && (
-      <span className={`text-xs px-2 py-1 rounded-full ${
-        isActive ? "bg-white text-emerald-600" : "bg-emerald-100 text-emerald-800"
-      }`}>
+      <span
+        className={`text-xs px-2 py-1 rounded-full ${
+          isActive
+            ? "bg-white text-emerald-600"
+            : "bg-emerald-100 text-emerald-800"
+        }`}
+      >
         {count}
       </span>
     )}
@@ -212,6 +217,35 @@ const Reports = () => {
     setSelectedDonation(null);
   };
 
+  if (loading) {
+    return (
+      <div className="flex">
+        <div className="fixed inset-y-0 left-0 z-50">
+          <Sidebar
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
+        </div>
+        <div
+          className={`flex-1 transition-all duration-300 ${
+            isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+          } min-h-screen bg-gray-50 flex items-center justify-center`}
+        >
+          <div className="text-center">
+            <div className="w-80 h-80 mx-auto">
+              <DotLottieReact
+                src="https://lottie.host/5e14278b-11dd-40da-b4d8-99ada5e3fe82/ksmwXmfbTJ.lottie"
+                loop
+                autoplay
+              />
+            </div>
+            <p className="mt-4 text-gray-600 font-semibold">Loading data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const handleSubmitReport = async (donationId, donorId, reportMessage) => {
     try {
       const response = await axios.post(
@@ -232,7 +266,7 @@ const Reports = () => {
             ? { ...donation, report: reportMessage }
             : donation
         );
-        
+
         setAcceptedDonations(updatedDonations);
         applyFilter(activeFilter, updatedDonations);
 
@@ -254,18 +288,18 @@ const Reports = () => {
 
   const applyFilter = (filter, donations = acceptedDonations) => {
     setActiveFilter(filter);
-    
+
     if (filter === "all") {
       setFilteredDonations(donations);
     } else if (filter === "reported") {
-      setFilteredDonations(donations.filter(donation => donation.report));
+      setFilteredDonations(donations.filter((donation) => donation.report));
     } else if (filter === "unreported") {
-      setFilteredDonations(donations.filter(donation => !donation.report));
+      setFilteredDonations(donations.filter((donation) => !donation.report));
     }
   };
 
-  const reportedCount = acceptedDonations.filter(d => d.report).length;
-  const unreportedCount = acceptedDonations.filter(d => !d.report).length;
+  const reportedCount = acceptedDonations.filter((d) => d.report).length;
+  const unreportedCount = acceptedDonations.filter((d) => !d.report).length;
 
   return (
     <div className="min-h-screen bg-emerald-50">
@@ -303,23 +337,23 @@ const Reports = () => {
                 <Filter className="w-4 h-4" />
                 <span className="font-medium">Filter:</span>
               </div>
-              
+
               <div className="flex flex-wrap gap-2">
-                <FilterButton 
-                  label="All Donations" 
-                  isActive={activeFilter === "all"} 
+                <FilterButton
+                  label="All Donations"
+                  isActive={activeFilter === "all"}
                   onClick={() => applyFilter("all")}
                   count={acceptedDonations.length}
                 />
-                <FilterButton 
-                  label="Reported" 
-                  isActive={activeFilter === "reported"} 
+                <FilterButton
+                  label="Reported"
+                  isActive={activeFilter === "reported"}
                   onClick={() => applyFilter("reported")}
                   count={reportedCount}
                 />
-                <FilterButton 
-                  label="Unreported" 
-                  isActive={activeFilter === "unreported"} 
+                <FilterButton
+                  label="Unreported"
+                  isActive={activeFilter === "unreported"}
                   onClick={() => applyFilter("unreported")}
                   count={unreportedCount}
                 />
@@ -340,31 +374,25 @@ const Reports = () => {
           </main>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center items-center mt-10">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-700"></div>
-          </div>
-        ) : (
-          <div className="space-y-4 m-5">
-            {filteredDonations.length > 0 ? (
-              filteredDonations.map((donation) => (
-                <DonationItem
-                  key={donation.id}
-                  donation={donation}
-                  onReport={handleOpenReportModal}
-                />
-              ))
-            ) : (
-              <p className="text-center text-gray-600 p-6 bg-white rounded-lg shadow-sm">
-                {activeFilter === "all" 
-                  ? "No accepted donations available." 
-                  : activeFilter === "reported" 
-                    ? "No reported donations found."
-                    : "No unreported donations found."}
-              </p>
-            )}
-          </div>
-        )}
+        <div className="space-y-4 m-5">
+          {filteredDonations.length > 0 ? (
+            filteredDonations.map((donation) => (
+              <DonationItem
+                key={donation.id}
+                donation={donation}
+                onReport={handleOpenReportModal}
+              />
+            ))
+          ) : (
+            <p className="text-center text-gray-600 p-6 bg-white rounded-lg shadow-sm">
+              {activeFilter === "all"
+                ? "No accepted donations available."
+                : activeFilter === "reported"
+                ? "No reported donations found."
+                : "No unreported donations found."}
+            </p>
+          )}
+        </div>
       </div>
 
       {reportModalOpen && selectedDonation && (

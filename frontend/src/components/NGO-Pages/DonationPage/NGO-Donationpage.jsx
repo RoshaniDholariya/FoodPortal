@@ -4,6 +4,7 @@ import DonationModal from "./NGO-DonationModel";
 import { User, Package, Calendar, Menu, PackageX } from "lucide-react";
 import Sidebar from "../NGOsidebar";
 import { io } from "socket.io-client";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const DonationCard = ({ donation, onClick }) => (
   <div
@@ -65,7 +66,7 @@ const DonationGrid = () => {
   const [donations, setDonations] = useState([]);
   const [selectedDonation, setSelectedDonation] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchDonations();
@@ -73,7 +74,7 @@ const DonationGrid = () => {
 
   const fetchDonations = async () => {
     try {
-      setIsLoading(true);
+      setLoading(true);
       const response = await axios.get(
         "http://localhost:3000/api/ngo/getAvailableFood",
         {
@@ -85,59 +86,68 @@ const DonationGrid = () => {
     } catch (error) {
       console.error("Error fetching donations:", error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
+
+
+  if (loading) {
+    return (
+      <div className="flex">
+        <div className="fixed inset-y-0 left-0 z-50">
+          <Sidebar
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
+        </div>
+        <div
+          className={`flex-1 transition-all duration-300 ${
+            isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+          } min-h-screen bg-gray-50 flex items-center justify-center`}
+        >
+          <div className="text-center">
+            <div className="w-80 h-80 mx-auto">
+              <DotLottieReact
+                src="https://lottie.host/5e14278b-11dd-40da-b4d8-99ada5e3fe82/ksmwXmfbTJ.lottie"
+                loop
+                autoplay
+              />
+            </div>
+            <p className="mt-4 text-gray-600 font-semibold">
+              Loading dashboard data...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // const handleAccept = async (id) => {
-  //   try {
-  //     const response = await axios.post(
-  //       "http://localhost:3000/api/ngo/acceptFood",
-  //       { foodId: id },
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         withCredentials: true,
-  //       }
-  //     );
-  //     alert(response.data.message);
-  //     fetchDonations();
-  //     setSelectedDonation(null);
-  //   } catch (error) {
-  //     console.error("Error accepting donation:", error);
-  //   }
-  // };
+  const socket = io("http://localhost:3000"); // Adjust backend URL accordingly
 
- 
+  const handleAccept = async (id) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/ngo/acceptFood",
+        { foodId: id },
+        { withCredentials: true }
+      );
 
-const socket = io("http://localhost:3000"); // Adjust backend URL accordingly
+      alert(response.data.message);
+      fetchDonations();
+      setSelectedDonation(null);
 
-const handleAccept = async (id) => {
-  try {
-    const response = await axios.post(
-      "http://localhost:3000/api/ngo/acceptFood",
-      { foodId: id },
-      { withCredentials: true }
-    );
-
-    alert(response.data.message);
-    fetchDonations();
-    setSelectedDonation(null);
-
-    socket.emit("foodAccepted", {
-      donorId: response.data.donorId,
-      message: `Your food donation (#${id}) has been accepted!`,
-    });
-  } catch (error) {
-    console.error("Error accepting donation:", error);
-  }
-};
-
+      socket.emit("foodAccepted", {
+        donorId: response.data.donorId,
+        message: `Your food donation (#${id}) has been accepted!`,
+      });
+    } catch (error) {
+      console.error("Error accepting donation:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-emerald-50">
@@ -163,11 +173,7 @@ const handleAccept = async (id) => {
         </div>
 
         <main className="p-6">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-96">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600" />
-            </div>
-          ) : donations.length > 0 ? (
+          {donations.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {donations.map((donation) => (
                 <DonationCard
