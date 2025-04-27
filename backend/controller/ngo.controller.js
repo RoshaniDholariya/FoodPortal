@@ -150,18 +150,16 @@ exports.getAvailableFood = async (req, res) => {
 
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
-const cloudinary = require("../config/cloudinaryConfig"); // Import Cloudinary config
+const cloudinary = require("../config/cloudinaryConfig");
 
 async function generateCertificate(donorId) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument();
     const filePath = `certificates/${donorId}_certificate.pdf`;
 
-    // Create a write stream and save locally
     const writeStream = fs.createWriteStream(filePath);
     doc.pipe(writeStream);
 
-    // Generate Certificate Content
     doc.fontSize(20).text("Certificate of Appreciation", { align: "center" });
     doc.moveDown();
     doc.fontSize(14).text(`This certificate is awarded to Donor ID: ${donorId}`, { align: "center" });
@@ -169,20 +167,17 @@ async function generateCertificate(donorId) {
     doc.text("Thank you for your valuable contribution towards reducing food wastage!", { align: "center" });
     doc.end();
 
-    // Wait for the file to be fully written
     writeStream.on("finish", async () => {
       try {
-        // Upload to Cloudinary
         const result = await cloudinary.uploader.upload(filePath, {
           resource_type: "raw",
           folder: "certificates",
           public_id: `${donorId}_certificate`,
         });
 
-        // Delete local file after upload
-        fs.unlinkSync(filePath);
+        // fs.unlinkSync(filePath);
 
-        resolve(result.secure_url); // Return Cloudinary URL
+        resolve(result.secure_url);
       } catch (error) {
         reject(error);
       }
@@ -196,12 +191,11 @@ async function generateCertificate(donorId) {
 exports.acceptFood = async (req, res) => {
   try {
     const { foodId } = req.body;
-    const ngoId = req.user.userId; // Ensure NGO ID is correctly retrieved
+    const ngoId = req.user.userId;
     console.log(ngoId);
-    // Fetch food details including donorId (explicitly)
     const food = await prisma.foodDetails.findUnique({
       where: { id: foodId },
-      include: { donor: true }, // Ensure donor relationship exists
+      include: { donor: true },
     });
 
     if (!food) {
@@ -217,14 +211,13 @@ exports.acceptFood = async (req, res) => {
       where: { id: foodId },
       data: {
         status: "completed",
-        ngoId: ngoId // Ensure NGO ID is correctly assigned
+        ngoId: ngoId
       },
     });
 
     if (food.donor) {
       const donorId = food.donor.id;
 
-      // ✅ Update Donor's Points
       const updatedDonor = await prisma.donor.update({
         where: { id: donorId },
         data: {
@@ -234,10 +227,8 @@ exports.acceptFood = async (req, res) => {
 
       let certificateUrl = null;
       if (updatedDonor.totalPoints >= 100) {
-        // ✅ Generate and Upload Certificate
         certificateUrl = await generateCertificate(donorId);
 
-        // ✅ Update Donor Certificate Count & Reset Points
         await prisma.donor.update({
           where: { id: donorId },
           data: {
@@ -541,7 +532,7 @@ exports.reportDonation = async function (req, res) {
       let disableUntil = new Date();
       disableUntil.setDate(disableUntil.getDate() + 14);
       updateData.disabledUntil = disableUntil;
-      updateData.warning=0;
+      updateData.warning = 0;
     }
 
     await prisma.donor.update({
@@ -613,7 +604,7 @@ exports.getNgoDashboard = async (req, res) => {
     });
 
     const pendingFoodDonations = await prisma.foodDetails.count({
-      where: { ngoId:ngoIdInt, status: "available" },
+      where: { ngoId: ngoIdInt, status: "available" },
     });
 
     console.log(pendingFoodDonations);
@@ -622,7 +613,7 @@ exports.getNgoDashboard = async (req, res) => {
       where: { ngoId: ngoIdInt },
     });
 
-    const totalDonorsConnected = uniqueDonorCount.length; 
+    const totalDonorsConnected = uniqueDonorCount.length;
 
     const notifications = await prisma.notification.findMany({
       where: { donorId: ngoIdInt,

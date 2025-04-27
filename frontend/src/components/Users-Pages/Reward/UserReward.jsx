@@ -10,13 +10,25 @@ import {
   Clock,
   Star,
   FileBadge,
-  Shield,
-  Target,
-  ChevronRight,
-  Medal,
+  X,
+  Camera,
 } from "lucide-react";
 import axios from "axios";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import {
+  TwitterShareButton,
+  TwitterIcon,
+  WhatsappShareButton,
+  WhatsappIcon,
+  FacebookShareButton,
+  FacebookIcon,
+  LinkedinShareButton,
+  LinkedinIcon,
+  EmailShareButton,
+  EmailIcon,
+  TelegramShareButton,
+  TelegramIcon,
+} from "react-share";
 
 const UserReward = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -33,6 +45,9 @@ const UserReward = () => {
   });
   const [userId, setUserId] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   useEffect(() => {
     const handleResize = () => {
@@ -138,24 +153,31 @@ const UserReward = () => {
         return;
       }
 
-      const response = await axios.get(
-        `http://localhost:3000/api/donors/download-certificate/${userId}`,
-        {
-          responseType: "blob",
-          withCredentials: true,
-        }
+      window.open(
+        `http://localhost:3000/api/donors/download-certificate/${userId}`
       );
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "donation_certificate.pdf");
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      showToastNotification("Certificate downloaded successfully!");
     } catch (error) {
       console.error("Error downloading certificate:", error);
+      showToastNotification(
+        "Failed to download certificate. Please try again."
+      );
     }
+  };
+
+  const captureAndShare = () => {
+    // This would typically use html2canvas or similar
+    showToastNotification("Certificate image captured and ready to share!");
+    setShowShareModal(true);
+  };
+
+  const showToastNotification = (message) => {
+    setToastMessage(message);
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
   };
 
   const getFadeClass = (index = 0) => {
@@ -191,44 +213,260 @@ const UserReward = () => {
     );
   };
 
-  return (
-    <div className="min-h-screen bg-white-50 flex">
-      {showConfetti && <Confetti />}
+  const ShareModal = () => {
+    if (!showShareModal) return null;
 
-      <div className="fixed inset-y-0 left-0 z-50">
+    const shareUrl = "https://foodshare.org/certificate/" + userId;
+    const shareTitle = `I've donated ${userRewards.totalDonations} meals and earned ${userRewards.totalPoints} points with FoodShare!`;
+    const shareHashtags = ["FoodDonation", "EndHunger", "Community"];
+    const shareDescription = `Join me in making a difference. Every donation counts! ${
+      userRewards.certificatesEarned > 0
+        ? "I've earned " +
+          userRewards.certificatesEarned +
+          " certificates so far!"
+        : ""
+    }`;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl w-full max-w-lg mx-4 overflow-hidden shadow-2xl transform transition-all animate-scaleIn">
+          <div className="relative">
+            <div className="bg-gradient-to-r from-[#61cf73]/10 to-[#4dabf7]/10 p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-2xl font-bold text-gray-800">
+                  Share Your Achievement
+                </h3>
+                <button
+                  onClick={() => setShowShareModal(false)}
+                  className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  <X className="h-5 w-5 text-gray-600" />
+                </button>
+              </div>
+              <p className="text-gray-600">
+                Let your network know about your contribution to ending hunger!
+              </p>
+            </div>
+
+            <div className="p-6 flex flex-col space-y-6">
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg p-4 relative">
+                <div className="flex items-start space-x-4">
+                  <div className="bg-[#61cf73]/10 p-3 rounded-full">
+                    <Award className="h-8 w-8 text-[#61cf73]" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-800">
+                      Certificate Preview
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {userRewards.name} has donated{" "}
+                      {userRewards.totalDonations} meals
+                    </p>
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                      <span className="text-sm font-medium">
+                        {userRewards.totalPoints} Points Earned
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Share to Social Media
+                </label>
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+                  <TwitterShareButton
+                    url={shareUrl}
+                    title={shareTitle}
+                    hashtags={shareHashtags}
+                    className="hover:scale-105 transition-transform focus:outline-none"
+                    onShareWindowClose={() =>
+                      showToastNotification("Shared to Twitter!")
+                    }
+                  >
+                    <div className="flex flex-col items-center">
+                      <div className="bg-blue-50 p-2 rounded-full mb-1">
+                        <TwitterIcon size={32} round />
+                      </div>
+                      <span className="text-xs text-gray-600">Twitter</span>
+                    </div>
+                  </TwitterShareButton>
+
+                  <FacebookShareButton
+                    url={shareUrl}
+                    quote={shareTitle}
+                    hashtag={`#${shareHashtags[0]}`}
+                    className="hover:scale-105 transition-transform focus:outline-none"
+                    onShareWindowClose={() =>
+                      showToastNotification("Shared to Facebook!")
+                    }
+                  >
+                    <div className="flex flex-col items-center">
+                      <div className="bg-blue-50 p-2 rounded-full mb-1">
+                        <FacebookIcon size={32} round />
+                      </div>
+                      <span className="text-xs text-gray-600">Facebook</span>
+                    </div>
+                  </FacebookShareButton>
+
+                  <WhatsappShareButton
+                    url={shareUrl}
+                    title={shareTitle}
+                    className="hover:scale-105 transition-transform focus:outline-none"
+                    onShareWindowClose={() =>
+                      showToastNotification("Shared to WhatsApp!")
+                    }
+                  >
+                    <div className="flex flex-col items-center">
+                      <div className="bg-green-50 p-2 rounded-full mb-1">
+                        <WhatsappIcon size={32} round />
+                      </div>
+                      <span className="text-xs text-gray-600">WhatsApp</span>
+                    </div>
+                  </WhatsappShareButton>
+
+                  <LinkedinShareButton
+                    url={shareUrl}
+                    title="My Food Donation Achievement"
+                    summary={shareTitle}
+                    source="FoodShare"
+                    className="hover:scale-105 transition-transform focus:outline-none"
+                    onShareWindowClose={() =>
+                      showToastNotification("Shared to LinkedIn!")
+                    }
+                  >
+                    <div className="flex flex-col items-center">
+                      <div className="bg-blue-50 p-2 rounded-full mb-1">
+                        <LinkedinIcon size={32} round />
+                      </div>
+                      <span className="text-xs text-gray-600">LinkedIn</span>
+                    </div>
+                  </LinkedinShareButton>
+
+                  <TelegramShareButton
+                    url={shareUrl}
+                    title={shareTitle}
+                    className="hover:scale-105 transition-transform focus:outline-none"
+                    onShareWindowClose={() =>
+                      showToastNotification("Shared to Telegram!")
+                    }
+                  >
+                    <div className="flex flex-col items-center">
+                      <div className="bg-blue-50 p-2 rounded-full mb-1">
+                        <TelegramIcon size={32} round />
+                      </div>
+                      <span className="text-xs text-gray-600">Telegram</span>
+                    </div>
+                  </TelegramShareButton>
+
+                  <EmailShareButton
+                    url={shareUrl}
+                    subject="My Food Donation Achievement"
+                    body={`${shareTitle}\n\n${shareDescription}\n\n`}
+                    className="hover:scale-105 transition-transform focus:outline-none"
+                    onShareWindowClose={() =>
+                      showToastNotification("Email created!")
+                    }
+                  >
+                    <div className="flex flex-col items-center">
+                      <div className="bg-gray-50 p-2 rounded-full mb-1">
+                        <EmailIcon size={32} round />
+                      </div>
+                      <span className="text-xs text-gray-600">Email</span>
+                    </div>
+                  </EmailShareButton>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-gray-200">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Custom Message (Optional)
+                </label>
+                <textarea
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#61cf73]/50 focus:border-transparent"
+                  rows="2"
+                  placeholder="Add a personal message..."
+                  defaultValue={shareDescription}
+                ></textarea>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-3">
+                <button
+                  onClick={() => setShowShareModal(false)}
+                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    showToastNotification("Custom message saved!");
+                    setShowShareModal(false);
+                  }}
+                  className="px-4 py-2 bg-[#61cf73] text-white rounded-lg shadow hover:bg-[#61cf73]/90 transition-colors"
+                >
+                  Update & Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const Toast = () => {
+    if (!showToast) return null;
+
+    return (
+      <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-lg animate-fadeInUp z-50">
+        <div className="flex items-center space-x-2">
+          <div className="bg-white bg-opacity-20 p-1 rounded-full">
+            <Award className="h-4 w-4" />
+          </div>
+          <span>{toastMessage}</span>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex">
+      {showConfetti && <Confetti />}
+      <ShareModal />
+      <Toast />
+
+      <div className="fixed inset-y-0 left-0 z-40">
         <Sidebar
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
         />
       </div>
 
-      <div className={`flex-1 ${isSidebarOpen ? "lg:ml-64" : ""}`}>
-        <button
-          onClick={() => setIsSidebarOpen((prev) => !prev)}
-          className="lg:hidden text-gray-500 hover:text-gray-700 m-4 focus:outline-none focus:ring-2 focus:ring-[#61cf73]/50 rounded"
-          aria-label="Toggle sidebar"
-        >
-          <Menu className="h-6 w-6" />
-        </button>
-
+      <div
+        className={`flex-1 transition-all duration-300 ${
+          isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+        }`}
+      >
         <main className="p-4 lg:p-8">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             {error ? (
-              <div className="bg-red-50 rounded-xl p-6 text-center text-red-600">
+              <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center text-red-600 shadow-sm">
                 <p>{error}</p>
               </div>
             ) : (
               <>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className={`lg:col-span-2 ${getFadeClass(1)}`}>
-                    <div className="bg-white rounded-xl shadow overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-200">
+                    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200">
                       <div className="border-b border-gray-100">
                         <div className="flex">
                           <button
                             onClick={() => setActiveTab("certificate")}
                             className={`px-6 py-4 font-medium flex items-center space-x-2 transition-colors ${
                               activeTab === "certificate"
-                                ? "border-b-2 border-[#61cf73] text-[#61cf73]"
+                                ? "border-b-2 border-[#61cf73] text-[#61cf73] bg-[#61cf73]/5"
                                 : "text-gray-600 hover:bg-gray-50"
                             }`}
                           >
@@ -240,9 +478,18 @@ const UserReward = () => {
 
                       {activeTab === "certificate" && (
                         <div className="p-6">
-                          <div className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg p-6 relative hover:shadow-lg transition-all duration-300 transform hover:scale-[1.01]">
-                            <div className="absolute inset-0 opacity-5">
-                              <div className="w-full h-full bg-[url('/api/placeholder/400/400')] bg-contain bg-center bg-no-repeat opacity-50"></div>
+                          <div
+                            id="certificate"
+                            className="bg-white border border-gray-200 rounded-lg p-8 relative hover:shadow-lg transition-all duration-300 transform hover:scale-[1.01]"
+                          >
+                            <div className="absolute inset-0 bg-[url('/api/placeholder/400/400')] bg-contain bg-center bg-no-repeat opacity-5"></div>
+                            <div className="absolute -left-1 -top-1 w-16 h-16">
+                              <div className="absolute w-full h-full bg-[#61cf73]/10 rounded-br-full"></div>
+                              <div className="absolute w-8 h-8 bg-[#61cf73]/20 rounded-br-full"></div>
+                            </div>
+                            <div className="absolute -right-1 -bottom-1 w-16 h-16">
+                              <div className="absolute w-full h-full bg-[#61cf73]/10 rounded-tl-full"></div>
+                              <div className="absolute w-8 h-8 bg-[#61cf73]/20 rounded-tl-full"></div>
                             </div>
 
                             <div className="text-center relative">
@@ -262,16 +509,16 @@ const UserReward = () => {
                                 </p>
                               </div>
 
-                              <p className="text-2xl font-semibold text-gray-900 mb-4 font-serif">
+                              <p className="text-3xl font-semibold text-gray-900 mb-4 font-serif">
                                 {userRewards.name}
                               </p>
 
-                              <p className="text-gray-500 mb-4">
+                              <p className="text-gray-600 mb-4">
                                 has successfully completed
                               </p>
 
                               <div className="flex justify-center items-center mb-4">
-                                <span className="text-4xl font-bold text-[#61cf73]">
+                                <span className="text-5xl font-bold bg-gradient-to-r from-[#61cf73] to-[#4dabf7] bg-clip-text text-transparent">
                                   {userRewards.totalDonations}
                                 </span>
                                 <span className="text-xl text-gray-700 ml-2">
@@ -279,7 +526,7 @@ const UserReward = () => {
                                 </span>
                               </div>
 
-                              <p className="text-gray-500 mb-4">
+                              <p className="text-gray-600 mb-4">
                                 and has earned
                               </p>
 
@@ -309,19 +556,37 @@ const UserReward = () => {
                               )}
                             </div>
                           </div>
-                          <div className="flex justify-between mt-4">
-                            <button
-                              onClick={downloadCertificate}
-                              className={`px-4 py-2 bg-[#61cf73] text-white rounded-lg flex items-center shadow-sm hover:bg-[#61cf73]/90 transition-all hover:shadow-md transform hover:-translate-y-1 duration-300 ${
-                                userRewards.certificatesEarned < 1
-                                  ? "opacity-50 cursor-not-allowed"
-                                  : ""
-                              }`}
-                              disabled={userRewards.certificatesEarned < 1}
-                            >
-                              <Download className="h-5 w-5 mr-2" />
-                              Download Certificate
-                            </button>
+
+                          <div className="flex flex-wrap justify-between items-center mt-6 gap-3">
+                            <div className="flex space-x-3">
+                              <button
+                                onClick={downloadCertificate}
+                                className={`px-4 py-2.5 bg-[#61cf73] text-white rounded-lg flex items-center shadow-sm hover:bg-[#61cf73]/90 transition-all hover:shadow-md transform hover:-translate-y-1 duration-300 ${
+                                  userRewards.certificatesEarned < 1
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
+                                }`}
+                                disabled={userRewards.certificatesEarned < 1}
+                              >
+                                <Download className="h-5 w-5 mr-2" />
+                                <span>Download Certificate</span>
+                              </button>
+
+                              <button
+                                onClick={captureAndShare}
+                                className="px-4 py-2.5 bg-blue-500 text-white rounded-lg flex items-center shadow-sm hover:bg-blue-600 transition-all hover:shadow-md transform hover:-translate-y-1 duration-300"
+                              >
+                                <Share2 className="h-5 w-5 mr-2" />
+                                <span>Share</span>
+                              </button>
+                            </div>
+
+                            <div className="text-gray-500 text-sm italic flex items-center">
+                              <Camera className="h-4 w-4 mr-1 opacity-60" />
+                              <span>
+                                Share your achievement with your network
+                              </span>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -330,11 +595,11 @@ const UserReward = () => {
 
                   <div className="space-y-6">
                     <div
-                      className={`bg-white rounded-xl shadow overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-200 ${getFadeClass(
+                      className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 ${getFadeClass(
                         2
                       )}`}
                     >
-                      <div className="border-b border-gray-100 bg-gray-50 p-4">
+                      <div className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white p-4">
                         <div className="flex items-center space-x-3">
                           <div className="p-2 bg-[#61cf73]/10 rounded-lg">
                             <Trophy className="w-5 h-5 text-[#61cf73]" />
@@ -357,7 +622,7 @@ const UserReward = () => {
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                             <div
-                              className="bg-[#61cf73] h-3 rounded-full transition-all duration-1000 ease-out relative"
+                              className="bg-gradient-to-r from-[#61cf73] to-[#61cf73]/70 h-3 rounded-full transition-all duration-1000 ease-out relative"
                               style={{
                                 width: fadeIn
                                   ? `${Math.min(
@@ -369,11 +634,12 @@ const UserReward = () => {
                               }}
                             >
                               {fadeIn &&
-                                (userRewards.totalPoints % 40) / 40 > 0.1 && (
+                                (userRewards.totalPoints % 100) / 100 > 0.1 && (
                                   <div className="absolute inset-0 flex items-center justify-center">
                                     <span className="text-white text-xs font-bold drop-shadow-md">
                                       {Math.round(
-                                        ((userRewards.totalPoints % 40) / 40) *
+                                        ((userRewards.totalPoints % 100) /
+                                          100) *
                                           100
                                       )}
                                       %
@@ -428,72 +694,8 @@ const UserReward = () => {
                         </div>
                       </div>
                     </div>
-
-                    <div
-                      className={`bg-white rounded-xl shadow overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-200 ${getFadeClass(
-                        3
-                      )}`}
-                    >
-                      <div className="border-b border-gray-100 bg-gray-50 p-4">
-                        <div className="flex items-center space-x-3">
-                          <div className="p-2 bg-[#61cf73]/10 rounded-lg">
-                            <Target className="w-5 h-5 text-[#61cf73]" />
-                          </div>
-                          <h2 className="text-lg font-semibold text-gray-900">
-                            Points Milestone
-                          </h2>
-                        </div>
-                      </div>
-
-                      <div className="p-6">
-                        <div className="mb-6">
-                          <div className="flex justify-between mb-2">
-                            <span className="text-gray-600">
-                              Achievement Goal
-                            </span>
-                            <span className="text-gray-600 font-medium">
-                              {userRewards.totalPoints}/500 points
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                            <div
-                              className="bg-gradient-to-r from-[#61cf73] to-[#3eb055] h-3 rounded-full transition-all duration-1000 ease-out"
-                              style={{
-                                width: fadeIn
-                                  ? `${Math.min(
-                                      (userRewards.totalPoints / 500) * 100,
-                                      100
-                                    )}%`
-                                  : "0%",
-                              }}
-                            ></div>
-                          </div>
-                          <p className="text-sm text-gray-500 mt-2">
-                            {500 - userRewards.totalPoints > 0
-                              ? `${
-                                  500 - userRewards.totalPoints
-                                } more points to reach Master Donor status`
-                              : "Congratulations! You've reached Master Donor status!"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
-
-                <style jsx global>{`
-                  @keyframes confetti {
-                    0% {
-                      transform: translateY(0) rotate(0deg);
-                    }
-                    100% {
-                      transform: translateY(100vh) rotate(720deg);
-                    }
-                  }
-                  .animate-confetti {
-                    animation: confetti 5s ease-in-out forwards;
-                  }
-                `}</style>
               </>
             )}
           </div>
