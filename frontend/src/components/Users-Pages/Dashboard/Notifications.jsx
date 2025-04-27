@@ -1,89 +1,133 @@
+// import React, { useState, useEffect } from "react";
+// import { Bell, X } from "lucide-react";
+// import axios from "axios"; 
+
+// export const NotificationItem = ({  message, timestamp }) => {
+
+//   return (
+//     <div className="border-b border-gray-200 p-3 hover:bg-gray-100 transition">
+//     <p className="text-sm text-gray-800">{message}</p>
+//     <p className="text-xs text-gray-500 mt-1">{timestamp}</p>
+//   </div>
+//   );
+// };
+
+// export const NotificationContainer = () => {
+//   const [notifications, setNotifications] = useState([]);
+//   const [isOpen, setIsOpen] = useState(false);
+
+//   useEffect(() => {
+//     async function fetchNotifications() {
+//       try {
+//         const res = await axios.get('http://localhost:3000/api/donors/getnotification');
+//         setNotifications(res.data.notifications || []);
+//       } catch (error) {
+//         console.error("Error fetching notifications:", error);
+//       }
+//     }
+
+//     fetchNotifications();
+//   }, []);
+
+//   return (
+//     <div className="fixed top-4 right-6 z-50">
+//       <div className="relative">
+//         <button
+//           onClick={() => setIsOpen(!isOpen)}
+//           className="relative bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition"
+//         >
+//           <Bell className="w-6 h-6 text-green-500" />
+//           {notifications.length > 0 && (
+//             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+//               {notifications.length}
+//             </span>
+//           )}
+//         </button>
+
+//         {isOpen && (
+//           <div className="mt-2 w-80 bg-white rounded-lg shadow-lg max-h-96 overflow-y-auto">
+//             <div className="p-4 border-b font-semibold text-gray-800">Notifications</div>
+//             {notifications.length === 0 ? (
+//               <div className="p-4 text-gray-500 text-sm">No notifications</div>
+//             ) : (
+//               notifications.map((notification) => (
+//                 <NotificationItem
+//                   key={notification.id}
+//                   message={notification.message}
+//                   timestamp={new Date(notification.timestamp).toLocaleString()}
+//                 />
+//               ))
+//             )}
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
 import React, { useState, useEffect } from "react";
-import { Bell, X } from "lucide-react";
+import { Bell } from "lucide-react";
+import axios from "axios";
 
-
-export const NotificationItem = ({ message, onClose }) => {
-  const [progress, setProgress] = useState(100);
-  const [isVisible, setIsVisible] = useState(true);
-
-  useEffect(() => {
-    const startTime = Date.now();
-    const duration = 1200000;
-
-    const updateProgress = () => {
-      const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, 100 - (elapsed / duration) * 100);
-      setProgress(remaining);
-
-      if (remaining > 0) {
-        requestAnimationFrame(updateProgress);
-      } else {
-        setIsVisible(false);
-        setTimeout(() => onClose(), 300);
-      }
-    };
-
-    const animationFrame = requestAnimationFrame(updateProgress);
-
-    return () => {
-      cancelAnimationFrame(animationFrame);
-    };
-  }, [onClose]);
-
-  if (!isVisible) return null;
-
+export const NotificationItem = ({ message, timestamp }) => {
   return (
-    <div
-      className={`
-        bg-white rounded-lg shadow-lg p-4 mb-2 relative overflow-hidden
-        transform transition-all duration-300 ease-in-out
-        ${
-          isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-        }
-      `}
-    >
-      <div className="flex items-start justify-between">
-        <div className="flex items-start space-x-3">
-          <Bell className="w-5 h-5 text-blue-500 mt-1" />
-          <div>
-            <p className="text-gray-800 font-medium">New Notification</p>
-            <p className="text-gray-600 text-sm mt-1">{message}</p>
-          </div>
-        </div>
-        <button
-          onClick={() => {
-            setIsVisible(false);
-            setTimeout(() => onClose(), 300);
-          }}
-          className="text-gray-400 hover:text-gray-600 transition-colors"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-100">
-        <div
-          className="h-full bg-blue-500 transition-all duration-300"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
+    <div className="border-b border-gray-200 p-3 hover:bg-gray-100 transition">
+      <p className="text-sm text-gray-800">{message}</p>
+      <p className="text-xs text-gray-500 mt-1">{timestamp}</p>
     </div>
   );
 };
 
-export const NotificationContainer = ({
-  notifications,
-  onNotificationClose,
-}) => {
+export const NotificationContainer = () => {
+  const [notifications, setNotifications] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    async function fetchNotifications() {
+      try {
+        const res = await axios.get('http://localhost:3000/api/donors/getnotification');
+        setNotifications(res.data.notifications || []);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    }
+
+    fetchNotifications();
+  }, []);
+
   return (
-    <div className="fixed top-4 right-4 z-50 w-96 space-y-2">
-      {notifications.map((notification) => (
-        <NotificationItem
-          key={notification.id}
-          message={notification}
-          onClose={() => onNotificationClose(notification.id)}
-        />
-      ))}
+    <div className="fixed top-4 right-6 z-50">
+      <div className="relative">
+        {/* Bell Icon */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="relative bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition"
+        >
+          <Bell className="w-6 h-6 text-green-500" />
+          {notifications.length > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+              {notifications.length}
+            </span>
+          )}
+        </button>
+
+        {/* Dropdown */}
+        {isOpen && (
+          <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-lg shadow-lg max-h-96 overflow-y-auto">
+            <div className="p-4 border-b font-semibold text-gray-800">Notifications</div>
+            {notifications.length === 0 ? (
+              <div className="p-4 text-gray-500 text-sm">No notifications</div>
+            ) : (
+              notifications.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  message={notification.message}
+                  timestamp={new Date(notification.timestamp).toLocaleString()}
+                />
+              ))
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

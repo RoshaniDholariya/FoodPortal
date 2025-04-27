@@ -15,7 +15,8 @@ const {
   getFoodStatusCounts,
   donorResponse,
   getDonorRequests,
-  getallDonorRequests
+  getallDonorRequests,
+  getDonorNotifications
 } = require("../controller/donor.controller.js");
 
 const router = express.Router();
@@ -35,7 +36,7 @@ router.get('/food-status-counts', authenticate, getFoodStatusCounts);
 router.post('/sendNGOAcceptence', authenticate, donorResponse);
 router.get('/getNGOrequest', authenticate, getDonorRequests);
 router.get('/getallNGOrequest', authenticate, getallDonorRequests);
-
+router.get('/getnotification',authenticate,getDonorNotifications);
 router.get("/download-certificate/:donorId", async (req, res) => {
   try {
     const { donorId } = req.params;

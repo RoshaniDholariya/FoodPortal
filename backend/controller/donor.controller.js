@@ -288,8 +288,6 @@ exports.authenticate = (req, res, next) => {
     return res.status(403).json({ message: "Invalid or expired token" });
   }
 };
-
-
 exports.addFood = async (req, res) => {
   try {
     const {
@@ -328,6 +326,13 @@ exports.addFood = async (req, res) => {
       },
     });
 
+    // 🟰 Add Notification entry after foodDetails created
+    await prisma.notification.create({
+      data: {
+        donorId: donorId,
+        message: `New food added: ${foodType} (${foodCategory})`,
+      },
+    });
     if (global.io) {
       global.io.emit('newFoodDonation', {
         type: 'NEW_FOOD_DONATION',
@@ -337,7 +342,7 @@ exports.addFood = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Food details added successfully.',
+      message: 'Food details and notification added successfully.',
       foodDetails,
     });
   } catch (error) {
@@ -345,6 +350,62 @@ exports.addFood = async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 };
+
+// exports.addFood = async (req, res) => {
+//   try {
+//     const {
+//       foodType,
+//       foodCategory,
+//       noOfDishes,
+//       preparationDate,
+//       expiryDate,
+//       address,
+//       latitude,
+//       City,
+//       longitude
+//     } = req.body;
+//     const donorId = req.user.userId;
+
+//     if (!foodType || !foodCategory || !noOfDishes || !preparationDate || !expiryDate || !address) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Please fill all the required fields.',
+//       });
+//     }
+
+//     const foodDetails = await prisma.foodDetails.create({
+//       data: {
+//         donorId,
+//         foodType,
+//         foodCategory,
+//         address,
+//         latitude,
+//         longitude,
+//         City,
+//         noOfDishes: parseInt(noOfDishes),
+//         preparationDate: new Date(preparationDate),
+//         expiryDate: new Date(expiryDate),
+//         status: "available",
+//       },
+//     });
+
+//     if (global.io) {
+//       global.io.emit('newFood nDonation', {
+//         type: 'NEW_FOOD_DONATION',
+//         foodDetails
+//       });
+//     }
+
+//     res.status(201).json({
+//       success: true,
+//       message: 'Food details added successfully.',
+//       foodDetails,
+//     });
+//   } catch (error) {
+//     console.error('❌ Error adding food details:', error.message);
+//     res.status(500).json({ success: false, message: 'Internal server error.' });
+//   }
+// };
 
 exports.getDonorFood = async (req, res) => {
   try {
@@ -593,3 +654,19 @@ exports.getallDonorRequests = async (req, res) => {
   }
 };
 
+// backend route for fetching notifications
+exports.getDonorNotifications = async (req, res) => {
+  try {
+    const donorId = req.user.userId; // 🧠 Logged-in Donor
+    const notifications = await prisma.notification.findMany({
+      where: { donorId: donorId },
+      orderBy: { createdAt: 'desc' },
+      take: 8, // 🔥 latest 8 notifications
+    });
+
+    res.status(200).json({ success: true, notifications });
+  } catch (error) {
+    console.error("❌ Error fetching notifications:", error.message);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};

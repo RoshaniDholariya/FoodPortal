@@ -253,7 +253,6 @@ exports.acceptFood = async (req, res) => {
         });
       }
 
-      // ✅ Send Socket Notification to Donor
       global.io.to(donorId).emit("foodAccepted", {
         message: `Your food donation (${food.name}) has been accepted by an NGO.`,
         ngoId,
@@ -628,8 +627,9 @@ exports.getNgoDashboard = async (req, res) => {
     const notifications = await prisma.notification.findMany({
       where: { donorId: ngoIdInt },
       orderBy: { createdAt: "desc" },
+      take: 8, 
     });
-
+    
     const connections = await prisma.ngoconnect.findMany({
       where: { ngoId: ngoIdInt },
       include: { Donor: true },
