@@ -130,18 +130,32 @@ const DonorDashboard = () => {
   return (
     <div className="min-h-screen bg-white-300">
       <div className="fixed top-4 right-6 z-50 flex items-center space-x-4">
-        <button
+        {/* <button
           onClick={() => setShowNotifications((prev) => !prev)}
           className="text-gray-500 hover:text-gray-700 relative"
           aria-label="Toggle notifications"
         >
           {/* <Bell className="h-6 w-6" /> */}
-          {activeNotifications.length > 0 && (
+          {/* {activeNotifications.length > 0 && (
             <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
               {activeNotifications.length}
             </span>
           )}
-        </button>
+        </button>  */}
+
+<button
+  onClick={() => setShowNotifications((prev) => !prev)}
+  className="text-gray-500 hover:text-gray-700 relative"
+  aria-label="Toggle notifications"
+>
+  <Bell className="h-6 w-6" /> {/* <-- Always show the Bell icon */}
+  {activeNotifications.length > 0 && (
+    <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+      {activeNotifications.length}
+    </span>
+  )}
+</button>
+
       </div>
       {showNotifications && (
         <NotificationContainer
