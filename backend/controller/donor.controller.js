@@ -654,14 +654,37 @@ exports.getallDonorRequests = async (req, res) => {
   }
 };
 
-// backend route for fetching notifications
+
+// exports.getDonorNotifications = async (req, res) => {
+//   try {
+//     const donorId = req.user.userId;
+//     const notifications = await prisma.notification.findMany({
+//       where: { donorId: donorId },
+//       orderBy: { createdAt: 'desc' },
+//       take: 8, 
+//     });
+
+//     res.status(200).json({ success: true, notifications });
+//   } catch (error) {
+//     console.error("❌ Error fetching notifications:", error.message);
+//     res.status(500).json({ success: false, message: "Internal server error" });
+//   }
+// };
 exports.getDonorNotifications = async (req, res) => {
   try {
-    const donorId = req.user.userId; // 🧠 Logged-in Donor
+    const donorId = req.user.userId;
+
     const notifications = await prisma.notification.findMany({
-      where: { donorId: donorId },
+      where: {
+        donorId: donorId,
+        NOT: {
+          message: {
+            startsWith: "New",
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
-      take: 8, // 🔥 latest 8 notifications
+      take: 8,
     });
 
     res.status(200).json({ success: true, notifications });

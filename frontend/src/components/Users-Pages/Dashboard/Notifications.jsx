@@ -121,7 +121,7 @@ export const NotificationContainer = () => {
                 <NotificationItem
                   key={notification.id}
                   message={notification.message}
-                  timestamp={new Date(notification.timestamp).toLocaleString()}
+                  timestamp={new Date(notification.createdAt).toLocaleString()}
                 />
               ))
             )}

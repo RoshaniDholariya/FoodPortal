@@ -625,7 +625,11 @@ exports.getNgoDashboard = async (req, res) => {
     const totalDonorsConnected = uniqueDonorCount.length; 
 
     const notifications = await prisma.notification.findMany({
-      where: { donorId: ngoIdInt },
+      where: { donorId: ngoIdInt,
+        message: {
+          startsWith: "New",
+        },
+       },
       orderBy: { createdAt: "desc" },
       take: 8, 
     });
