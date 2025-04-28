@@ -47,7 +47,6 @@ const NGOLogin = () => {
       );
 
       if (response.data.success) {
-        alert("Login successful!");
         localStorage.setItem("token", response.data.token);
         navigate("/NGO-dashboard");
       } else {

@@ -1,23 +1,78 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, createContext, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
   Truck,
-  Home,
-  Package,
-  Loader2,
   Menu,
+  Package,
+  X,
+  CheckCircle,
 } from "lucide-react";
 import Sidebar from "../UserSidebar/UserSidebar";
 import axios from "axios";
 import LocationPicker from "./LocationPicker";
+
+const ToastContext = createContext();
+
+const Toast = ({ message, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className="fixed top-4 right-4 z-50 flex items-center p-4 mb-4 rounded-lg shadow-lg text-green-500 bg-white max-w-xs">
+      <div className="inline-flex items-center justify-center flex-shrink-0 mr-2">
+        <CheckCircle className="w-5 h-5 text-white" />
+      </div>
+      <div className="text-sm font-normal">{message}</div>
+      <button
+        onClick={onClose}
+        className="ml-4 inline-flex p-1.5 rounded-lg hover:bg-white hover:bg-opacity-20 focus:outline-none"
+      >
+        <X className="w-4 h-4" />
+      </button>
+    </div>
+  );
+};
+
+const ToastProvider = ({ children }) => {
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message) => {
+    setToast({ id: Date.now(), message });
+  };
+
+  const closeToast = () => {
+    setToast(null);
+  };
+
+  return (
+    <ToastContext.Provider value={{ showToast }}>
+      {children}
+      {toast && <Toast message={toast.message} onClose={closeToast} />}
+    </ToastContext.Provider>
+  );
+};
+
+const useToast = () => {
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error("useToast must be used within a ToastProvider");
+  }
+  return context;
+};
 
 const FoodDonationForm = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showToast } = useToast();
 
   const [formData, setFormData] = useState({
     foodType: "",
@@ -29,6 +84,7 @@ const FoodDonationForm = () => {
     City: "",
     latitude: "",
     longitude: "",
+    deliveryMethod: "",
   });
 
   const [dateRanges, setDateRanges] = useState({
@@ -121,7 +177,22 @@ const FoodDonationForm = () => {
     { number: 2, title: "Delivery Details", icon: Truck },
   ];
 
-  const nextStep = () => setStep((prev) => Math.min(prev + 1, 2));
+  const nextStep = () => {
+    if (step === 1) {
+      // Validate step 1 fields
+      if (
+        !formData.foodType ||
+        !formData.foodCategory ||
+        !formData.noOfDishes ||
+        !formData.preparationDate ||
+        !formData.expiryDate
+      ) {
+        return;
+      }
+    }
+    setStep((prev) => Math.min(prev + 1, 2));
+  };
+
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   const renderFormField = (label, name, type = "text", options = null) => {
@@ -200,7 +271,7 @@ const FoodDonationForm = () => {
             {renderFormField("Food Category", "foodCategory", "text", [
               "Dinner",
               "Lunch",
-              "breackfast",
+              "Breakfast",
             ])}
             {renderFormField("Number of Dishes", "noOfDishes", "number")}
             {renderFormField("Preparation Date", "preparationDate", "date")}
@@ -217,11 +288,11 @@ const FoodDonationForm = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <button
                   type="button"
-                  onClick={() =>
+                  onClick={() => {
                     handleInputChange({
                       target: { name: "deliveryMethod", value: "pickup" },
-                    })
-                  }
+                    });
+                  }}
                   className={`p-6 border rounded-lg flex flex-col items-center gap-3 transition-all ${
                     formData.deliveryMethod === "pickup"
                       ? "border-[#61cf73] bg-green-50 shadow-md"
@@ -253,10 +324,25 @@ const FoodDonationForm = () => {
     }
   };
 
+  const validateForm = () => {
+    if (step === 2) {
+      if (!formData.deliveryMethod) {
+        return false;
+      }
+
+      if (formData.deliveryMethod === "pickup" && !formData.address) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (isSubmitting) return;
+
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
 
@@ -281,18 +367,17 @@ const FoodDonationForm = () => {
       );
 
       if (response.data.success) {
-        alert("Food details added successfully!");
-        navigate("/user-donation-history", {
-          state: { donationData: formData },
-        });
+        showToast("Food donation submitted successfully!");
+        setTimeout(() => {
+          navigate("/user-donation-history", {
+            state: { donationData: formData },
+          });
+        }, 1500);
       } else {
-        alert(response.data.message);
         setIsSubmitting(false);
       }
     } catch (error) {
-      console.log(error);
       console.error("Error submitting form:", error);
-      alert("Failed to add food. Please try again.");
       setIsSubmitting(false);
     }
   };
@@ -356,9 +441,36 @@ const FoodDonationForm = () => {
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="px-4 py-2 bg-[#61cf73] text-white rounded-md hover:bg-[#55c16e]"
+                className="px-4 py-2 bg-[#61cf73] text-white rounded-md hover:bg-[#55c16e] flex items-center"
+                disabled={isSubmitting}
               >
-                {isSubmitting ? <>Submitting...</> : "Submit"}
+                {isSubmitting ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit"
+                )}
               </button>
             )}
           </div>
@@ -368,4 +480,11 @@ const FoodDonationForm = () => {
   );
 };
 
-export default FoodDonationForm;
+// Wrap with ToastProvider when exporting
+const FoodDonationFormWithToast = () => (
+  <ToastProvider>
+    <FoodDonationForm />
+  </ToastProvider>
+);
+
+export default FoodDonationFormWithToast;

@@ -518,7 +518,7 @@ const UserReward = () => {
                               </p>
 
                               <div className="flex justify-center items-center mb-4">
-                                <span className="text-5xl font-bold bg-gradient-to-r from-[#61cf73] to-[#4dabf7] bg-clip-text text-transparent">
+                                <span className="text-5xl font-bold bg-gradient-to-r from-[#61cf73] to-[#61cf73] bg-clip-text text-transparent">
                                   {userRewards.totalDonations}
                                 </span>
                                 <span className="text-xl text-gray-700 ml-2">
