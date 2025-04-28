@@ -147,222 +147,82 @@ exports.getAvailableFood = async (req, res) => {
   }
 };
 
-const PDFDocument = require("pdfkit");
-const fs = require("fs");
+const { createCanvas, loadImage } = require('canvas');
+const fs = require('fs');
+const path = require('path');
 const cloudinary = require("../config/cloudinaryConfig");
-const path = require("path");
 
-async function generateCertificate(donorId, donorName, donationDetails) {
-  return new Promise((resolve, reject) => {
-    // Create PDF document
-    const doc = new PDFDocument({
-      size: "A4",
-      margin: 50,
-      layout: "landscape"
-    });
+async function generateCertificate(donorId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const width = 1200; // Width of certificate
+      const height = 800; // Height of certificate
+      const canvas = createCanvas(width, height);
+      const ctx = canvas.getContext('2d');
 
-    // Setup file paths
-    const tempDir = path.join(__dirname, "../temp");
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true });
-    }
+      // 🎨 Background color
+      ctx.fillStyle = '#ffffff'; // white background
+      ctx.fillRect(0, 0, width, height);
 
-    const filePath = path.join(tempDir, `${donorId}_certificate.pdf`);
-    const writeStream = fs.createWriteStream(filePath);
-    doc.pipe(writeStream);
+      // 🖋️ Certificate Title
+      ctx.fillStyle = '#000000'; // black text
+      ctx.font = 'bold 40px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Certificate of Appreciation', width / 2, 200);
 
-    // ZeroWaste theme colors
-    const primaryGreen = "#0B996E";
-    const lightGreen = "#E6F7F0";
+      // 👤 Donor ID Text
+      ctx.font = '28px Arial';
+      ctx.fillText(`This certificate is awarded to`, width / 2, 300);
 
-    // Add decorative border
-    doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40)
-      .lineWidth(3)
-      .stroke(primaryGreen);
+      ctx.font = 'bold 32px Arial';
+      ctx.fillText(`Donor ID: ${donorId}`, width / 2, 360);
 
-    // Add inner border
-    doc.rect(35, 35, doc.page.width - 70, doc.page.height - 70)
-      .lineWidth(1)
-      .stroke(primaryGreen);
+      // ❤️ Thank you message
+      ctx.font = '24px Arial';
+      ctx.fillText('Thank you for your valuable contribution', width / 2, 460);
+      ctx.fillText('towards reducing food wastage!', width / 2, 510);
 
-    // Add logo and title
-    const centerX = doc.page.width / 2;
+      // 📅 Date
+      const currentDate = new Date().toLocaleDateString();
+      ctx.font = '20px Arial';
+      ctx.fillText(`Date: ${currentDate}`, width / 2, 600);
 
-    // Draw a fork, knife, spoon icon (simplified for PDF)
-    doc.save()
-      .translate(centerX - 30, 90)
-      .scale(0.5)
-      .lineWidth(4)
-      .stroke(primaryGreen);
+      // ✍️ Signature (Optional)
+      ctx.font = 'italic 20px Arial';
+      ctx.fillText('Food Donation Platform', width / 2, 700);
 
-    // Fork
-    doc.moveTo(0, 0)
-      .lineTo(0, 100)
-      .moveTo(0, 20)
-      .lineTo(-15, 0)
-      .moveTo(0, 20)
-      .lineTo(0, 0)
-      .moveTo(0, 20)
-      .lineTo(15, 0)
-      .stroke();
-
-    // Knife
-    doc.moveTo(40, 0)
-      .lineTo(40, 100)
-      .moveTo(40, 0)
-      .lineTo(60, 15)
-      .lineTo(40, 30)
-      .stroke();
-
-    // Spoon
-    doc.moveTo(100, 100)
-      .lineTo(100, 30)
-      .arc(85, 15, 15, 0, Math.PI * 2)
-      .stroke();
-
-    doc.restore();
-
-    // Title
-    doc.font('Helvetica-Bold')
-      .fontSize(32)
-      .fillColor(primaryGreen)
-      .text("Certificate of Appreciation", centerX, 150, { align: "center" });
-
-    // ZeroWaste subtitle
-    doc.font('Helvetica')
-      .fontSize(16)
-      .fillColor(primaryGreen)
-      .text("ZeroWaste Initiative", centerX, 195, { align: "center" });
-
-    // Award text
-    doc.moveDown(3);
-    doc.font('Helvetica-Italic')
-      .fontSize(16)
-      .text("This certificate is proudly presented to:", centerX, 250, { align: "center" });
-
-    // Donor name
-    doc.font('Helvetica-Bold')
-      .fontSize(24)
-      .text(donorName || `Donor #${donorId}`, centerX, 280, { align: "center" });
-
-    // Appreciation text
-    doc.moveDown(2);
-    doc.font('Helvetica')
-      .fontSize(14)
-      .text("For your outstanding contribution to reducing food waste and supporting our community.", {
-        align: "center",
-        width: 400,
-        height: 100,
-        x: (doc.page.width - 400) / 2
-      });
-
-    // Add donation details if provided
-    if (donationDetails) {
-      doc.moveDown();
-      doc.font('Helvetica')
-        .fontSize(12)
-        .text(`Donation: ${donationDetails}`, {
-          align: "center",
-          width: 400,
-          x: (doc.page.width - 400) / 2
-        });
-    }
-
-    // Add date
-    const currentDate = new Date().toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-
-    doc.moveDown(2);
-    doc.fontSize(12)
-      .text(`Issued on: ${currentDate}`, {
-        align: "center"
-      });
-
-    // Add signature line
-    doc.moveDown(3);
-    const signatureWidth = 200;
-    doc.moveTo((doc.page.width - signatureWidth) / 2, doc.y)
-      .lineTo((doc.page.width + signatureWidth) / 2, doc.y)
-      .stroke(primaryGreen);
-
-    doc.moveDown(0.5);
-    doc.fontSize(12)
-      .text("ZeroWaste Director", {
-        align: "center"
-      });
-
-    // Add QR code placeholder for verification
-    doc.rect(doc.page.width - 100, doc.page.height - 100, 60, 60)
-      .stroke('#999999');
-    doc.fontSize(8)
-      .fillColor('#999999')
-      .text(`ID: ${donorId}`, doc.page.width - 100, doc.page.height - 35);
-
-    doc.end();
-
-    writeStream.on("finish", async () => {
-      try {
-        const result = await cloudinary.uploader.upload(filePath, {
-          resource_type: "raw",
-          folder: "certificates",
-          public_id: `${donorId}_certificate`,
-        });
-
-        // Clean up the temporary file
-        fs.unlinkSync(filePath);
-
-        resolve(result.secure_url);
-      } catch (error) {
-        reject(error);
+      // Save to file
+      const outputFolder = path.join(__dirname, '../certificates');
+      if (!fs.existsSync(outputFolder)) {
+        fs.mkdirSync(outputFolder); // create certificates folder if doesn't exist
       }
-    });
 
-    writeStream.on("error", reject);
+      const filePath = path.join(outputFolder, `${donorId}_certificate.png`);
+
+      const out = fs.createWriteStream(filePath);
+      const stream = canvas.createPNGStream();
+      stream.pipe(out);
+
+      out.on('finish', async () => {
+        try {
+          const result = await cloudinary.uploader.upload(filePath, {
+            folder: "certificates", // uploads to 'certificates' folder in Cloudinary
+            public_id: `${donorId}_certificate`, // custom public id
+          });
+
+          fs.unlinkSync(filePath); // remove local file after upload
+          resolve(result.secure_url); // send back Cloudinary URL
+        } catch (error) {
+          reject(error);
+        }
+      });
+
+      out.on('error', reject);
+    } catch (error) {
+      reject(error);
+    }
   });
 }
-
-
-// const PDFDocument = require("pdfkit");
-// const fs = require("fs");
-// const cloudinary = require("../config/cloudinaryConfig");
-
-// async function generateCertificate(donorId) {
-//   return new Promise((resolve, reject) => {
-//     const doc = new PDFDocument();
-//     const filePath = `certificates/${donorId}_certificate.pdf`;
-
-//     const writeStream = fs.createWriteStream(filePath);
-//     doc.pipe(writeStream);
-
-//     doc.fontSize(20).text("Certificate of Appreciation", { align: "center" });
-//     doc.moveDown();
-//     doc.fontSize(14).text(`This certificate is awarded to Donor ID: ${donorId}`, { align: "center" });
-//     doc.moveDown();
-//     doc.text("Thank you for your valuable contribution towards reducing food wastage!", { align: "center" });
-//     doc.end();
-
-//     writeStream.on("finish", async () => {
-//       try {
-//         const result = await cloudinary.uploader.upload(filePath, {
-//           resource_type: "raw",
-//           folder: "certificates",
-//           public_id: `${donorId}_certificate`,
-//         });
-
-//         // fs.unlinkSync(filePath);
-
-//         resolve(result.secure_url);
-//       } catch (error) {
-//         reject(error);
-//       }
-//     });
-
-//     writeStream.on("error", reject);
-//   });
-// }
 
 
 exports.acceptFood = async (req, res) => {

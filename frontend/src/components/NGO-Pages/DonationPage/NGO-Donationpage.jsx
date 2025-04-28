@@ -136,7 +136,7 @@ const DonationGrid = () => {
         { withCredentials: true }
       );
 
-      alert(response.data.message);
+      // alert(response.data.message);
       fetchDonations();
       setSelectedDonation(null);
 

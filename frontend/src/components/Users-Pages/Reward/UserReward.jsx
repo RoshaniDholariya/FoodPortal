@@ -147,24 +147,40 @@ const UserReward = () => {
     try {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
-
+  
       if (!userId) {
         console.error("User ID not available");
         return;
       }
-
-      window.open(
-        `http://localhost:3000/api/donors/download-certificate/${userId}`
-      );
-
-      showToastNotification("Certificate downloaded successfully!");
+  
+      const response = await axios.get(`http://localhost:3000/api/donors/download-certificate/${userId}`);
+  
+      const certificateUrl = response.data.certificateUrl;
+  
+      if (!certificateUrl) {
+        showToastNotification("Certificate URL not found!");
+        return;
+      }
+  
+      // Option 1: Open the certificate in a new tab
+      window.open(certificateUrl, "_blank");
+  
+      // Option 2: (If you want to directly download it instead of opening)
+      // const link = document.createElement("a");
+      // link.href = certificateUrl;
+      // link.download = `${userId}_certificate.png`;  // or .pdf if your certificate is pdf
+      // document.body.appendChild(link);
+      // link.click();
+      // document.body.removeChild(link);
+  
+      showToastNotification("Certificate loaded successfully!");
+  
     } catch (error) {
       console.error("Error downloading certificate:", error);
-      showToastNotification(
-        "Failed to download certificate. Please try again."
-      );
+      showToastNotification("Failed to load certificate. Please try again.");
     }
   };
+  
 
   const captureAndShare = () => {
     // This would typically use html2canvas or similar

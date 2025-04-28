@@ -33,6 +33,14 @@ exports.registerDonor = async (req, res) => {
   }
 
   try {
+    const existingDonor = await prisma.donor.findUnique({
+      where: { email },
+    });
+
+    if (existingDonor) {
+      // Email already taken
+      return res.status(400).json({ message: 'Email already registered' });
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     const donor = await prisma.donor.create({
       data: {

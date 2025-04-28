@@ -18,7 +18,8 @@ const {
   getallDonorRequests,
   getDonorNotifications
 } = require("../controller/donor.controller.js");
-
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 const router = express.Router();
 
 router.post("/register", registerDonor);
@@ -40,20 +41,34 @@ router.get('/getnotification',authenticate,getDonorNotifications);
 router.get("/download-certificate/:donorId", async (req, res) => {
   try {
     const { donorId } = req.params;
-    const filePath = path.join(__dirname, "..", "certificates", `${donorId}_certificate.pdf`);
 
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ success: false, message: "Certificate not found" });
+    // Find donor from database
+    const donor = await prisma.donor.findFirst({
+      where: {
+        id: parseInt(donorId),
+      },
+    });
+
+    console.log(donor)
+
+    if (!donor) {
+      return res.status(404).json({ success: false, message: "Donor not found" });
     }
 
-    res.download(filePath, `${donorId}_certificate.pdf`, (err) => {
-      if (err) {
-        console.error("Error downloading certificate:", err);
-        res.status(500).json({ success: false, message: "Error downloading certificate" });
-      }
+    if (!donor.latestCertificateUrl) {
+      return res.status(404).json({ success: false, message: "Certificate not generated yet" });
+    }
+
+    // Instead of sending file, send the certificate URL
+    res.status(200).json({
+      success: true,
+      message: "Certificate fetched successfully",
+      certificateUrl: donor.latestCertificateUrl,
     });
+
+
   } catch (error) {
-    console.error("Error handling certificate download:", error);
+    console.error("Error fetching certificate:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });

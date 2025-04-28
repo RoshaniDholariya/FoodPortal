@@ -853,7 +853,6 @@ const NGODashboard = () => {
             </div>
           </div>
 
-          {/* Quick Access Cards */}
           <div 
             className={`grid grid-cols-1 md:grid-cols-3 gap-4 transition-opacity duration-700 ${
               fadeIn ? "opacity-100" : "opacity-0"
