@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Calendar,
   Clock,
@@ -8,10 +8,25 @@ import {
   User,
   Phone,
   Package,
+  Loader,
 } from "lucide-react";
 
 const DonationModal = ({ donation, onClose, onAccept }) => {
+  const [isAccepting, setIsAccepting] = useState(false);
+
   if (!donation) return null;
+
+  const handleAccept = async (donationId) => {
+    setIsAccepting(true);
+    try {
+      await onAccept(donationId);
+      // The parent component will update the donation status after successful acceptance
+    } catch (error) {
+      // In case of error, revert loading state
+      setIsAccepting(false);
+      console.error("Error accepting donation:", error);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -24,6 +39,7 @@ const DonationModal = ({ donation, onClose, onAccept }) => {
             <button
               onClick={onClose}
               className="text-white hover:text-emerald-100"
+              disabled={isAccepting}
             >
               <X className="w-6 h-6" />
             </button>
@@ -86,7 +102,6 @@ const DonationModal = ({ donation, onClose, onAccept }) => {
                 <div>
                   <p className="text-sm text-gray-500">Preparation Date</p>
                   <p className="text-gray-700">
-                    {" "}
                     {new Date(donation.preparationDate).toLocaleDateString()}
                   </p>
                 </div>
@@ -120,11 +135,13 @@ const DonationModal = ({ donation, onClose, onAccept }) => {
 
           <div className="flex space-x-4 pt-4">
             <button
-              onClick={() => onAccept(donation.id)}
-              disabled={donation.status === "accepted"}
+              onClick={() => handleAccept(donation.id)}
+              disabled={donation.status === "accepted" || isAccepting}
               className={`flex-1 flex items-center justify-center px-4 py-2 rounded-lg ${
                 donation.status === "accepted"
                   ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                  : isAccepting
+                  ? "bg-emerald-500 text-white"
                   : "bg-emerald-600 text-white hover:bg-emerald-700"
               }`}
             >
@@ -132,6 +149,11 @@ const DonationModal = ({ donation, onClose, onAccept }) => {
                 <>
                   <Check className="w-5 h-5 mr-2" />
                   Accepted
+                </>
+              ) : isAccepting ? (
+                <>
+                  <Loader className="w-5 h-5 mr-2 animate-spin" />
+                  Accepting, please wait...
                 </>
               ) : (
                 "Accept Donation"

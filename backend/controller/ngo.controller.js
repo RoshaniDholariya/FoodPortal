@@ -135,7 +135,7 @@ exports.getAvailableFood = async (req, res) => {
         }
       },
       include: {
-        donor: { select: { name: true, email: true } }
+        donor: { select: { name: true, email: true, phone: true } }
       }
     });
 
@@ -147,24 +147,160 @@ exports.getAvailableFood = async (req, res) => {
   }
 };
 
-
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const cloudinary = require("../config/cloudinaryConfig");
+const path = require("path");
 
-async function generateCertificate(donorId) {
+async function generateCertificate(donorId, donorName, donationDetails) {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument();
-    const filePath = `certificates/${donorId}_certificate.pdf`;
+    // Create PDF document
+    const doc = new PDFDocument({
+      size: "A4",
+      margin: 50,
+      layout: "landscape"
+    });
 
+    // Setup file paths
+    const tempDir = path.join(__dirname, "../temp");
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+
+    const filePath = path.join(tempDir, `${donorId}_certificate.pdf`);
     const writeStream = fs.createWriteStream(filePath);
     doc.pipe(writeStream);
 
-    doc.fontSize(20).text("Certificate of Appreciation", { align: "center" });
-    doc.moveDown();
-    doc.fontSize(14).text(`This certificate is awarded to Donor ID: ${donorId}`, { align: "center" });
-    doc.moveDown();
-    doc.text("Thank you for your valuable contribution towards reducing food wastage!", { align: "center" });
+    // ZeroWaste theme colors
+    const primaryGreen = "#0B996E";
+    const lightGreen = "#E6F7F0";
+
+    // Add decorative border
+    doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40)
+      .lineWidth(3)
+      .stroke(primaryGreen);
+
+    // Add inner border
+    doc.rect(35, 35, doc.page.width - 70, doc.page.height - 70)
+      .lineWidth(1)
+      .stroke(primaryGreen);
+
+    // Add logo and title
+    const centerX = doc.page.width / 2;
+
+    // Draw a fork, knife, spoon icon (simplified for PDF)
+    doc.save()
+      .translate(centerX - 30, 90)
+      .scale(0.5)
+      .lineWidth(4)
+      .stroke(primaryGreen);
+
+    // Fork
+    doc.moveTo(0, 0)
+      .lineTo(0, 100)
+      .moveTo(0, 20)
+      .lineTo(-15, 0)
+      .moveTo(0, 20)
+      .lineTo(0, 0)
+      .moveTo(0, 20)
+      .lineTo(15, 0)
+      .stroke();
+
+    // Knife
+    doc.moveTo(40, 0)
+      .lineTo(40, 100)
+      .moveTo(40, 0)
+      .lineTo(60, 15)
+      .lineTo(40, 30)
+      .stroke();
+
+    // Spoon
+    doc.moveTo(100, 100)
+      .lineTo(100, 30)
+      .arc(85, 15, 15, 0, Math.PI * 2)
+      .stroke();
+
+    doc.restore();
+
+    // Title
+    doc.font('Helvetica-Bold')
+      .fontSize(32)
+      .fillColor(primaryGreen)
+      .text("Certificate of Appreciation", centerX, 150, { align: "center" });
+
+    // ZeroWaste subtitle
+    doc.font('Helvetica')
+      .fontSize(16)
+      .fillColor(primaryGreen)
+      .text("ZeroWaste Initiative", centerX, 195, { align: "center" });
+
+    // Award text
+    doc.moveDown(3);
+    doc.font('Helvetica-Italic')
+      .fontSize(16)
+      .text("This certificate is proudly presented to:", centerX, 250, { align: "center" });
+
+    // Donor name
+    doc.font('Helvetica-Bold')
+      .fontSize(24)
+      .text(donorName || `Donor #${donorId}`, centerX, 280, { align: "center" });
+
+    // Appreciation text
+    doc.moveDown(2);
+    doc.font('Helvetica')
+      .fontSize(14)
+      .text("For your outstanding contribution to reducing food waste and supporting our community.", {
+        align: "center",
+        width: 400,
+        height: 100,
+        x: (doc.page.width - 400) / 2
+      });
+
+    // Add donation details if provided
+    if (donationDetails) {
+      doc.moveDown();
+      doc.font('Helvetica')
+        .fontSize(12)
+        .text(`Donation: ${donationDetails}`, {
+          align: "center",
+          width: 400,
+          x: (doc.page.width - 400) / 2
+        });
+    }
+
+    // Add date
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    doc.moveDown(2);
+    doc.fontSize(12)
+      .text(`Issued on: ${currentDate}`, {
+        align: "center"
+      });
+
+    // Add signature line
+    doc.moveDown(3);
+    const signatureWidth = 200;
+    doc.moveTo((doc.page.width - signatureWidth) / 2, doc.y)
+      .lineTo((doc.page.width + signatureWidth) / 2, doc.y)
+      .stroke(primaryGreen);
+
+    doc.moveDown(0.5);
+    doc.fontSize(12)
+      .text("ZeroWaste Director", {
+        align: "center"
+      });
+
+    // Add QR code placeholder for verification
+    doc.rect(doc.page.width - 100, doc.page.height - 100, 60, 60)
+      .stroke('#999999');
+    doc.fontSize(8)
+      .fillColor('#999999')
+      .text(`ID: ${donorId}`, doc.page.width - 100, doc.page.height - 35);
+
     doc.end();
 
     writeStream.on("finish", async () => {
@@ -175,7 +311,8 @@ async function generateCertificate(donorId) {
           public_id: `${donorId}_certificate`,
         });
 
-        // fs.unlinkSync(filePath);
+        // Clean up the temporary file
+        fs.unlinkSync(filePath);
 
         resolve(result.secure_url);
       } catch (error) {
@@ -186,6 +323,46 @@ async function generateCertificate(donorId) {
     writeStream.on("error", reject);
   });
 }
+
+
+// const PDFDocument = require("pdfkit");
+// const fs = require("fs");
+// const cloudinary = require("../config/cloudinaryConfig");
+
+// async function generateCertificate(donorId) {
+//   return new Promise((resolve, reject) => {
+//     const doc = new PDFDocument();
+//     const filePath = `certificates/${donorId}_certificate.pdf`;
+
+//     const writeStream = fs.createWriteStream(filePath);
+//     doc.pipe(writeStream);
+
+//     doc.fontSize(20).text("Certificate of Appreciation", { align: "center" });
+//     doc.moveDown();
+//     doc.fontSize(14).text(`This certificate is awarded to Donor ID: ${donorId}`, { align: "center" });
+//     doc.moveDown();
+//     doc.text("Thank you for your valuable contribution towards reducing food wastage!", { align: "center" });
+//     doc.end();
+
+//     writeStream.on("finish", async () => {
+//       try {
+//         const result = await cloudinary.uploader.upload(filePath, {
+//           resource_type: "raw",
+//           folder: "certificates",
+//           public_id: `${donorId}_certificate`,
+//         });
+
+//         // fs.unlinkSync(filePath);
+
+//         resolve(result.secure_url);
+//       } catch (error) {
+//         reject(error);
+//       }
+//     });
+
+//     writeStream.on("error", reject);
+//   });
+// }
 
 
 exports.acceptFood = async (req, res) => {
@@ -616,15 +793,16 @@ exports.getNgoDashboard = async (req, res) => {
     const totalDonorsConnected = uniqueDonorCount.length;
 
     const notifications = await prisma.notification.findMany({
-      where: { donorId: ngoIdInt,
+      where: {
+        donorId: ngoIdInt,
         message: {
           startsWith: "New",
         },
-       },
+      },
       orderBy: { createdAt: "desc" },
-      take: 8, 
+      take: 8,
     });
-    
+
     const connections = await prisma.ngoconnect.findMany({
       where: { ngoId: ngoIdInt },
       include: { Donor: true },

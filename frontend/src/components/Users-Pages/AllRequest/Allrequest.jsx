@@ -172,7 +172,7 @@ const DonorRequestHistory = () => {
       return (
         <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
           <XCircle className="w-3 h-3 mr-1" />
-          Rejected (Expired)
+          Rejected (past date)
         </div>
       );
     }
@@ -464,7 +464,7 @@ const DonorRequestHistory = () => {
                           scope="col"
                           className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                         >
-                          Quantity
+                          Quantity (number of dishes)
                         </th>
                         <th
                           scope="col"
@@ -512,7 +512,7 @@ const DonorRequestHistory = () => {
                             <div className="flex items-center">
                               <Package className="h-4 w-4 text-gray-400 mr-2" />
                               <div className="text-sm text-gray-900">
-                                {request.quantity} kg
+                                {request.quantity}
                               </div>
                             </div>
                           </td>

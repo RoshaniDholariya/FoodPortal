@@ -448,6 +448,8 @@ exports.getApprovedNGOs = async (req, res) => {
         phoneNumber: true,
         city: true,
         pincode: true,
+        contactTime: true,
+        createdAt: true
       },
     });
 

@@ -8,6 +8,12 @@ import {
   Globe2,
   Building2,
   ChevronRight,
+  User,
+  FileText,
+  Calendar,
+  CheckCircle,
+  AlertCircle,
+  Info,
 } from "lucide-react";
 import Sidebar from "../UserSidebar/UserSidebar";
 import axios from "axios";
@@ -18,6 +24,8 @@ const NGODetails = () => {
   const [ngos, setNgos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedNgo, setSelectedNgo] = useState(null);
+  const [view, setView] = useState("grid"); // grid or details
 
   useEffect(() => {
     const handleResize = () => {
@@ -54,6 +62,25 @@ const NGODetails = () => {
     fetchNGOs();
   }, []);
 
+  const handleViewDetails = (ngo) => {
+    setSelectedNgo(ngo);
+    setView("details");
+  };
+
+  const handleBackToGrid = () => {
+    setSelectedNgo(null);
+    setView("grid");
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex">
@@ -77,7 +104,7 @@ const NGODetails = () => {
               />
             </div>
             <p className="mt-4 text-gray-600 font-semibold">
-              Loading dashboard data...
+              Loading NGO data...
             </p>
           </div>
         </div>
@@ -99,20 +126,16 @@ const NGODetails = () => {
           isSidebarOpen ? "lg:ml-64" : ""
         }`}
       >
-        {/* Header Section */}
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-emerald-100">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-4">
-              <button
-                onClick={() => setIsSidebarOpen((prev) => !prev)}
-                className="lg:hidden p-2 text-emerald-600 hover:text-emerald-700 transition-colors"
-              >
-                <Menu className="h-6 w-6" />
-              </button>
-            </div>
-          </div>
-        </div>
-
+        <br />{" "}
+        {view === "details" && (
+          <button
+            onClick={handleBackToGrid}
+            className="flex items-center gap-2 px-4 py-2 text-emerald-600 hover:text-emerald-700 transition-colors"
+          >
+            <ChevronRight className="h-5 w-5 rotate-180" />
+            Back to Directory
+          </button>
+        )}
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           {error ? (
@@ -126,7 +149,7 @@ const NGODetails = () => {
                 No approved NGOs found.
               </p>
             </div>
-          ) : (
+          ) : view === "grid" ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {ngos.map((ngo) => (
                 <div
@@ -156,22 +179,102 @@ const NGODetails = () => {
                       <div className="flex items-center text-sm text-emerald-700">
                         <Clock className="w-4 h-4 mr-3 text-emerald-600 shrink-0" />
                         <span className="truncate">
-                          Mon-Sat: 9:00 AM - 6:00 PM
+                          {ngo.contactTime || "Mon-Sat: 9:00 AM - 6:00 PM"}
                         </span>
                       </div>
                     </div>
 
-                    {/* <button className="mt-6 w-full group flex items-center justify-center gap-2 px-4 py-3 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors duration-200">
+                    <button
+                      onClick={() => handleViewDetails(ngo)}
+                      className="mt-6 w-full group flex items-center justify-center gap-2 px-4 py-3 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors duration-200"
+                    >
                       View Details
                       <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
-                    </button> */}
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-emerald-100 overflow-hidden shadow-lg">
+              <div className="p-8">
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                  <div className="flex-1">
+                    <h2 className="text-3xl font-bold text-emerald-900 mb-2">
+                      {selectedNgo.name}
+                    </h2>
+                    <div className="flex items-center text-emerald-600 text-sm mb-6">
+                      <MapPin className="w-5 h-5 mr-2" />
+                      <span>{selectedNgo.address}</span>
+                    </div>
+
+                    {selectedNgo.description && (
+                      <div className="mb-8">
+                        <h3 className="text-lg font-semibold text-emerald-800 mb-2">
+                          About
+                        </h3>
+                        <p className="text-gray-700">
+                          {selectedNgo.description}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-emerald-800">
+                          Contact Information
+                        </h3>
+
+                        <div className="flex items-center text-gray-700">
+                          <Mail className="w-5 h-5 text-emerald-600 mr-3" />
+                          <span>{selectedNgo.email}</span>
+                        </div>
+
+                        <div className="flex items-center text-gray-700">
+                          <Phone className="w-5 h-5 text-emerald-600 mr-3" />
+                          <span>{selectedNgo.phoneNumber}</span>
+                        </div>
+
+                        <div className="flex items-center text-gray-700">
+                          <MapPin className="w-5 h-5 text-emerald-600 mr-3" />
+                          <span>
+                            {selectedNgo.city}, {selectedNgo.pincode}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center text-gray-700">
+                          <Clock className="w-5 h-5 text-emerald-600 mr-3" />
+                          <span>
+                            {selectedNgo.contactTime ||
+                              "Mon-Sat: 9:00 AM - 6:00 PM"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-emerald-800">
+                          Registration Details
+                        </h3>
+
+                        <div className="flex items-center text-gray-700">
+                          <User className="w-5 h-5 text-emerald-600 mr-3" />
+                          <span>Username: {selectedNgo.name || "N/A"}</span>
+                        </div>
+
+                        <div className="flex items-center text-gray-700">
+                          <Calendar className="w-5 h-5 text-emerald-600 mr-3" />
+                          <span>
+                            Registered: {formatDate(selectedNgo.createdAt)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </div>
-
         {/* Animated background blobs */}
         <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-200/30 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" />
@@ -179,38 +282,36 @@ const NGODetails = () => {
           <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-teal-200/30 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000" />
         </div>
       </div>
+      <style jsx>{`
+        @keyframes blob {
+          0% {
+            transform: translate(0px, 0px) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+          100% {
+            transform: translate(0px, 0px) scale(1);
+          }
+        }
+
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+      `}</style>
     </div>
   );
 };
-
-// Animation styles
-const style = `
-@keyframes blob {
-  0% {
-    transform: translate(0px, 0px) scale(1);
-  }
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
-  100% {
-    transform: translate(0px, 0px) scale(1);
-  }
-}
-
-.animation-delay-2000 {
-  animation-delay: 2s;
-}
-
-.animation-delay-4000 {
-  animation-delay: 4s;
-}
-
-.animate-blob {
-  animation: blob 7s infinite;
-}
-`;
 
 export default NGODetails;
